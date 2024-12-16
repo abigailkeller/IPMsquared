@@ -1,9 +1,3 @@
----
-editor_options: 
-  markdown: 
-    wrap: 72
----
-
 **Description of model data files:**
 
 **Integral projection model data**
