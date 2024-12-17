@@ -14,7 +14,7 @@ seasonal_growth <- nimbleCode({
   t0 ~ dunif(-1,1) # age organism has 0 size
   tau.y ~ dunif(0,100) # process error sd
   tau.ranef ~ dunif(0,100) # year random effect sd
-  size_inf ~ dunif(80,140) # 
+  size_inf ~ dunif(70,140) # 
   
   for(i in 1:nsizes){
     size[i] ~ dnorm(y.hat[i], tau.y)

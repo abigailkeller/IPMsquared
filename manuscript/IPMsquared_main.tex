@@ -1,0 +1,264 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{float}
+\usepackage{longtable}
+
+\title{An integrated population model to disentangle size-structured harvest and natural mortality}
+\author{Abigail G. Keller}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+\section{Methods}
+
+\subsection{Study species and site}
+
+\subsection{Demographic data}
+
+\subsection{Model description}
+
+We start by detailing the overall state-space population model resulting from the IPM and then describe how the parameters of the model are informed by the different datasets.
+
+\subsubsection{Process model}
+
+The process model describes how unobserved, latent states depend on past states (Auger Methe 2021). The following process equations describe the initial adult population size and annual recruitment, as well as the growth and survival kernel that projects the population forward in time based on seasonal size-dependent growth and size-dependent natural survival (Rees 2014). These equations describe how the population changes within a year (intra-annual change) and between years (inter-annual change). (FIGURE) The model tracks the state of the population in terms of its distribution of carapace sizes, $N_{t, i, y}$, which is the density function of individuals of size $y$ during year $i$ at time $t$. 
+
+\subsubsection*{Initial population density and annual recruitment}
+
+The initial size distribution, $N_{t=1, i=1, y}$, is a function of the abundance of adults at the first time period during the first year, $\lambda^{A}$, the mean initial adult size in millimeters, $\mu^A_{y}$, and the standard deviation of initial adult size in millimeters, $\sigma^A_{y}$. $f$ represents the normal probability density function.
+
+\begin{equation}
+N_{t=1, i=1, y} = f(y; \mu^A_{y}, \sigma^A_{y}) \times \lambda^A
+\end{equation}
+
+Ovigerous females spawn in August-December (Klassen and Locke), and these planktonic larvae exit estuarine habitat to develop in high salinity coastal waters alongside larvae produced by neighboring habitats. Advection then brings larvae back into the estuary during recruitment (Young and Elliott, 2020). Reproduction is therefore modeled as an annual event with open demography, where the annual abundance of recruits, $\lambda^R_i$, is independent of adult abundance and follows a normal distribution, truncated such that $\lambda^R_i > 0$  
+
+\begin{equation}
+\lambda^R_i \sim Normal(\mu^R_{\lambda}, \sigma^R_{\lambda})
+\end{equation}
+
+The annual size distribution of recruits, $R_{i, y}$, is a function of the annual abundance of recruits, $\lambda^R_i$, the mean initial recruit size in millimeters, $\mu^R_y$, and the standard deviation of initial recruit size in millimeters, $\sigma^R_y$.
+
+\begin{equation}
+R_{i, y} = f(y; \mu^R_{y}, \sigma^R_{y}) \times \lambda^R
+\end{equation}
+
+Most crabs will settle from their planktonic larval stage in January to April (Yamada 2005). The recruits therefore enter the process model in mid-May, corresponding to $t=6$, when it can be assumed $\mu^R_y > 0$, yet before they grow into an observable size (FIGURE).
+
+\begin{equation}
+N_{t=6, i, y} =  N_{t=6, i, y} + R_{i, y}
+\end{equation}
+
+\subsubsection*{Integral projection model}
+
+The population density is then projected forward in time using an integral projection model (IPM). The IPM uses a continuous distribution over $y$, and the abundance of individuals is discretized using a small size interval $\Delta y$ centered on size $y$. The total population size, $N_{i,t}$ is $\int_{\Omega} N_{i,t,y} dy$, where $\Omega$ represents all biologically feasible sizes.
+
+A kernel, $K(y', y, T)$, describes the probability density of moving from size $y$ to size $y'$. This kernel is time-dependent, where $T = [D(t), D(t+1)]$, a vector of calendar dates associated with $t$ and $t+1$. $N_{t+1,i,y}$ is therefore a function of $N_{t,i,y}$, $K(y', y, T)$, and the removed crabs, $n^R_{t,i,y}$
+
+\begin{equation}
+N_{t+1,i,y} = \int_{\Omega} K(y',y, T) (N_{t,i,y} - n^R_{t,i,y}) dy 
+\end{equation}
+
+In contrast to matrix population models with discrete size bins and transition probabilities between each size pair (Caswell 2001), the kernel is defined as a combination of functions that are continuous over size $y$. The kernel is the product of a growth kernel, $G(y',y, T)$, and size-dependent natural survival, $S(y)$:
+
+\begin{equation}
+K(y',y, T) = G(y',y, T) \times S(y)
+\end{equation}
+
+\subsubsection*{Seasonal growth}
+
+Like many ectotherms, green crab growth is strongly seasonal, with the growth rate peaking in the summer due to seasonal variation in temperature, light, and food availability (CITE EGC, Contreras 2003, Garcia-Berthou). We therefore use a seasonal growth model that modifies the traditional von Bertalanffy growth model proposed by Beverton and Holt (Beverton and Holt, Sommers).
+
+\begin{equation}
+\mu^G_{y,T} = y + (y_{\infty}-y)(1-exp(-k\Delta t-S_t+S_{t0}))
+\end{equation}
+\begin{equation}
+S_t = \frac{Ck}{2\pi} sin(2\pi(D(t+1)-t_s)
+\end{equation}
+\begin{equation}
+S_{t0} = \frac{Ck}{2\pi} sin(2\pi(D(t)-t_s)
+\end{equation}
+
+where $\mu^G_{y,T}$ is the mean size at $t+1$, $y_{\infty}$ is the asymptotic average size, $k$ is a measure of the exponential rate of approach to the asymptotic size, $C$ modulates the amplitude of the growth oscillations, and $t_s$ is the time between the start of the calendar year and the start of the convex portion of the first sinusoidal growth oscillation (Garcia-Berthou).
+
+To account for variation in growth rate among individuals, $G(y',y, T)$ is described as:
+
+\begin{equation}
+G(y',y=x, T) = f(y'; \mu^G_{y=x, T}, \sigma^G)
+\end{equation}
+
+\subsubsection*{Natural mortality}
+
+The rate of natural survival increases with size, as smaller crabs have lower intra- and inter-specific competitive abilities and are more susceptible to predation and cannibalism (Grosholz 2021; Maszczyk and Brzezinski). Natural survival is described as: 
+
+\begin{equation}
+S(y)_i = exp(-\Delta t(\beta_i+\frac{\alpha}{y^2}))
+\end{equation}
+
+where $\beta$ is the intensity of size-independent natural mortality and $\alpha$ is the intensity of size-dependent natural mortality (Carlson, 2010). Here, process error enters the model as year-specific size-independent natural mortality:
+
+\begin{equation}
+\beta_i \sim Gamma(\beta_{\alpha}, \beta_{\theta})
+\end{equation}
+
+To transition from year $i$ to year $i+1$, the population density experiences seasonal growth and size-dependent overwinter mortality, represented as $S_o(y)$, where $T=[D(t=t_{max}), D(t=1)]$. 
+
+\begin{equation}
+N_{t=1,i+1,y} = \int_{\Omega} K_o(y',y, T) (N_{t_{max},i,k} - n^R_{t_{max},i,k}) dy 
+\end{equation}
+
+\begin{equation}
+K_o(y',y, T) = G(y',y, T) \times S_o(y)
+\end{equation}
+
+Due to thermal stress and starvation, the intensity of overwinter mortality is likely stronger than other times of the year and plays an important role in population regulation through density-dependent control on population size (Henderson 1988). Overwinter mortality is also size-selective; smaller animals tend to have lower energy reserves than larger animals and use reserves more rapidly due to the allometry of metabolic rate (Hurst 2007). Overwinter mortality is therefore modeled as a density-size interaction, such that the intensity of size-dependent overwinter mortality increases at higher population densities. 
+
+\begin{equation}
+S_o(y)_i = exp(-\frac{\alpha_i^o \times \int_{\Omega}N_{t_{max},i,y}}{y^2})
+\end{equation}
+
+Process error enters as a year-specific strength of density- and size-dependent overwinter mortality.
+
+\begin{equation}
+\alpha^o_i \sim Gamma(\alpha^o_{\alpha}, \alpha^o_{\theta})
+\end{equation}
+
+\subsubsection{Observation model}
+
+\subsubsection*{Conditional multinomial observation model}
+
+A conditional multinomial observation model is used to describe the data-generating process for the removal count data $n^C_{t,i,y,j}$, representing the number of crabs of size $y$, caught at time $t$, during year $i$, in trap $j$ (FIGURE) (Kery and Royle, 2016). Multiple traps are placed simultaneously at each time period, so this method breaks the observation model into two pieces: 1) a binomial with an unknown sample size, the total abundance of crabs, $N_{t,i,y}$, and 2) a multinomial conditioned on a known sample size, the total number of removed crabs across all traps in each time period, $n^R_{t,i,y}$.
+
+The total number of removed crabs, $n^R_{t,i,y}$, follows a binomial distribution with the total abundance of crabs, $N_{t,i,y}$, and total capture probability, $p_{t,i,y}$.
+
+\begin{equation}
+n^R_{t,i,y} \sim Binomial(N_{t,i,y}, p_{t,i,y})
+\end{equation}
+
+The size-structured count of crabs in each trap, $n^C_{t,i,y,j}$, follows a multinomial distribution where the probability of capture in trap $j$, $p^C_{t,j,i,y}$, is conditioned on being captured at all, $p_{t,i,y}$.  
+
+\begin{equation}
+n^C_{t,j,i,y} | n^R_{t,i,y} \sim Multinomial(n^R_{t,i,y}, p^C_{t,j,i,y})
+\end{equation}
+
+\subsubsection*{Size-selective hazard rates}
+
+Harvest mortality through trapping occurs in continuous time, described as a size-selective hazard rate, $H(y)$, representing the instantaneous intensity of capture (Ergon 2018). The shape and magnitude of this size-selective hazard rate varies among the three trap types used for removal, Fukui, Minnow, and Shrimp traps.
+
+Both Fukui and Shrimp traps capture larger crabs at higher rates than smaller crabs. The hazard rates, $H_F(y)$ and $H_S(y)$, of these trap types are a logistic function of crab size:
+
+\begin{equation}
+H_F(y) = \frac{h^{max}_F}{1+e^{-h^k_F(y-h^0_F)}}
+\end{equation}
+\begin{equation}
+H_S(y) = \frac{h^{max}_S}{1+e^{-h^k_S(y-h^0_S)}}
+\end{equation}
+
+The Minnow trap mesh size is smaller than the maximum crab size, so the size-selective hazard rate follows a bell-shaped curve (Jorgensen 2009).
+
+\begin{equation}
+H_M(y) = h^{max}_M \times exp(\frac{y-h^{A}_M}{2 h^{\sigma}_M})
+\end{equation}
+
+Each baited trap, $j$, is placed in the habitat for a short ($\sim$24-48 hrs) time interval, $\Delta b_{t,i,j}$. The probability of surviving trap mortality is the integrated hazard rate, summed across all traps set during the same time period, $O_{t,i}$.
+
+\begin{equation}
+S_{t,i,y} = exp(-\sum_{j=1}^{O_{t,i}}\int H_{t,j,i,y}\Delta b_{t,i,j})
+\end{equation}
+
+The total capture probability, $p_{t,i,y}$, is described as the probability of not surviving the trapping time interval, $p_{t,i,y} = 1-S_{t,i,y}$. The conditional probability of capture, $p^C_{t,j,i,y}$, is then $H_{t,j,i,y}/\sum_{j=1}^{O_{t,i}}H_{t,j,i,y}$.
+
+\subsection{Integrated population model}
+
+\subsection{Model fitting}
+
+\subsection{Simulation study}
+
+
+\section{Results}
+
+\section{Discussion}
+
+\newpage
+
+\section{Tables}
+
+\renewcommand{\arraystretch}{1.25}
+
+\begin{longtable}{||c p{11cm}||} 
+\caption{Notation and biological meaning of data, latent states, and parameters.}
+ \hline
+ \multicolumn{1}{||c|}{Symbol}  & \multicolumn{1}{c||}{Description} \\ [0.5ex] 
+ \hline\hline
+ \multicolumn{2}{||c||}{\textbf{Demographic parameters}} \\ 
+ \hline
+ $\mu^A_{y}$ & Mean adult size in millimeters at $t=1$ and $i=1$. \\ 
+ \hline
+ $\sigma^A_{y}$ & Standard deviation of adult size in millimeters at $t=1$ and $i=1$. \\ 
+ \hline
+ $\mu^R_{y}$ & Mean recruit size in millimeters upon entry into the process model at $t=6$. \\ 
+ \hline
+ $\sigma^R_{y}$ & Standard deviation of recruit size in millimeters upon entry into the process model at $t=6$. \\ 
+ \hline
+ $y_{\infty}$ & Asymptotic average crab size (carapace width, in mm). \\ 
+ \hline
+ $k$ & Exponential rate of approach to the asymptotic size. \\ 
+ \hline
+ $C$ & Parameter modulating the amplitude of seasonal growth oscillations. \\ 
+ \hline
+ $t_s$ & Time between the start of the calendar year and the start of the convex portion of the first sinusoidal growth oscillation. \\ 
+ \hline
+ $\sigma^G$ & Standard deviation of somatic growth. \\ 
+ \hline
+ $\beta_i$ & Intensity of size-independent natural mortality in year $i$ (not in winter months). \\ 
+ \hline
+ $\alpha$ & Intensity of size-dependent natural mortality (not in winter months). \\ 
+ \hline
+ $\beta_{\alpha}$ & Shape parameter of gamma distribution of intensity of size-independent natural mortality (not in winter months). \\ 
+ \hline
+ $\beta_{\theta}$ & Rate parameter of gamma distribution of of intensity of size-independent natural mortality (not in winter months). \\ 
+ \hline
+ $\alpha^o_i$ & Intensity of overwinter density- and size-dependent natural mortality in year $i$. \\ 
+ \hline
+ $\alpha^o_{\alpha}$ & Shape parameter of gamma distribution of intensity of overwinter density- and size-dependent natural mortality. \\ 
+ \hline
+ $\alpha^o_{\theta}$ & Rate parameter of gamma distribution of overwinter intensity of density- and size-dependent natural mortality. \\ 
+ \hline\hline
+ \multicolumn{2}{||c||}{\textbf{Observation parameters}} \\ 
+ \hline
+ $h^{max}$ & Maximum harvest mortality hazard rate. Maximum rate is trap type-specific, such that $h_F^{max}$, $h_M^{max}$, and $h_S^{max}$ correspond to Fukui, Minnow, and Shrimp traps, respectively. \\ 
+ \hline
+ $h^{k}$ & Steepness of change from the minimum to the maximum hazard rate for trap types with a logistic size-selective function, such that $h_F^{k}$ and $h_S^{k}$ correspond to Fukui and Shrimp traps, respectively. \\ 
+ \hline
+ $h^{0}$ & Midpoint of change from the minimum to the maximum hazard rate for trap types with a logistic size-selective function, such that $h_F^{0}$ and $h_S^{0}$ correspond to Fukui and Shrimp traps, respectively. \\ 
+ \hline
+ $h_M^{A}$ & Crab size associated with maximum hazard rate with Minnow traps. \\ 
+ \hline
+ $h_M^{\sigma}$ & Width parameter in the Minnow size-selectivity hazard rate function. \\ 
+ \hline\hline
+ \multicolumn{2}{||c||}{\textbf{Population-level quantities}} \\ 
+ \hline
+ $N_{t,i,y}$ & Population density function of individuals of size $y$ during year $i$ at time $t$. \\ 
+ \hline
+ $\lambda^A$ & Adult abundance at the first time period, $t=1$, during the first year, $i=1$. \\
+ \hline
+ $\lambda^R_i$ & Recruit abundance in year, $i=1$. \\
+ \hline
+ $\mu^R_{\lambda}$ & Mean recruit abundance. \\
+ \hline
+ $\sigma^R_{\lambda}$ & Standard deviation of recruit abundance. \\
+ \hline\hline
+ \multicolumn{2}{||c||}{\textbf{Observational data}} \\ 
+ \hline
+ $n^R_{t,i,y}$ & Count of removed crabs during time $t$, at site $i$, of size $y$ in the time-series dataset (D1). \\ 
+ \hline
+ $n^C_{t,j,i,y}$ & Count of removed crabs in time $t$, in trap $j$, at site $i$, of size $y$ in the time-series dataset (D1). \\
+ \hline
+ $O_{t,i}$ & Number of observations (traps) in time $t$, at site $i$ in the time-series dataset (D1). \\
+ \hline
+\end{longtable}
+
+\end{document}
