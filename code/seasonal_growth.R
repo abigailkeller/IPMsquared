@@ -14,7 +14,7 @@ seasonal_growth <- nimbleCode({
   t0 ~ dunif(-1,1) # age organism has 0 size
   tau.y ~ dunif(0,100) # process error sd
   tau.ranef ~ dunif(0,100) # year random effect sd
-  size_inf ~ dunif(70,140) # 
+  size_inf ~ dunif(70,140) # asymptotic size
   
   for(i in 1:nsizes){
     size[i] ~ dnorm(y.hat[i], tau.y)
@@ -41,6 +41,7 @@ data <- list(size = data$CW, # size captured
              t = data$age # ages
 )
 
+# set initial values
 inits_season <- list (size_inf = 100,
                       k = 0.6,
                       C = 0.7,
@@ -51,7 +52,7 @@ inits_season <- list (size_inf = 100,
                       ranef = rep(0,length(unique(data_sub$year_index)))
                       )
 
-
+# run MCMC chains in parallel
 cl <- makeCluster(4)
 
 set.seed(10120)
@@ -90,12 +91,4 @@ stopCluster(cl)
 # save samples
 saveRDS(out,'data/posterior_samples/savedsamples_growth.rds')
 
-out_sub <- list(out[[1]][100:10001,],out[[2]][100:10001,],
-                out[[3]][100:10001,],out[[4]][100:10001,])
-MCMCsummary(out_sub)
 
-# size_inf: mean 95.4, sd = 5.52
-# k: mean 0.67, sd 0.1
-
-#trace plot
-MCMCtrace(out_sub)

@@ -41,7 +41,7 @@ create_traceplot <- function(out,lower,upper,param,names_df){
 
 ```{r, echo = FALSE, results = 'hide'}
 # read in samples
-out <- readRDS('20241215b_savedsamples.rds')
+out <- readRDS('../data/posterior_samples/savedsamples_IPM.rds')
 lower <- 2000
 upper <- 10001
 ```
@@ -73,11 +73,11 @@ real_names <- c('log(mu[y]^A)', 'sigma[y]^A', 'mu[y]^R', 'sigma[y]^R',
 latex_names <- c('log(\\mu_y^A)', '\\sigma_y^A', '\\mu_y^R', '\\sigma_y^R',
                 'y_{\\infty}', 'k', 'C', 't_s', '\\sigma^G', '\\beta_1',
                 '\\beta_2','\\beta_3','\\beta_4','\\beta_5', '\\alpha',
-                '\\beta[\\alpha]', '\\beta[\\theta]', '\\alpha_1^o', 
+                '\\beta_{\\alpha}', '\\beta_{\\theta}', '\\alpha_1^o', 
                 '\\alpha_2^o',
                 '\\alpha_3^o', '\\alpha_{\\alpha}^o', '\\alpha_{\\theta}^o',
                 'h_F^{max}', 'h_M^{max}', 'h_S^{max}', 'h_F^k', 'h_S^k',
-                'h_F^0', 'h_S^0', 'h_M^A', 'h_M^{sigma}',
+                'h_F^0', 'h_S^0', 'h_M^A', 'h_M^{\\sigma}',
                 '\\lambda^A', '\\lambda_1^R', '\\lambda_2^R', '\\lambda_3^R',
                 '\\lambda_4^R', '\\mu_{\\lambda}^R', '\\mu_{\\sigma}^R')
 
@@ -194,6 +194,8 @@ colnames(posterior_final) <- c('parameter','mean','sd',
 
 ```
 
+**Table A2:** Posterior summaries, including the mean, standard deviation, 95% credibility interval (highest density interval), $\hat{R}$, and effective sample size. Descriptions of parameters can be found in Table 1.
+
 ```{r, echo=FALSE}
 # Process the table for parsed text
 posterior_final <- posterior_final %>%
@@ -204,14 +206,13 @@ posterior_final <- posterior_final %>%
 # Render table
 knitr::kable(
   posterior_final,
-  caption = "Table A2: Posterior summaries, including the mean, standard deviation, 95\\% credibility interval (highest density interval), Rhat, and effective sample size. Descriptions of parameters can be found in Table 1.",
   escape = FALSE,
   format = "latex",
   booktabs = TRUE,
   longtable = TRUE
 ) %>%
   kable_styling(full_width = FALSE, latex_options = c("repeat_header")) %>%
-  kableExtra::row_spec(0, extra_latex = "\\renewcommand{\\arraystretch}{1.5}")
+  kableExtra::row_spec(-1, extra_latex_after = "\\renewcommand{\\arraystretch}{2}")
 ```
 
 \newpage

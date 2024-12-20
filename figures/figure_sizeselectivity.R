@@ -4,7 +4,7 @@ library(patchwork)
 library(cowplot)
 
 # read in samples
-out <- readRDS('IPM/20241030b_savedsamples.rds')
+out <- readRDS('data/posterior_samples/savedsamples_IPM.rds')
 
 # subset samples
 lower <- 2000
@@ -61,12 +61,12 @@ size_sel_log <- function(pmax,k,midpoint){
   
   return(1-exp(-vector))
 }
-get_eti_low <- function(input, ci){
-  out <- as.numeric(eti(input,ci)[2])
+get_hdi_low <- function(input, ci){
+  out <- as.numeric(hdi(input,ci)[2])
   return(out)
 }
-get_eti_high <- function(input, ci){
-  out <- as.numeric(eti(input,ci)[3])
+get_hdi_high <- function(input, ci){
+  out <- as.numeric(hdi(input,ci)[3])
   return(out)
 }
 
@@ -80,12 +80,12 @@ shrimp_select <- mapply(size_sel_log, traps_pmax,
 selective_summaries[1,3:113] <- apply(minnow_select, 1, median)
 selective_summaries[2,3:113] <- apply(fukui_select, 1, median)
 selective_summaries[3,3:113] <- apply(shrimp_select, 1, median)
-selective_summaries[4,3:113] <- apply(minnow_select, 1, function(row) get_eti_low(row, 0.95))
-selective_summaries[5,3:113] <- apply(fukui_select, 1, function(row) get_eti_low(row, 0.95))
-selective_summaries[6,3:113] <- apply(shrimp_select, 1, function(row) get_eti_low(row, 0.95))
-selective_summaries[7,3:113] <- apply(minnow_select, 1, function(row) get_eti_high(row, 0.95))
-selective_summaries[8,3:113] <- apply(fukui_select, 1, function(row) get_eti_high(row, 0.95))
-selective_summaries[9,3:113] <- apply(shrimp_select, 1, function(row) get_eti_high(row, 0.95))
+selective_summaries[4,3:113] <- apply(minnow_select, 1, function(row) get_hdi_low(row, 0.95))
+selective_summaries[5,3:113] <- apply(fukui_select, 1, function(row) get_hdi_low(row, 0.95))
+selective_summaries[6,3:113] <- apply(shrimp_select, 1, function(row) get_hdi_low(row, 0.95))
+selective_summaries[7,3:113] <- apply(minnow_select, 1, function(row) get_hdi_high(row, 0.95))
+selective_summaries[8,3:113] <- apply(fukui_select, 1, function(row) get_hdi_high(row, 0.95))
+selective_summaries[9,3:113] <- apply(shrimp_select, 1, function(row) get_hdi_high(row, 0.95))
 
 
 # convert from wide to long 
@@ -109,9 +109,11 @@ sizesel_plot <- ggplot(data=selective_summaries_long)+
   coord_trans(y = "sqrt")+
   scale_fill_manual(values=c('violet','goldenrod','darkviolet'),
                     guide = "none")+
-  scale_color_manual(values=c('violet','goldenrod','darkviolet'))+
+  scale_color_manual(values=c('violet','goldenrod','darkviolet'),
+                     labels=c('Fukui','Shrimp','Minnow'))+
   scale_y_continuous(breaks=c(0.0001,0.001,0.002,0.003,0.004))+
   labs(x='size (mm)',y='probability of capture',color='trap type')+
   theme_minimal()+
-  theme(text=element_text(size=16))
-ggsave('figures/fig_sizesel.png',sizesel_plot,dpi=400,width=5,height=4)
+  theme(text=element_text(size=14))
+ggsave('figures/Figure4_sizesel.png',sizesel_plot,dpi=400,width=5,height=4,
+       bg='white')

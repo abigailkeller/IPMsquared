@@ -5,7 +5,7 @@ library(cowplot)
 library(viridis)
 
 # read in samples
-out <- readRDS('IPM/20241030b_savedsamples.rds')
+out <- readRDS('data/posterior_samples/savedsamples_IPM.rds')
 
 # subset samples
 lower <- 2000
@@ -24,9 +24,6 @@ get_samples <- function(samples, param){
 
 # get params
 N_adult1 <- get_samples(out_sub,'N_adult')
-# N_adult2 <- get_samples(out_sub,'N_adult[2]')
-# N_adult3 <- get_samples(out_sub,'N_adult[3]')
-# N_adult4 <- get_samples(out_sub,'N_adult[4]')
 N_recruit1 <- get_samples(out_sub,'N_recruit[1]')
 N_recruit2 <- get_samples(out_sub,'N_recruit[2]')
 N_recruit3 <- get_samples(out_sub,'N_recruit[3]')
@@ -35,9 +32,6 @@ init_mean_recruit <- get_samples(out_sub,'init_mean_recruit')
 init_sd_r <- get_samples(out_sub,'init_sd_r')
 init_lsd_adult <- get_samples(out_sub,'init_lsd_adult')
 init_lmean_adult <- get_samples(out_sub,'init_lmean_adult')
-# init_lmean_adult2 <- get_samples(out_sub,'init_lmean_adult[2]')
-# init_lmean_adult3 <- get_samples(out_sub,'init_lmean_adult[3]')
-# init_lmean_adult4 <- get_samples(out_sub,'init_lmean_adult[4]')
 adult_dist2 <- as.data.frame(matrix(NA,ncol=22,nrow=dim(out_sub[[1]])[1]*4))
 adult_dist3 <- as.data.frame(matrix(NA,ncol=22,nrow=dim(out_sub[[1]])[1]*4))
 adult_dist4 <- as.data.frame(matrix(NA,ncol=22,nrow=dim(out_sub[[1]])[1]*4))
@@ -61,14 +55,14 @@ N_summaries <- data.frame(
   median = c(median(N_adult1),median(N_adult2),median(N_adult3),median(N_adult4),
              median(N_recruit1),median(N_recruit2),
              median(N_recruit3),median(N_recruit4)),
-  lower_CI = c(as.numeric(eti(N_adult1)[2]),as.numeric(eti(N_adult2)[2]),
-               as.numeric(eti(N_adult3)[2]),as.numeric(eti(N_adult4)[2]),
-               as.numeric(eti(N_recruit1)[2]),as.numeric(eti(N_recruit2)[2]),
-               as.numeric(eti(N_recruit3)[2]),as.numeric(eti(N_recruit4)[2])),
-  upper_CI = c(as.numeric(eti(N_adult1)[3]),as.numeric(eti(N_adult2)[3]),
-               as.numeric(eti(N_adult3)[3]),as.numeric(eti(N_adult4)[3]),
-               as.numeric(eti(N_recruit1)[3]),as.numeric(eti(N_recruit2)[3]),
-               as.numeric(eti(N_recruit3)[3]),as.numeric(eti(N_recruit4)[3]))
+  lower_CI = c(as.numeric(hdi(N_adult1)[2]),as.numeric(hdi(N_adult2)[2]),
+               as.numeric(hdi(N_adult3)[2]),as.numeric(hdi(N_adult4)[2]),
+               as.numeric(hdi(N_recruit1)[2]),as.numeric(hdi(N_recruit2)[2]),
+               as.numeric(hdi(N_recruit3)[2]),as.numeric(hdi(N_recruit4)[2])),
+  upper_CI = c(as.numeric(hdi(N_adult1)[3]),as.numeric(hdi(N_adult2)[3]),
+               as.numeric(hdi(N_adult3)[3]),as.numeric(hdi(N_adult4)[3]),
+               as.numeric(hdi(N_recruit1)[3]),as.numeric(hdi(N_recruit2)[3]),
+               as.numeric(hdi(N_recruit3)[3]),as.numeric(hdi(N_recruit4)[3]))
 )
 
 # make plots of N distribution - recruit
@@ -83,9 +77,6 @@ init_mean_recruit <- get_samples(out_sub,'init_mean_recruit')
 init_sd_r <- get_samples(out_sub,'init_sd_r')
 init_lsd_adult <- get_samples(out_sub,'init_lsd_adult')
 init_lmean_adult1 <- get_samples(out_sub,'init_lmean_adult')
-# init_lmean_adult2 <- get_samples(out_sub,'init_lmean_adult[2]')
-# init_lmean_adult3 <- get_samples(out_sub,'init_lmean_adult[3]')
-# init_lmean_adult4 <- get_samples(out_sub,'init_lmean_adult[4]')
 
 
 dist_summaries_recruit <- data.frame(
@@ -128,23 +119,17 @@ get_dist <- function(mean,sd,N){
   out <- dnorm(y,mean,sd)/sum(dnorm(y,mean,sd))*N
   return(out)
 }
-get_eti_low <- function(input, ci){
-  out <- as.numeric(eti(input,ci)[2])
+get_hdi_low <- function(input, ci){
+  out <- as.numeric(hdi(input,ci)[2])
   return(out)
 }
-get_eti_high <- function(input, ci){
-  out <- as.numeric(eti(input,ci)[3])
+get_hdi_high <- function(input, ci){
+  out <- as.numeric(hdi(input,ci)[3])
   return(out)
 }
 
 N_adult1_dist <- mapply(get_dist_log, init_lmean_adult1,
                         init_lsd_adult, N_adult1)
-# N_adult2_dist <- mapply(get_dist_log, init_lmean_adult2,
-#                         init_lsd_adult, N_adult2)
-# N_adult3_dist <- mapply(get_dist_log, init_lmean_adult3,
-#                         init_lsd_adult, N_adult3)
-# N_adult4_dist <- mapply(get_dist_log, init_lmean_adult4,
-#                         init_lsd_adult, N_adult4)
 N_recruit1_dist <- mapply(get_dist, init_mean_recruit,
                           init_sd_r, N_recruit1)
 N_recruit2_dist <- mapply(get_dist, init_mean_recruit,
@@ -158,27 +143,27 @@ dist_summaries_adult[1,4:25] <- apply(N_adult1_dist, 1, median)
 dist_summaries_adult[2,4:25] <- apply(adult_dist2, 2, median)
 dist_summaries_adult[3,4:25] <- apply(adult_dist3, 2, median)
 dist_summaries_adult[4,4:25] <- apply(adult_dist4, 2, median)
-dist_summaries_adult[5,4:25] <- apply(N_adult1_dist, 1, function(row) get_eti_low(row, 0.95))
-dist_summaries_adult[6,4:25] <- apply(adult_dist2, 2, function(row) get_eti_low(row, 0.95))
-dist_summaries_adult[7,4:25] <- apply(adult_dist3, 2, function(row) get_eti_low(row, 0.95))
-dist_summaries_adult[8,4:25] <- apply(adult_dist4, 2, function(row) get_eti_low(row, 0.95))
-dist_summaries_adult[9,4:25] <- apply(N_adult1_dist, 1, function(row) get_eti_high(row, 0.95))
-dist_summaries_adult[10,4:25] <- apply(adult_dist2, 2, function(row) get_eti_high(row, 0.95))
-dist_summaries_adult[11,4:25] <- apply(adult_dist3, 2, function(row) get_eti_high(row, 0.95))
-dist_summaries_adult[12,4:25] <- apply(adult_dist4, 2, function(row) get_eti_high(row, 0.95))
+dist_summaries_adult[5,4:25] <- apply(N_adult1_dist, 1, function(row) get_hdi_low(row, 0.95))
+dist_summaries_adult[6,4:25] <- apply(adult_dist2, 2, function(row) get_hdi_low(row, 0.95))
+dist_summaries_adult[7,4:25] <- apply(adult_dist3, 2, function(row) get_hdi_low(row, 0.95))
+dist_summaries_adult[8,4:25] <- apply(adult_dist4, 2, function(row) get_hdi_low(row, 0.95))
+dist_summaries_adult[9,4:25] <- apply(N_adult1_dist, 1, function(row) get_hdi_high(row, 0.95))
+dist_summaries_adult[10,4:25] <- apply(adult_dist2, 2, function(row) get_hdi_high(row, 0.95))
+dist_summaries_adult[11,4:25] <- apply(adult_dist3, 2, function(row) get_hdi_high(row, 0.95))
+dist_summaries_adult[12,4:25] <- apply(adult_dist4, 2, function(row) get_hdi_high(row, 0.95))
 
 dist_summaries_recruit[1,4:25] <- apply(N_recruit1_dist, 1, function(x) median(x, na.rm = TRUE))
 dist_summaries_recruit[2,4:25] <- apply(N_recruit2_dist, 1, function(x) median(x, na.rm = TRUE))
 dist_summaries_recruit[3,4:25] <- apply(N_recruit3_dist, 1, function(x) median(x, na.rm = TRUE))
 dist_summaries_recruit[4,4:25] <- apply(N_recruit4_dist, 1, function(x) median(x, na.rm = TRUE))
-dist_summaries_recruit[5,4:25] <- apply(N_recruit1_dist, 1, function(row) get_eti_low(row, 0.5))
-dist_summaries_recruit[6,4:25] <- apply(N_recruit2_dist, 1, function(row) get_eti_low(row, 0.5))
-dist_summaries_recruit[7,4:25] <- apply(N_recruit3_dist, 1, function(row) get_eti_low(row, 0.5))
-dist_summaries_recruit[8,4:25] <- apply(N_recruit4_dist, 1, function(row) get_eti_low(row, 0.5))
-dist_summaries_recruit[9,4:25] <- apply(N_recruit1_dist, 1, function(row) get_eti_high(row, 0.5))
-dist_summaries_recruit[10,4:25] <- apply(N_recruit2_dist, 1, function(row) get_eti_high(row, 0.5))
-dist_summaries_recruit[11,4:25] <- apply(N_recruit3_dist, 1, function(row) get_eti_high(row, 0.5))
-dist_summaries_recruit[12,4:25] <- apply(N_recruit4_dist, 1, function(row) get_eti_high(row, 0.5))
+dist_summaries_recruit[5,4:25] <- apply(N_recruit1_dist, 1, function(row) get_hdi_low(row, 0.5))
+dist_summaries_recruit[6,4:25] <- apply(N_recruit2_dist, 1, function(row) get_hdi_low(row, 0.5))
+dist_summaries_recruit[7,4:25] <- apply(N_recruit3_dist, 1, function(row) get_hdi_low(row, 0.5))
+dist_summaries_recruit[8,4:25] <- apply(N_recruit4_dist, 1, function(row) get_hdi_low(row, 0.5))
+dist_summaries_recruit[9,4:25] <- apply(N_recruit1_dist, 1, function(row) get_hdi_high(row, 0.5))
+dist_summaries_recruit[10,4:25] <- apply(N_recruit2_dist, 1, function(row) get_hdi_high(row, 0.5))
+dist_summaries_recruit[11,4:25] <- apply(N_recruit3_dist, 1, function(row) get_hdi_high(row, 0.5))
+dist_summaries_recruit[12,4:25] <- apply(N_recruit4_dist, 1, function(row) get_hdi_high(row, 0.5))
 
 
 # convert from wide to long 
@@ -206,6 +191,7 @@ adult_Nplot <- ggplot(data=N_summaries[N_summaries$type=='adult',])+
                 width = 0.2,
                 linewidth=1)+
   scale_color_manual(values=viridis_pal()(4))+
+  scale_y_continuous(breaks=c(200,300,400))+
   labs(x='year',y=expression(N[total]),color='year')+
   theme_minimal()+
   theme(axis.text.x=element_blank(),
@@ -219,8 +205,8 @@ recruit_Nplot <- ggplot(data=N_summaries[N_summaries$type=='recruit',])+
                     color=as.factor(year)),
                 width = 0.2,
                 linewidth=1)+
-  scale_y_continuous(breaks=c(log(20),log(200)),
-                     labels=c('20','200'))+
+  scale_y_continuous(breaks=c(log(20),log(200),log(2000)),
+                     labels=c('20','200','2000'))+
   scale_color_manual(values=viridis_pal()(4))+
   labs(x='year',y=expression(N[total]),color='year')+
   theme_minimal()+
@@ -283,4 +269,4 @@ BBDD#
 '
 
 final_plot <- adult_sizeplot+recruit_sizeplot+adult_Nplot+recruit_Nplot+legend+plot_layout(design=layout)
-ggsave('figures/fig_abundance_sizedist.png',dpi=400,width=6,height=5)
+ggsave('figures/Figure3_abundance_sizedist.png',dpi=400,width=6,height=5)
