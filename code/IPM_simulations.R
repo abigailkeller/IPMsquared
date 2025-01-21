@@ -9,7 +9,7 @@ library(cowplot)
 ##################################
 
 # read in samples
-out <- readRDS('data/posterior_samples/savedsamples_IPM.rds')
+out <- readRDS('data/posterior_samples/20241224_savedsamples.rds')
 
 # subset samples
 lower <- 2000
@@ -444,7 +444,7 @@ for(e in effort){
   }
   print(paste0('finished effort: ',e))
 }
-saveRDS(out,'data/simulations_20241219_avg.rds')
+saveRDS(out,'data/simulations_20241228_avg.rds')
 
 # simulate no effort
 out_noeffort <- matrix(NA,nrow=length(index),ncol=constant$nsize)
@@ -457,4 +457,4 @@ for(i in 1:length(index)){
                                                     as.numeric(wnmortality_s[i,]))
   
 }
-saveRDS(out_noeffort,'data/simulations_noeffort_20241219_avg.rds')
+saveRDS(out_noeffort,'data/simulations_noeffort_20241228_avg.rds')

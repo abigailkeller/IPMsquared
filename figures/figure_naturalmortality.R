@@ -32,17 +32,17 @@ get_survival <- function(size_ind,size_dep,deltat){
   surv <- exp(-(size_ind+size_dep/y^2))
   return(surv)
 }
-get_o_survival <- function(size_dep,deltat){
-  surv <- exp(-(size_ind+size_dep/y^2))
+get_o_survival <- function(size_dep,N){
+  surv <- exp(-(N*size_dep/y^2))
   return(surv)
 }
 
-get_eti_low <- function(input, ci){
-  out <- as.numeric(eti(input,ci)[2])
+get_hdi_low <- function(input, ci){
+  out <- as.numeric(hdi(input,ci)[2])
   return(out)
 }
-get_eti_high <- function(input, ci){
-  out <- as.numeric(eti(input,ci)[3])
+get_hdi_high <- function(input, ci){
+  out <- as.numeric(hdi(input,ci)[3])
   return(out)
 }
 
@@ -74,12 +74,12 @@ colnames(wmort_summaries)[3:24] <- y
 wmort_summaries[1,3:24] <- apply(wsurvival1, 1, median)
 wmort_summaries[2,3:24] <- apply(wsurvival2, 1, median)
 wmort_summaries[3,3:24] <- apply(wsurvival3, 1, median)
-wmort_summaries[4,3:24] <- apply(wsurvival1, 1, function(row) get_eti_low(row, 0.95))
-wmort_summaries[5,3:24] <- apply(wsurvival2, 1, function(row) get_eti_low(row, 0.95))
-wmort_summaries[6,3:24] <- apply(wsurvival3, 1, function(row) get_eti_low(row, 0.95))
-wmort_summaries[7,3:24] <- apply(wsurvival1, 1, function(row) get_eti_high(row, 0.95))
-wmort_summaries[8,3:24] <- apply(wsurvival2, 1, function(row) get_eti_high(row, 0.95))
-wmort_summaries[9,3:24] <- apply(wsurvival3, 1, function(row) get_eti_high(row, 0.95))
+wmort_summaries[4,3:24] <- apply(wsurvival1, 1, function(row) get_hdi_low(row, 0.95))
+wmort_summaries[5,3:24] <- apply(wsurvival2, 1, function(row) get_hdi_low(row, 0.95))
+wmort_summaries[6,3:24] <- apply(wsurvival3, 1, function(row) get_hdi_low(row, 0.95))
+wmort_summaries[7,3:24] <- apply(wsurvival1, 1, function(row) get_hdi_high(row, 0.95))
+wmort_summaries[8,3:24] <- apply(wsurvival2, 1, function(row) get_hdi_high(row, 0.95))
+wmort_summaries[9,3:24] <- apply(wsurvival3, 1, function(row) get_hdi_high(row, 0.95))
 
 # convert from wide to long 
 wmort_summaries_long <- wmort_summaries %>% 
