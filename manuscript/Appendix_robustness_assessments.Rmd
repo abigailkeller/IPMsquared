@@ -1,0 +1,73 @@
+---
+title: "Appendix: Robustness Assessments"
+output: pdf_document
+---
+# Appendix X
+
+To assess model performance and robustness, we conducted both a model selection and model checking procedure. For model selection, we evaluated multiple functional forms for describing the overwinter mortality using Watanabe–Akaike information criterion (WAIC). To check the model, we calculated posterior predictive p-values.
+
+## Appendix X.1
+
+The inter-annual population transitions (i.e., transition from year $i$ to year $i+1$) are largely described by density-dependent overwinter mortality. Since density dependence only enters the model during this process and is therefore likely influential for forecasting the stable size distribution, we compared multiple functional forms for size- and density-dependent overwinter mortality (Equations 15-16 in main text).
+
+We fit four separate models that are identical, apart from the functional form of overwinter survival (Equations 15-16). These models varied by whether the relationship between size- and density-dependence is additive or interactive, as well as how rapidly mortality decreases with size.
+
+**Model 1:** interactive density- and size-dependence, steeper mortality decrease with size
+
+$$
+S_o(y,N^T_{t_{max},i}) = exp(-\frac{\alpha_i^o \times N^T_{t_{max},i}}{y^2})
+$$
+
+$$
+\alpha^o_i \sim Gamma(\alpha^o_{\alpha}, \alpha^o_{\theta})
+$$
+
+**Model 2:** interactive density- and size-dependence, less steep mortality decrease with size
+
+$$
+S_o(y,N^T_{t_{max},i}) = exp(-\frac{\alpha_i^o \times N^T_{t_{max},i}}{y})
+$$
+
+$$
+\alpha^o_i \sim Gamma(\alpha^o_{\alpha}, \alpha^o_{\theta})
+$$
+
+**Model 3:** additive density- and size-dependence, steeper mortality decrease with size
+
+$$
+S_o(y,N^T_{t_{max},i}) = exp(-(\frac{\alpha^o}{N^T_{t_{max},i}} + \frac{\psi}{y^2}))
+$$
+
+**Model 4:** additive density- and size-dependence, less steep mortality decrease with size
+
+$$
+S_o(y,N^T_{t_{max},i}) = exp(-(\frac{\alpha^o}{N^T_{t_{max},i}} + \frac{\psi}{y}))
+$$
+
+WAIC was calculated using the combined posterior samples from four chains, after discarding 2000 burn-in samples (32000 total samples). Model 1, with a size- and density-dependent overwinter mortality interaction and a steeper mortality decrease with size had the lowest WAIC and was used in subsequent analyses.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+library(tidyverse)
+library(kableExtra)
+library(knitr)
+df <- data.frame(
+  Model = c("Model 1", "Model 2", "Model 3", "Model 4"),
+  WAIC = c(6441.55, 6448.93, 6481.68, 6506.52),
+  lppd = c(-3169.32, -3171.91, -3187.81, -3198.85),
+  pWAIC = c(51.46, 52.56, 53.03, 54.41)
+) %>% 
+  mutate(delta_AIC = WAIC - min(WAIC))
+colnames(df) <- c("Model", "WAIC", "lppd", "pWAIC", "$\\Delta$WAIC")
+
+```
+
+```{r, echo = FALSE}
+# Render table
+knitr::kable(
+  df
+)
+```
+
+
+## Appendix X.2
+

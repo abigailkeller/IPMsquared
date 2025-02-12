@@ -21,28 +21,28 @@ get_samples <- function(samples, param) {
 }
 # get params
 n_adult_1 <- get_samples(out_sub, "N_adult")
-n_recruit_1 <- get_samples(out_sub, "N_recruit[1]")
-n_recruit_2 <- get_samples(out_sub, "N_recruit[2]")
-n_recruit_3 <- get_samples(out_sub, "N_recruit[3]")
-n_recruit_4 <- get_samples(out_sub, "N_recruit[4]")
+n_recruit <- list()
+for (i in seq_len(4)) {
+  n_recruit[[i]] <- get_samples(out_sub, paste0("N_recruit[", i, "]"))
+}
 init_mean_recruit <- get_samples(out_sub, "init_mean_recruit")
 init_sd_r <- get_samples(out_sub, "init_sd_r")
 init_lsd_adult <- get_samples(out_sub, "init_lsd_adult")
 init_lmean_adult <- get_samples(out_sub, "init_lmean_adult")
-adult_dist_2 <- as.data.frame(matrix(NA, ncol = 22,
-                                     nrow = dim(out_sub[[1]])[1] * 4))
-adult_dist_3 <- as.data.frame(matrix(NA, ncol = 22,
-                                     nrow = dim(out_sub[[1]])[1] * 4))
-adult_dist_4 <- as.data.frame(matrix(NA, ncol = 22,
-                                     nrow = dim(out_sub[[1]])[1] * 4))
-for (i in 1:22) {
-  adult_dist_2[, i] <- get_samples(out_sub, paste0("N_overwinter[1, ", i, "]"))
-  adult_dist_3[, i] <- get_samples(out_sub, paste0("N_overwinter[2, ", i, "]"))
-  adult_dist_4[, i] <- get_samples(out_sub, paste0("N_overwinter[3, ", i, "]"))
+adult_dist <- list()
+for (i in seq_len(3)) {
+  adult_dist[[i]] <- as.data.frame(matrix(NA, ncol = 22,
+                                          nrow = dim(out_sub[[1]])[1] * 4))
+  for (k in seq_len(22)) {
+    adult_dist[[i]][, k] <- get_samples(out_sub, 
+                                        paste0("N_overwinter[", i, ", ", k, "]"))
+  }
 }
-n_adult2 <- rowSums(adult_dist_2)
-n_adult3 <- rowSums(adult_dist_3)
-n_adult4 <- rowSums(adult_dist_4)
+n_adult <- list()
+for (i in seq_len(3)) {
+  n_adult[[i]] <- rowSums(adult_dist[[i]])
+}
+
 # make plots of total N
 n_summaries <- data.frame(
   param = c("n_adult_1", "n_adult2", "n_adult3", "n_adult4",
@@ -51,19 +51,16 @@ n_summaries <- data.frame(
            "recruit", "recruit"),
   year = c("2020", "2021", "2022", "2023",
            "2020", "2021", "2022", "2023"),
-  median = c(median(n_adult_1), median(n_adult2),
-             median(n_adult3), median(n_adult4),
-             median(n_recruit_1), median(n_recruit_2),
-             median(n_recruit_3), median(n_recruit_4)),
-  lower_CI = c(as.numeric(hdi(n_adult_1)[2]), as.numeric(hdi(n_adult2)[2]),
-               as.numeric(hdi(n_adult3)[2]), as.numeric(hdi(n_adult4)[2]),
-               as.numeric(hdi(n_recruit_1)[2]), as.numeric(hdi(n_recruit_2)[2]),
-               as.numeric(hdi(n_recruit_3)[2]),
-               as.numeric(hdi(n_recruit_4)[2])),
-  upper_CI = c(as.numeric(hdi(n_adult_1)[3]), as.numeric(hdi(n_adult2)[3]),
-               as.numeric(hdi(n_adult3)[3]), as.numeric(hdi(n_adult4)[3]),
-               as.numeric(hdi(n_recruit_1)[3]), as.numeric(hdi(n_recruit_2)[3]),
-               as.numeric(hdi(n_recruit_3)[3]), as.numeric(hdi(n_recruit_4)[3]))
+  median = c(median(n_adult_1), 
+             sapply(n_adult[1:3], median), sapply(n_recruit[1:4], median)),
+  lower_CI = c(
+    as.numeric(hdi(n_adult_1)[2]),
+    sapply(c(n_adult[1:3], n_recruit[1:4]), function(x) as.numeric(hdi(x)[2]))
+  ),
+  upper_CI = c(
+    as.numeric(hdi(n_adult_1)[3]),
+    sapply(c(n_adult[1:3], n_recruit[1:4]), function(x) as.numeric(hdi(x)[3]))
+  )
 )
 # make plots of N distribution - recruit
 min_size <- 0
@@ -124,60 +121,41 @@ get_hdi_high <- function(input, ci) {
   out <- as.numeric(hdi(input, ci)[3])
   return(out)
 }
+
+# summarize recruit size distributions
+n_recruit_dist <- list()
+for (i in seq_len(4)) {
+  n_recruit_dist[[i]] <- mapply(get_dist, init_mean_recruit,
+                                init_sd_r, n_recruit[[i]])
+  dist_summaries_recruit[i, 4:25] <- apply(n_recruit_dist[[i]], 1,
+                                           function(x) median(x, na.rm = TRUE))
+  dist_summaries_recruit[i + 4, 4:25] <- apply(n_recruit_dist[[i]], 1,
+                                               function(row) get_hdi_low(row, 
+                                                                         0.95))
+  dist_summaries_recruit[i + 8, 4:25] <- apply(n_recruit_dist[[i]], 1,
+                                               function(row) get_hdi_high(row, 
+                                                                          0.95))
+}
+
+# summarize adult size distributions
 n_adult_1_dist <- mapply(get_dist_log, init_lmean_adult_1,
                          init_lsd_adult, n_adult_1)
-n_recruit_1_dist <- mapply(get_dist, init_mean_recruit,
-                           init_sd_r, n_recruit_1)
-n_recruit_2_dist <- mapply(get_dist, init_mean_recruit,
-                           init_sd_r, n_recruit_2)
-n_recruit_3_dist <- mapply(get_dist, init_mean_recruit,
-                           init_sd_r, n_recruit_3)
-n_recruit_4_dist <- mapply(get_dist, init_mean_recruit,
-                           init_sd_r, n_recruit_4)
 dist_summaries_adult[1, 4:25] <- apply(n_adult_1_dist, 1, median)
-dist_summaries_adult[2, 4:25] <- apply(adult_dist_2, 2, median)
-dist_summaries_adult[3, 4:25] <- apply(adult_dist_3, 2, median)
-dist_summaries_adult[4, 4:25] <- apply(adult_dist_4, 2, median)
 dist_summaries_adult[5, 4:25] <- apply(n_adult_1_dist, 1,
-                                       function(row) get_hdi_low(row, 0.95))
-dist_summaries_adult[6, 4:25] <- apply(adult_dist_2, 2,
-                                       function(row) get_hdi_low(row, 0.95))
-dist_summaries_adult[7, 4:25] <- apply(adult_dist_3, 2,
-                                       function(row) get_hdi_low(row, 0.95))
-dist_summaries_adult[8, 4:25] <- apply(adult_dist_4, 2,
                                        function(row) get_hdi_low(row, 0.95))
 dist_summaries_adult[9, 4:25] <- apply(n_adult_1_dist, 1,
                                        function(row) get_hdi_high(row, 0.95))
-dist_summaries_adult[10, 4:25] <- apply(adult_dist_2, 2,
-                                        function(row) get_hdi_high(row, 0.95))
-dist_summaries_adult[11, 4:25] <- apply(adult_dist_3, 2,
-                                        function(row) get_hdi_high(row, 0.95))
-dist_summaries_adult[12, 4:25] <- apply(adult_dist_4, 2,
-                                        function(row) get_hdi_high(row, 0.95))
-dist_summaries_recruit[1, 4:25] <- apply(n_recruit_1_dist, 1,
-                                         function(x) median(x, na.rm = TRUE))
-dist_summaries_recruit[2, 4:25] <- apply(n_recruit_2_dist, 1,
-                                         function(x) median(x, na.rm = TRUE))
-dist_summaries_recruit[3, 4:25] <- apply(n_recruit_3_dist, 1,
-                                         function(x) median(x, na.rm = TRUE))
-dist_summaries_recruit[4, 4:25] <- apply(n_recruit_4_dist, 1,
-                                         function(x) median(x, na.rm = TRUE))
-dist_summaries_recruit[5, 4:25] <- apply(n_recruit_1_dist, 1,
-                                         function(row) get_hdi_low(row, 0.5))
-dist_summaries_recruit[6, 4:25] <- apply(n_recruit_2_dist, 1,
-                                         function(row) get_hdi_low(row, 0.5))
-dist_summaries_recruit[7, 4:25] <- apply(n_recruit_3_dist, 1,
-                                         function(row) get_hdi_low(row, 0.5))
-dist_summaries_recruit[8, 4:25] <- apply(n_recruit_4_dist, 1,
-                                         function(row) get_hdi_low(row, 0.5))
-dist_summaries_recruit[9, 4:25] <- apply(n_recruit_1_dist, 1,
-                                         function(row) get_hdi_high(row, 0.5))
-dist_summaries_recruit[10, 4:25] <- apply(n_recruit_2_dist, 1,
-                                          function(row) get_hdi_high(row, 0.5))
-dist_summaries_recruit[11, 4:25] <- apply(n_recruit_3_dist, 1,
-                                          function(row) get_hdi_high(row, 0.5))
-dist_summaries_recruit[12, 4:25] <- apply(n_recruit_4_dist, 1,
-                                          function(row) get_hdi_high(row, 0.5))
+for (i in seq_len(3)) {
+  dist_summaries_adult[i + 1, 4:25] <- apply(adult_dist[[i]], 2, median)
+  dist_summaries_adult[i + 5, 4:25] <- apply(adult_dist[[i]], 2,
+                                             function(row) get_hdi_low(row, 
+                                                                       0.95))
+  dist_summaries_adult[i + 9, 4:25] <- apply(adult_dist[[i]], 2,
+                                             function(row) get_hdi_high(row, 
+                                                                        0.95))
+}
+
+
 # convert from wide to long
 dist_summaries_adult_long <- dist_summaries_adult %>%
   pivot_longer(cols = ! c("param", "year", "stat"),

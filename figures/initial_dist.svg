@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' class='svglite' width='246.00pt' height='191.50pt' viewBox='0 0 246.00 191.50'>
+<defs>
+  <style type='text/css'><![CDATA[
+    .svglite line, .svglite polyline, .svglite polygon, .svglite path, .svglite rect, .svglite circle {
+      fill: none;
+      stroke: #000000;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-miterlimit: 10.00;
+    }
+    .svglite text {
+      white-space: pre;
+    }
+  ]]></style>
+</defs>
+<rect width='100%' height='100%' style='stroke: none; fill: none;'/>
+<defs>
+  <clipPath id='cpMC4wMHwyNDYuMDB8MC4wMHwxOTEuNTA='>
+    <rect x='0.00' y='0.00' width='246.00' height='191.50' />
+  </clipPath>
+</defs>
+<g clip-path='url(#cpMC4wMHwyNDYuMDB8MC4wMHwxOTEuNTA=)'>
+</g>
+<defs>
+  <clipPath id='cpMjEuMTV8MjQwLjUyfDUuNDh8MTcwLjM1'>
+    <rect x='21.15' y='5.48' width='219.37' height='164.87' />
+  </clipPath>
+</defs>
+<g clip-path='url(#cpMjEuMTV8MjQwLjUyfDUuNDh8MTcwLjM1)'>
+<polyline points='21.15,144.54 240.52,144.54 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='21.15,106.78 240.52,106.78 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='21.15,69.02 240.52,69.02 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='21.15,31.27 240.52,31.27 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='56.05,170.35 56.05,5.48 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='105.91,170.35 105.91,5.48 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='155.77,170.35 155.77,5.48 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='205.62,170.35 205.62,5.48 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='21.15,163.42 240.52,163.42 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='21.15,125.66 240.52,125.66 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='21.15,87.90 240.52,87.90 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='21.15,50.15 240.52,50.15 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='21.15,12.39 240.52,12.39 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='31.13,170.35 31.13,5.48 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='80.98,170.35 80.98,5.48 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='130.84,170.35 130.84,5.48 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='180.69,170.35 180.69,5.48 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='230.55,170.35 230.55,5.48 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='31.13,156.80 33.62,153.33 36.11,148.49 38.60,142.00 41.10,133.61 43.59,123.19 46.08,110.77 48.57,96.60 51.07,81.16 53.56,65.22 56.05,49.72 58.55,35.74 61.04,24.37 63.53,16.55 66.02,12.97 68.52,13.96 71.01,19.41 73.50,28.86 76.00,41.47 78.49,56.24 80.98,72.06 83.47,87.89 85.97,102.86 88.46,116.33 90.95,127.91 93.45,137.45 95.94,145.00 98.43,150.75 100.92,154.97 103.42,157.95 105.91,159.99 108.40,161.33 110.89,162.19 ' style='stroke-width: 2.13; stroke-linecap: butt;' />
+<polyline points='108.40,162.59 110.89,162.21 113.39,161.71 115.88,161.02 118.37,160.11 120.87,158.93 123.36,157.43 125.85,155.55 128.34,153.23 130.84,150.44 133.33,147.13 135.82,143.31 138.32,138.97 140.81,134.16 143.30,128.94 145.79,123.42 148.29,117.74 150.78,112.06 153.27,106.57 155.77,101.47 158.26,96.95 160.75,93.22 163.24,90.42 165.74,88.69 168.23,88.10 170.72,88.69 173.21,90.42 175.71,93.22 178.20,96.95 180.69,101.47 183.19,106.57 185.68,112.06 188.17,117.74 190.66,123.42 193.16,128.94 195.65,134.16 198.14,138.97 200.64,143.31 203.13,147.13 205.62,150.44 208.11,153.23 210.61,155.55 213.10,157.43 215.59,158.93 218.09,160.11 220.58,161.02 223.07,161.71 225.56,162.21 228.06,162.59 230.55,162.85 ' style='stroke-width: 2.13; stroke-linecap: butt;' />
+</g>
+<g clip-path='url(#cpMC4wMHwyNDYuMDB8MC4wMHwxOTEuNTA=)'>
+</g>
+</svg>

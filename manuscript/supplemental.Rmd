@@ -1,0 +1,23 @@
+---
+output: pdf_document
+---
+# Supplemental Information
+
+**Figure S1:** Population forecasts in response to varying removal efforts. Size distributions show the crab abundance in each size class, $N_{size}$, at the end of the year after overwinter mortality when *A.* 0 traps, *B.* 28 traps, *C.* 112 traps, *D.* 560 traps, *E.* 840 traps, *F.* 1400 traps, and *G.* 2800 traps were applied evenly over a trapping season of 14 biweeks. Solid line indicates the median size-structured abundance across simulation replicates, and the shaded area indicates $\pm1$ standard deviation across simulation replicates. Colors indicate trap type used (i.e., in panel B, the purple line shows the resulting size distribution after a trapping effort of 28 Minnow traps).
+```{r, echo=FALSE, out.width = "100%"}
+knitr::include_graphics(
+  paste0("C:/Users/abiga/Documents/Berkeley/Structured_Decision_Making/",
+         "pop_dynamics_model/IPMsquared/figures/supplemental_IPM_simulations_mean.png")
+)
+```
+
+\newpage
+
+**Figure S2:** Population forecasts in response to varying removal efforts, relative to no removal. Size distributions show the ratio of crab abundance in each size class, $N_{size}$, when no removal occurred relative to a removal effort >0. Ratios are calculated based on size-structured abundance at the end of the year after overwinter mortality when *A.* 112 traps, *B.* 560 traps, and *C.* 2800 traps were applied evenly over a trapping season of 14 biweeks. A ratio of one means that the size-structured abundance after no removal equals the size-structured abundance after application of X traps. A ratio less than one means that the application of X traps removes decreases the size-structured abundance, relative to no removal. A ratio greater than one means that the application of X traps increases the size-structured abundance, relative to no removal. Solid line indicates the median size-structured abundance across simulation replicates, and the shaded area indicates $\pm1$ standard deviation across simulation replicates. Colors indicate trap type used (i.e., in panel B, the purple line shows the resulting size distribution ratio after a trapping effort of 0 traps, relative to 560 Minnow traps).
+```{r, echo=FALSE}
+knitr::include_graphics(
+  paste0("C:/Users/abiga/Documents/Berkeley/Structured_Decision_Making/",
+         "pop_dynamics_model/IPMsquared/figures/supplemental_fig_IPM_simulations_diff.png")
+)
+```
+
