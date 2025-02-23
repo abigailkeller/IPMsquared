@@ -34,8 +34,9 @@ for (i in seq_len(3)) {
   adult_dist[[i]] <- as.data.frame(matrix(NA, ncol = 22,
                                           nrow = dim(out_sub[[1]])[1] * 4))
   for (k in seq_len(22)) {
-    adult_dist[[i]][, k] <- get_samples(out_sub, 
-                                        paste0("N_overwinter[", i, ", ", k, "]"))
+    adult_dist[[i]][, k] <- get_samples(out_sub,
+                                        paste0("N_overwinter[", i, ", ",
+                                               k, "]"))
   }
 }
 n_adult <- list()
@@ -51,7 +52,7 @@ n_summaries <- data.frame(
            "recruit", "recruit"),
   year = c("2020", "2021", "2022", "2023",
            "2020", "2021", "2022", "2023"),
-  median = c(median(n_adult_1), 
+  median = c(median(n_adult_1),
              sapply(n_adult[1:3], median), sapply(n_recruit[1:4], median)),
   lower_CI = c(
     as.numeric(hdi(n_adult_1)[2]),
@@ -129,12 +130,12 @@ for (i in seq_len(4)) {
                                 init_sd_r, n_recruit[[i]])
   dist_summaries_recruit[i, 4:25] <- apply(n_recruit_dist[[i]], 1,
                                            function(x) median(x, na.rm = TRUE))
-  dist_summaries_recruit[i + 4, 4:25] <- apply(n_recruit_dist[[i]], 1,
-                                               function(row) get_hdi_low(row, 
-                                                                         0.95))
-  dist_summaries_recruit[i + 8, 4:25] <- apply(n_recruit_dist[[i]], 1,
-                                               function(row) get_hdi_high(row, 
-                                                                          0.95))
+  dist_summaries_recruit[i + 4, 4:25] <- apply(
+    n_recruit_dist[[i]], 1, function(row) get_hdi_low(row, 0.95)
+  )
+  dist_summaries_recruit[i + 8, 4:25] <- apply(
+    n_recruit_dist[[i]], 1, function(row) get_hdi_high(row, 0.95)
+  )
 }
 
 # summarize adult size distributions
@@ -147,12 +148,12 @@ dist_summaries_adult[9, 4:25] <- apply(n_adult_1_dist, 1,
                                        function(row) get_hdi_high(row, 0.95))
 for (i in seq_len(3)) {
   dist_summaries_adult[i + 1, 4:25] <- apply(adult_dist[[i]], 2, median)
-  dist_summaries_adult[i + 5, 4:25] <- apply(adult_dist[[i]], 2,
-                                             function(row) get_hdi_low(row, 
-                                                                       0.95))
-  dist_summaries_adult[i + 9, 4:25] <- apply(adult_dist[[i]], 2,
-                                             function(row) get_hdi_high(row, 
-                                                                        0.95))
+  dist_summaries_adult[i + 5, 4:25] <- apply(
+    adult_dist[[i]], 2, function(row) get_hdi_low(row, 0.95)
+  )
+  dist_summaries_adult[i + 9, 4:25] <- apply(
+    adult_dist[[i]], 2, function(row) get_hdi_high(row, 0.95)
+  )
 }
 
 

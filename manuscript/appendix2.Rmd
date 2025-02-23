@@ -1,203 +1,138 @@
 ---
+title: "Appendix 2: Prior distributions and multinomial-dirichlet mixture"
 output: pdf_document
 ---
-# Appendix 2
-```{r, echo = FALSE, results = "hide", message = FALSE, warning=FALSE}
-library(tidyverse)
-library(patchwork)
-library(MCMCvis)
-library(bayestestR)
-library(kableExtra)
-```
-```{r, echo = FALSE, results = "hide"}
-# create functions
-create_traceplot <- function(out, lower, upper, param, names_df) {
-  name <- names_df$real_names[which(names_df$short_names == param)]
-  plot <- ggplot() +
-    geom_line(aes(x = lower:upper,
-                  y = out[[1]][lower:upper, param]),
-              color = "pink") +
-    geom_line(aes(x = lower:upper,
-                  y = out[[2]][lower:upper, param]),
-              color = "purple") +
-    geom_line(aes(x = lower:upper,
-                  y = out[[3]][lower:upper, param]),
-              color = "blue") +
-    geom_line(aes(x = lower:upper,
-                  y = out[[4]][lower:upper, param]),
-              color = "red") +
-    scale_x_continuous(breaks = c(2000, 6000, 10000)) +
-    labs(x = "iteration", y = "value") +
-    ggtitle(parse(text = name)) +
-    theme_minimal() +
-    theme(plot.title = element_text(hjust = 0.5))
-  return(plot)
-}
-```
-```{r, echo = FALSE, results = "hide"}
-# read in samples
-out <- readRDS("../data/posterior_samples/savedsamples_IPM.rds")
-lower <- 2000
-upper <- 10001
-```
-```{r, echo = FALSE, results = "hide"}
-# create df with param names
-short_names <- c("init_lmean_adult", "init_lsd_adult", "init_mean_recruit",
-                 "init_sd_r", "growth_xinf", "growth_k", "growth_C",
-                 "growth_ts", "growth_sd",
-                 "nmortality_s[1]", "nmortality_s[2]", "nmortality_s[3]",
-                 "nmortality_s[4]", "nmortality_s[5]", "nmort_size",
-                 "nmort_shape_s", "nmort_rate_s", "wnmortality_s[1]",
-                 "wnmortality_s[2]", "wnmortality_s[3]",
-                 "wnmort_shape_s", "wnmort_rate_s",
-                 "trapf_pmax", "trapm_pmax", "traps_pmax",
-                 "trapf_k", "traps_k", "trapf_midpoint", "traps_midpoint",
-                 "trapm_xmax", "trapm_sigma", "N_adult",
-                 "N_recruit[1]", "N_recruit[2]", "N_recruit[3]",
-                 "N_recruit[4]", "N_mu_recruit", "N_sd_recruit")
-real_names <- c("log(mu[y]^A)", "sigma[y]^A", "mu[y]^R", "sigma[y]^R",
-                "y[infinity]", "k", "C", "t[s]", "sigma^G", "beta[1]",
-                "beta[2]", "beta[3]", "beta[4]", "beta[5]", "alpha",
-                "beta[alpha]", "beta[theta]", "alpha[1]^o", "alpha[2]^o",
-                "alpha[3]^o", "alpha[alpha]^o", "alpha[theta]^o",
-                "h[F]^max", "h[M]^max", "h[S]^max", "h[F]^k", "h[S]^k",
-                "h[F]^0", "h[S]^0", "h[M]^A", "h[M]^sigma",
-                "lambda^A", "lambda[1]^R", "lambda[2]^R", "lambda[3]^R",
-                "lambda[4]^R", "mu[lambda]^R", "mu[sigma]^R")
-latex_names <- c("log(\\mu_y^A)", "\\sigma_y^A", "\\mu_y^R", "\\sigma_y^R",
-                 "y_{\\infty}", "k", "C", "t_s", "\\sigma^G", "\\beta_1",
-                 "\\beta_2", "\\beta_3", "\\beta_4", "\\beta_5", "\\alpha",
-                 "\\beta_{\\alpha}", "\\beta_{\\theta}", "\\alpha_1^o",
-                 "\\alpha_2^o", "\\alpha_3^o", "\\alpha_{\\alpha}^o",
-                 "\\alpha_{\\theta}^o", "h_F^{max}", "h_M^{max}", "h_S^{max}",
-                 "h_F^k", "h_S^k", "h_F^0", "h_S^0", "h_M^A", "h_M^{\\sigma}",
-                 "\\lambda^A", "\\lambda_1^R", "\\lambda_2^R", "\\lambda_3^R",
-                 "\\lambda_4^R", "\\mu_{\\lambda}^R", "\\mu_{\\sigma}^R")
-names_df <- as.data.frame(cbind(short_names, real_names, latex_names))
-colnames(names_df) <- c("short_names", "real_names", "latex_names")
-```
-```{r, echo = FALSE, results = "hide"}
-# separate parameters into three sets
-params1 <- short_names[1:15]
-params2 <- short_names[16:30]
-params3 <- short_names[31:38]
-plots1 <- create_traceplot(out, lower, upper, params1[1], names_df)
-plots2 <- create_traceplot(out, lower, upper, params2[1], names_df)
-plots3 <- create_traceplot(out, lower, upper, params3[1], names_df)
-for (i in 2:length(params1)) {
-  new_plot <- create_traceplot(out, lower, upper, params1[i], names_df)
-  plots1 <- plots1 + new_plot
-}
-plots1 <- plots1 + plot_layout(ncol = 3)
-for (i in 2:length(params2)) {
-  new_plot <- create_traceplot(out, lower, upper, params2[i], names_df)
-  plots2 <- plots2 + new_plot
-}
-plots2 <- plots2 + plot_layout(ncol = 3)
-for (i in 2:length(params3)) {
-  new_plot <- create_traceplot(out, lower, upper, params3[i], names_df)
-  plots3 <- plots3 + new_plot
-}
-plots3 <- plots3 + plot_layout(ncol = 3)
-```
-```{r, echo = FALSE}
-# create posterior summary dataframe
-out_sub <- list(
-  out[[1]][lower:upper, ], out[[2]][lower:upper, ],
-  out[[3]][lower:upper, ], out[[4]][lower:upper, ]
-)
-out_df <- rbind(
-  out[[1]][lower:upper, ], out[[2]][lower:upper, ],
-  out[[3]][lower:upper, ], out[[4]][lower:upper, ]
-)
-# get mean, sd, Rhat, effective sample size
-posterior <- MCMCsummary(out_sub)[, c("mean", "sd", "Rhat", "n.eff")]
-posterior$short_names <- rownames(posterior)
-# subset
-posterior <- posterior[posterior$short_names %in% short_names, ]
-# get 95% credibility interval
-posterior$lower_ci <- NA
-posterior$upper_ci <- NA
-for (i in seq_len(nrow(posterior))) {
-  sub <- out_df[, which(colnames(out_df) == posterior[i, "short_names"])]
-  posterior[i, "lower_ci"] <- as.numeric(hdi(sub, 0.95)[2])
-  posterior[i, "upper_ci"] <- as.numeric(hdi(sub, 0.95)[3])
-}
-# round
-for (i in seq_len(nrow(posterior))) {
-  if (posterior[i, "short_names"] %in% c("N_adult", "N_recruit[1]",
-                                         "N_recruit[2]", "N_recruit[3]",
-                                         "N_recruit[4]")) {
-    posterior[i, "mean"] <- round(posterior[i, "mean"], digits = 0)
-    posterior[i, "sd"] <- round(posterior[i, "sd"], digits = 0)
-    posterior[i, "lower_ci"] <- round(posterior[i, "lower_ci"], digits = 0)
-    posterior[i, "upper_ci"] <- round(posterior[i, "upper_ci"], digits = 0)
-  } else if (posterior[i, "short_names"] %in% c("nmortality_s[1]",
-                                                "nmortality_s[2]",
-                                                "nmortality_s[3]",
-                                                "nmortality_s[4]",
-                                                "nmortality_s[5]",
-                                                "trapm_pmax", "trapf_pmax",
-                                                "traps_pmax")) {
-    posterior[i, "mean"] <- round(posterior[i, "mean"], digits = 5)
-    posterior[i, "sd"] <- round(posterior[i, "sd"], digits = 5)
-    posterior[i, "lower_ci"] <- round(posterior[i, "lower_ci"], digits = 5)
-    posterior[i, "upper_ci"] <- round(posterior[i, "upper_ci"], digits = 5)
-  } else {
-    posterior[i, "mean"] <- round(posterior[i, "mean"], digits = 2)
-    posterior[i, "sd"] <- round(posterior[i, "sd"], digits = 2)
-    posterior[i, "lower_ci"] <- round(posterior[i, "lower_ci"], digits = 2)
-    posterior[i, "upper_ci"] <- round(posterior[i, "upper_ci"], digits = 2)
-  }
-}
-posterior$mean <- as.character(posterior$mean)
-posterior$sd <- as.character(posterior$sd)
-# add real names
-posterior <- left_join(names_df, posterior, by = "short_names")
-# function for getting 95% credibility interval
-get_ci <- function(lower, upper) {
-  out <- paste0("(", lower, ", ", upper, ")")
-  return(out)
-}
-# get final df
-posterior_final <- posterior[, c("latex_names", "mean", "sd")]
-posterior_final[, "95 CI"] <- mapply(get_ci,
-                                     posterior$lower_ci,
-                                     posterior$upper_ci)
-posterior_final[, "Rhat"] <- posterior$Rhat
-posterior_final[, "ESS"] <- posterior$n.eff
-colnames(posterior_final) <- c("parameter", "mean", "sd",
-                               "95 CI", "Rhat", "ESS")
-```
-**Table A2:** Posterior summaries, including the mean, standard deviation, 95% credibility interval (highest density interval), $\hat{R}$, and effective sample size. Descriptions of parameters can be found in Table 1.
-```{r, echo = FALSE}
-# Process the table for parsed text
-posterior_final <- posterior_final %>%
-  mutate(parameter = paste0("$", parameter, "$"))
-# Render table
-knitr::kable(
-  posterior_final,
-  escape = FALSE,
-  format = "latex",
-  booktabs = TRUE,
-  longtable = TRUE
-) %>%
-  kable_styling(full_width = FALSE, latex_options = c("repeat_header")) %>%
-  kableExtra::row_spec(-1,
-                       extra_latex_after = "\\renewcommand{\\arraystretch}{2}")
-```
-\newpage
-**Figure A2:** Trace plots of posterior samples. Colors refer to separate chains. Descriptions of parameters can be found in Table 1.
-```{r, echo = FALSE, fig.height=8.5}
-plots1
-```
-\newpage
-**Figure A2 continued.**
-```{r, echo = FALSE, fig.height=8.5}
-plots2
-```
-\newpage
-**Figure A2 continued.**
-```{r, echo = FALSE, fig.height=5.1}
-plots3
-```
+
+## Appendix 2.1
+
+The following vague prior distributions were used in the model. Parameter descriptions associated with parameter symbols can be found in Table 1 of the main text:
+
+Trap size selectivity parameters:
+
+$$
+h_M^{max} \sim Uniform(0, 0.1)
+$$
+
+$$
+h_M^A \sim Uniform(35, 60)
+$$
+
+$$
+h_M^{\sigma} \sim Uniform(3, 10)
+$$
+
+$$
+h_F^{max} \sim Uniform(0, 0.1)
+$$
+
+$$
+h_F^k \sim Uniform(0.1, 1.5)
+$$
+
+$$
+h_F^0 \sim Uniform(30, 100)
+$$
+
+$$
+h_S^{max} \sim Uniform(0, 0.1)
+$$
+
+$$
+h_S^k \sim Uniform(0.1, 1.5)
+$$
+
+$$
+h_S^0 \sim Uniform(30, 100)
+$$
+
+
+Natural mortality parameters:
+
+$$
+\beta_{\alpha} \sim Uniform(0, 50)
+$$
+
+$$
+\beta_{\theta} \sim Uniform(0, 150)
+$$
+
+$$
+\alpha \sim Uniform(0, 10000)
+$$
+
+
+Overwinter mortality parameters:
+
+$$
+\alpha^o_{\alpha} \sim Uniform(0, 50)
+$$
+
+$$
+\alpha^o_{\theta} \sim Uniform(0, 150)
+$$
+
+
+Seasonal growth parameters:
+
+$$
+\sigma^G \sim Uniform(0.01, 4)
+$$
+
+
+Overdispersion observation process (see Appendix 2.2):
+
+$$
+\rho \sim Beta(1, 1)
+$$
+
+
+Initial population density and annual recruitment:
+
+
+$$
+\mu_y^A \sim Uniform(3.25, 4.5)
+$$
+
+$$
+\sigma_y^A \sim Uniform(0.1, 1)
+$$
+
+$$
+\mu_y^R \sim Uniform(1, 25)
+$$
+
+$$
+\sigma_y^R \sim Uniform(0.01, 20)
+$$
+
+$$
+\mu_{\lambda}^R \sim Uniform(1, 1000000)
+$$
+
+$$
+\mu_{\sigma}^R \sim Uniform(0, 10000)
+$$
+
+$$
+\lambda^A \sim Uniform(1, 1000000)
+$$
+
+
+
+
+Since the model was estimated hierarchically, with the seasonal growth model was estimated first with the size-at-age data (D2), and the marginal posterior distributions from this first model were used in the second model with the time series data (D1) and mark-recapture data (D3). Informative priors used in the second model for parameters $C$, $k$, $y_[infty]$, $\tau_y$, and $t_s$ can be found in Table A1.2 in Appendix 1.2.4.
+
+## Appendix 2.2
+
+The parameter $\alpha^D_{t,j,i,y}$ described in the main text governs the mean and variance of the multinomial-dirichlet mixture distribution and generates the observed conditional probability of capture, $p^C_{t,j,i,y}$, across individual traps from the mean conditional probability of capture, $\tilde{p}^C_{t,j,i,y}$.
+
+The parameter $\alpha^D_{t,j,i,y}$ is linked to the sampled parameter, $\rho$:
+
+$$
+\alpha^D_{t,j,i,y} = \tilde{p}^C_{t,j,i,y} \times p^D
+$$
+
+$$
+p^D = \frac{1-\rho}{\rho}
+$$
+

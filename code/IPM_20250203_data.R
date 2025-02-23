@@ -98,7 +98,7 @@ model_code <- nimbleCode({
   ##
   # observation process
   ##
-  # dirichlet multinomial (over dispersion in count data)
+  # dirichlet multinomial (overdispersion in count data)
   ro_dir ~ dbeta(1, 1)
   n_p_dir <- (1 - ro_dir) / ro_dir
 

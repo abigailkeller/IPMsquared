@@ -1,12 +1,16 @@
 ---
+title: "Appendix 1: Description of data"
 output: pdf_document
 bibliography: appendix1.bib
 ---
 # Appendix 1
 The integrated population model provides a framework for synthesizing multiple demographic datasets to mutually inform shared parameters. In Appendix 1.1, we further describe the Drayton Harbor time series data (D1). In Appendix 1.2, we describe additional information about the size-at-age data (D2), the model fitted to size-at-age data (D2), code used to fit the model, and posterior summaries. In Appendix 1.3, we describe the mark-recapture data (D3).
+
 ## Appendix 1.1
 The time series data (D1) was collected in Drayton Harbor, an enclosed bay in the Salish Sea in Washington State, USA.
+
 **Figure A1.1:** Bathymetric map of Drayton Harbor. Colors indicate depth and black line indicates coast line.
+
 ```{r dh-figure, echo=FALSE}
 knitr::include_graphics(
   paste0("C:/Users/abiga/Documents/Berkeley/Structured_Decision_Making/",
@@ -15,6 +19,7 @@ knitr::include_graphics(
 ```
 Below we describe the total removal effort and catch of European green crab (EGC, *C. maenas*) in Drayton Harbor (D1). While the removal count data is collected at many time points throughout the trapping season, we discretize the time intervals into biweekly periods in the model.
 Drayton Harbor data were subset to only include recruits (age < 1) that appear in a single cohort in the fall of each year (Figure 1B). This subset only removed three recruit individuals in 2022 from the dataset, which  were from an off-cycle recruitment cohort.
+
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 library(tidyverse)
 library(kableExtra)
@@ -50,35 +55,50 @@ df_catch <- cbind(julian_day, df_catch)
 colnames(df_catch) <- c("Julian day", "year", "F (catch)", "F (effort)",
                         "M (catch)", "M (effort)", "S (catch)", "S (effort)")
 ```
+
+\newpage
+
 **Table A1.1:** Number of crabs caught and total removal effort (number of traps) during each biweek and year. Julian day signifies the first Julian day of the discretized biweek period. F, M, and S correspond to Fukui, Minnow, and Shrimp traps, respectively.
+
 ```{r, echo = FALSE}
 # Render table
 knitr::kable(
   df_catch
 )
 ```
+
 \newpage
+
 ## Appendix 1.2
+
 Below we provide additional information about the size-at-age data (D2), the model fitted to size-at-age data (D2), code used to fit data to the model, and posterior summaries.
+
 ### Appendix 1.2.1
+
 Size-at-age data (D2) are collected from two sources: 1) records from crab removal observations in northeastern Pacific estuaries from Yamada et al. 2005, when the somatic growth of a strong recruitment class was tracked over time [@yamada2005growth], and 2) crabs with an assigned year class from Drayton Harbor that were easily identifiable based on size and carapace color. While data from these Drayton Harbor recruits enter the integrated population model likelihood twice (D1 and D2), extensive simulation-based research has revealed that IPMs are robust to dependent data [@abadi2010assessment]. Ages are assigned assuming recruitment settlement in March.
+
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 growth_data <- read.csv("../data/growthdata.csv")
 growth_summary <- growth_data %>%
   group_by(Year, Waterbody) %>%
   summarize(n = n())
 ```
+
 **Table A1.2:** Number of size-at-age records during each year and waterbody in the northeastern Pacific.
+
 ```{r, echo = FALSE}
 # Render table
 knitr::kable(
   growth_summary
 )
 ```
+
 ### Appendix 1.2.2
+
 The integrated population model (IPM) is fitted sequentially, such that the seasonal growth parameters are fit with the size-at-age records, and the summarized posteriors are used to develop prior distributions in the overall IPM. Below, we detail the model used to fit the seasonal growth parameters with the size-at-age data.
 The size-at-age data, $W_{a,i}$, indicating carapace width at age $a$ in year $i$ are fit to the same seasonal growth model as in the main text [@somers1988seasonally]. Except here, we account for non-independence among data collected in the same year, since growth rate is likely affected by water temperature, which varies from year-to-year.
 The expected carapace width, $\widetilde{W}_{a}$, of a crab at age $a$ is:
+
 $$
 \widetilde{W}_{a,i} = y_{\infty}(1-exp(-k(a-t_0) - S(a) + S(t0))) + \epsilon_i
 $$
@@ -89,14 +109,17 @@ $$
 S(t_0) = \frac{Ck}{2\pi}sin(2\pi(t_0-t_s))
 $$
 To account for non-independence among data collected within the same year, we add a normally distributed error term with standard deviation, $\tau_y$.
+
 $$
 \epsilon_i \sim Normal(0, \tau_y)
 $$
 To account for individual variation in growth rate, the observed size-at-age data, $W_{a,i}$, follows a normal distribution, with the expected carapace width $\widetilde{W}_{a,i}$, and standard deviation, $\tau_{w}$.
+
 $$
 W_{a,i} \sim Normal(\widetilde{W}_{a,i}, \tau_{w})
 $$
 We use uninformative priors for the parameters:
+
 $$
 k \sim Uniform(0,2)
 $$
@@ -118,9 +141,13 @@ $$
 $$
 y_{\infty} \sim Uniform(80,140)
 $$
+\newpage
+
 ### Appendix 1.2.3
+
 Below is the code used to fit the seasonal growth model to the size-at-age data.
 First, we will write the model code with the R package, *nimble* [@de2017programming].
+
 ```{r, eval = FALSE}
 library(nimble)
 # model code
@@ -151,7 +178,9 @@ seasonal_growth <- nimbleCode({
   }
 })
 ```
+
 Next we will bundle up the data, constants, and initial values for the MCMC.
+
 ```{r, eval = FALSE}
 # bundle up data and constants
 constants <- list(
@@ -176,7 +205,9 @@ inits_season <- list(
   ranef = rep(0, length(unique(data$year_index)))
 )
 ```
+
 Finally, we will run the MCMC in parallel:
+
 ```{r, eval = FALSE}
 # run MCMC chains in parallel
 cl <- makeCluster(4)
@@ -206,8 +237,13 @@ out <- clusterEvalQ(cl, {
 })
 stopCluster(cl)
 ```
+
+\newpage
+
 ### Appendix 1.2.4
+
 Here we provide posterior summaries of the seasonal growth parameters fit with the size-at-age data.
+
 ```{r, echo = FALSE}
 library(MCMCvis)
 library(bayestestR)
@@ -278,7 +314,9 @@ posterior_final[, "IPM prior"] <- c("X", "X", "X", "", "", "", "X")
 colnames(posterior_final) <- c("parameter", "mean", "sd",
                                "95 CI", "Rhat", "ESS", "IPM prior")
 ```
+
 **Table A1.2:** Posterior summaries, including the mean, standard deviation, 95% credibility interval (highest density interval), Rhat, and effective sample size. An X in 'IPM prior' indicates that the posterior is used in the overall IPM. Descriptions of parameters can be found in Appendix 1.2.2.
+
 ```{r, echo=FALSE}
 # Process the table for parsed text
 posterior_final <- posterior_final %>%
@@ -296,8 +334,11 @@ knitr::kable(
   kable_styling(full_width = FALSE, latex_options = c("repeat_header")) %>%
   kableExtra::row_spec(0, extra_latex = "\\renewcommand{\\arraystretch}{1.5}")
 ```
+
 \newpage
+
 **Figure A1.2:** Size-at-age data and model fit. Each posterior sample was used to predict the age-size relationship. The solid line corresponds to the median prediction, and the shaded area corresponds to the 95% credibility interval.
+
 ```{r include-figure, echo=FALSE}
 knitr::include_graphics("../figures/appendix_growth_plot.png")
 ```
@@ -326,6 +367,7 @@ create_traceplot <- function(out, lower, upper, param, names_df) {
   return(plot)
 }
 ```
+
 ```{r, echo = FALSE, results = "hide"}
 # create trace plots
 plots <- create_traceplot(samples, lower, upper,
@@ -337,13 +379,21 @@ for (i in 2:length(names_df$short_names)) {
 }
 plots <- plots + plot_layout(ncol = 3)
 ```
+
 \newpage
+
 **Figure A1.3:** Trace plots of posterior samples of size-at-age model. Colors refer to separate chains. Descriptions of parameters can be found in Appendix 1.2.2.
+
 ```{r, echo = FALSE}
 plots
 ```
+
 ### Appendix 1.3
+
 Here we describe the batch mark-recapture data (D3). The data was taken from Grosholz et al. 2021, where the co-authors conducted an extensive capture-mark-recapture experiment to estimate population size at Seadrift Lagoon in California, USA (Grosholz et al. 2021).
+
 The authors deployed 15 Fukui traps in June within the lagoon. Over the succeeding three days, they marked all crabs caught by clipping two spines on the carapace, recording their size, and releasing them back to their original location. Within successive weeks as part of an eradication program, crabs were removed, and the number and carapace width of retrieved (marked and unmarked) crabs were recorded.
+
 Data was retrieved from NSF’s Biological and Chemical Oceanography Data Management Office at https://www.bco-dmo.org/person/699768. While the mark-recapture experiment took place from 2011-2018, we only used data from one year, 2011, since the marking data was unambiguous.
+
 # References

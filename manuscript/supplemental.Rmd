@@ -17,7 +17,7 @@ knitr::include_graphics(
 ```{r, echo=FALSE}
 knitr::include_graphics(
   paste0("C:/Users/abiga/Documents/Berkeley/Structured_Decision_Making/",
-         "pop_dynamics_model/IPMsquared/figures/supplemental_fig_IPM_simulations_diff.png")
+         "pop_dynamics_model/IPMsquared/figures/supplemental_IPM_simulations_diff.png")
 )
 ```
 

@@ -5,12 +5,12 @@ library(cowplot)
 
 
 # read in simulation results
-out <- readRDS("data/simulations_20241228_avg.rds")
-out_noeffort <- readRDS("data/simulations_noeffort_20241228_avg.rds")
+out <- readRDS("data/simulations_20250221_avg.rds")
+out_no_effort <- readRDS("data/simulations_noeffort_20250221_avg.rds")
 
-out_no_effort_summary <- as.data.frame(out_noeffort) %>%
-  mutate(iter = seq_len(nrow(out_noeffort))) %>%
-  pivot_longer(cols = ! iter,
+out_no_effort_summary <- as.data.frame(out_no_effort) %>%
+  mutate(iter = seq_len(nrow(out_no_effort))) %>%
+  pivot_longer(cols = !iter,
                names_to = "size",
                values_to = "N") %>%
   group_by(size) %>%
@@ -74,7 +74,8 @@ plot_28 <- ggplot() +
   labs(x = "size (mm)", y = expression(N[size]),
        color = "trap type") +
   theme_minimal() +
-  theme(legend.position = "None") +
+  theme(legend.position = "None",
+        plot.title = element_text(size = 12)) +
   ggtitle("B. effort = 28")
 
 plot_112 <- ggplot() +
@@ -142,7 +143,8 @@ plot_840 <- ggplot() +
   labs(x = "size (mm)", y = expression(N[size]),
        color = "trap type") +
   theme_minimal() +
-  theme(legend.position = "None") +
+  theme(legend.position = "None",
+        plot.title = element_text(size = 12)) +
   ggtitle("E. effort = 840")
 
 plot_1400 <- ggplot() +
@@ -212,7 +214,9 @@ plot_w_legend <- ggplot() +
   theme_minimal()
 legend <- get_legend(plot_w_legend)
 
-final_plot <- plot_0 + plot_28 + plot_112 + plot_560 + plot_840 + 
-  plot_1400 + plot_2800 + legend + plot_layout(nrow = 2)
+final_plot <- plot_0 + plot_28 + plot_112 + plot_560 +
+  plot_840 + plot_1400 + plot_2800 + legend +
+  plot_layout(nrow = 2)
+
 ggsave("figures/supplemental_IPM_simulations_mean.png", dpi = 400,
-       width = 8, height = 4)
+       width = 9, height = 6)

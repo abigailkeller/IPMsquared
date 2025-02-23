@@ -48,13 +48,13 @@ nmort_size <- get_samples(out_sub, "nmort_size")
 survival <- list()
 o_survival <- list()
 for (i in seq_len(3)) {
-  survival[[i]] <- mapply(get_survival, 
+  survival[[i]] <- mapply(get_survival,
                           get_samples(out_sub, paste0("nmortality_s[", i, "]")),
                           nmort_size, deltat = 14)
-  o_survival[[i]] <- mapply(get_o_survival, 
-                            get_samples(out_sub, 
-                                        paste0("wnmortality_s[", i, "]")), 
-                            get_samples(out_sub, 
+  o_survival[[i]] <- mapply(get_o_survival,
+                            get_samples(out_sub,
+                                        paste0("wnmortality_s[", i, "]")),
+                            get_samples(out_sub,
                                         paste0("wgrowth_N_sum[", i, "]")))
 }
 
@@ -132,7 +132,7 @@ nsurv_plot <- ggplot(data = nsurv_summaries_long) +
   scale_fill_manual(values = c(viridis_colors[1],
                                viridis_colors[2],
                                viridis_colors[3])) +
-  theme_minimal() + 
+  theme_minimal() +
   theme(legend.title = element_text(0.5))
 wsurv_plot <- ggplot(data = wsurv_summaries_long) +
   geom_ribbon(aes(x = as.numeric(size),
@@ -156,7 +156,7 @@ wsurv_plot <- ggplot(data = wsurv_summaries_long) +
                     values = c(viridis_colors[1],
                                viridis_colors[2],
                                viridis_colors[3])) +
-  theme_minimal() + 
+  theme_minimal() +
   theme(legend.title = element_text(0.5))
 
 final_plot <- nsurv_plot + wsurv_plot + plot_layout(ncol = 1)
