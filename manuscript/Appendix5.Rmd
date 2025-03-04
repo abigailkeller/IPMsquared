@@ -71,3 +71,232 @@ knitr::kable(
 
 ## Appendix 5.2
 
+Bayesian model checking was used to determine if the model is an adequate representation of the observed data. Fit was checked with an omnibus discrepancy function, deviance:
+
+$$
+T(y, \theta) = -2log(y|\theta)
+$$
+
+as well as a targeted discrepancy function to check zero inflation in the count data:
+
+$$
+T(y) = \sum_iI(y_i = 0)
+$$
+
+**Generating posterior predictive samples and calculating deviance**
+
+The posterior predictive samples (PPS) and deviance of PPS was calculated using the following nimble function:
+
+```{r, eval = FALSE}
+ppSamplerNF <- nimbleFunction(
+  setup = function(model, samples) {
+    
+    # theta
+    topNodes <- model$getNodeNames(stochOnly = TRUE, topOnly = TRUE)
+    
+    # nodes to simulate
+    simNodes <- model$getNodeNames()[!(model$getNodeNames() %in% topNodes)]
+    
+    # data nodes
+    dataNodes <- model$getNodeNames(dataOnly = TRUE)
+    
+    n <- length(model$expandNodeNames(dataNodes, returnScalarComponents = TRUE))
+    vars <- colnames(samples[, topNodes])
+    
+    # subset posterior samples to just theta (top nodes in graph)
+    samples_sub <- samples[, topNodes]
+    
+  },
+  run = function(samples = double(2)) {
+    
+    nSamp <- dim(samples)[1]
+    ppSamples <- matrix(nrow = nSamp, ncol = n + 1)
+    
+    for(i in 1:nSamp) {
+      
+      # add theta to model
+      values(model, vars) <<- samples_sub[i, ]
+      
+      # update nodes based on theta
+      model$simulate(simNodes, includeData = TRUE)
+      
+      # save PPS
+      ppSamples[i, 1:n] <- values(model, dataNodes)
+      
+      # store deviance of each sample
+      ppSamples[i, n + 1] <- 2 * model$calculate(dataNodes)
+    }
+    returnType(double(2))
+    return(ppSamples)
+  })
+```
+
+The posterior predictive samples (PPS) and deviance were calculated and saved using the nimble function:
+
+```{r, eval = FALSE}
+# generate posterior predictive sampler
+ppSampler <- ppSamplerNF(
+  myModel, # uncompiled model (see Appendix 3)
+  samples # posterior samples
+)
+# compile posterior predictive samples
+cppSampler <- compileNimble(
+  ppSampler, 
+  project = CmyModel # compiled model (see Appendix 3)
+)
+# run compiled function
+ppSamples_via_nf <- cppSampler$run(samples)
+
+# get PPS and samples
+n <- length(CmyModel$expandNodeNames(dataNodes, returnScalarComponents = TRUE))
+ppSamples <- ppSamples_via_nf[, 1:n]
+deviance <- ppSamples_via_nf[, n + 1]
+
+# save
+saveRDS(ppSamples, paste0("PPS.rds"))
+saveRDS(deviance, "deviance_yrep.rds")
+```
+
+**Calculating deviance of data**
+
+Bayesian p-values are calculated by comparing the deviance of the posterior predictive samples and the deviance of the observed data. Deviance of the data was calculated using the following nimble function:
+
+```{r, eval = FALSE}
+calc_deviance_y <- nimbleFunction(
+  setup = function(model, samples) {
+    
+    # theta = top nodes and latent states
+    theta <- colnames(samples)
+    
+    # calculate model graph dependencies of theta to update
+    deps <- CmyModel$getDependencies(theta, self = TRUE)
+    
+    # data nodes
+    dataNodes <- model$getNodeNames(dataOnly = TRUE)
+    
+  },
+  run = function(samples = double(2)) {
+    
+    nSamp <- dim(samples)[1]
+    deviance <- rep(NA, nSamp)
+    
+    for(i in 1:nSamp) {
+      
+      # add theta
+      values(model, theta) <<- samples[i, ]
+      
+      # update dependencies
+      CmyModel$calculate(deps)
+      
+      # calculate deviance
+      deviance[i] <- 2 * model$calculate(dataNodes)
+    }
+    returnType(double(1))
+    return(deviance)
+  })
+```
+
+The deviance of the data was calculated and saved using the nimble function:
+
+```{r, eval = FALSE}
+# generate deviance calculator
+devianceCalculator <- calc_deviance_y(
+  myModel, # uncompiled model, contains data (see Appendix 3)
+  samples # posterior samples
+)
+# compile deviance calculator
+CdevianceCalculator <- compileNimble(
+  devianceCalculator, 
+  project = CmyModel # compiled model, contains data (see Appendix 3)
+)
+# run compiled function
+data_deviance_via_nf <- CdevianceCalculator$run(samples)
+
+# save
+saveRDS(data_deviance_via_nf, "deviance_y.rds")
+```
+
+### Appendix 5.2.1
+
+**Model checking with deviance**
+
+The Bayesian p-value calculated using deviance as the proportion of $T(y_i) > T(y^{rep}_i)$. The deviance p-value is 0.92. 
+
+**Figure A5.1:** Histogram of deviance generated for each posterior sample for $y$ (red) and $y^{rep}$ (blue).
+
+```{r, echo=FALSE}
+knitr::include_graphics(
+  paste0("C:/Users/abiga/Documents/Berkeley/Structured_Decision_Making/",
+         "pop_dynamics_model/IPMsquared/figures/ppp_deviance_plot.png")
+)
+```
+
+**Model checked with zero inflation**
+
+The Bayesian p-value using the targeted zero-inflation check was calculated as the proportion of $T(y_i) > T(y^{rep}_i)$. The zero-inflation check p-value is 0.85. 
+
+**Figure A5.2:** Histogram of proportion of zeros in each set, $i$, of posterior predictive samples, $y^{rep}$. Red line indicates the proportion of zeros in the data, $y$.
+
+```{r, echo=FALSE}
+knitr::include_graphics(
+  paste0("C:/Users/abiga/Documents/Berkeley/Structured_Decision_Making/",
+         "pop_dynamics_model/IPMsquared/figures/ppp_zeros.png")
+)
+```
+
+### Appendix 5.2.2
+
+```{r, echo = FALSE}
+library(tidyverse)
+samples_in <- readRDS("C:/Users/abiga/Documents/Berkeley/Structured_Decision_Making/pop_dynamics_model/IPMsquared/data/posterior_samples/savedsamples_IPM.rds")
+lower <- 2000
+upper <- 10001
+sub <- seq(lower, upper, 5)
+samples <- rbind(samples_in[[1]][sub, ],
+                 samples_in[[2]][sub, ],
+                 samples_in[[3]][sub, ],
+                 samples_in[[4]][sub, ])
+```
+
+$$
+\beta_i \sim Gamma(shape = \beta_{\alpha}, rate = \beta_{\theta})
+$$
+**Figure A5.3:** Histogram shows the probability density function for year-specific natural mortality, $\beta_i$, based on the median posterior estimates of the gamma distribution shape, $\beta_{\alpha}$ and rate, $\beta_{\theta}$. Red vertical lines indicate the median posterior estimate of each $\beta_i$.
+
+```{r, echo = FALSE}
+ggplot() +
+  geom_histogram(aes(x = rgamma(10000, 
+                                shape = median(samples[,"nmort_shape_s"]), 
+                                rate = median(samples[,"nmort_rate_s"])))) +
+  geom_vline(aes(xintercept = median(samples[,"nmortality_s[1]"])), 
+             color = "red") +
+  geom_vline(aes(xintercept = median(samples[,"nmortality_s[2]"])), 
+             color = "red") +
+  geom_vline(aes(xintercept = median(samples[,"nmortality_s[3]"])), 
+             color = "red") +
+  geom_vline(aes(xintercept = median(samples[,"nmortality_s[4]"])), 
+             color = "red") +
+  labs(x = "natural mortality", y = "count") +
+  theme_minimal()
+```
+
+$$
+\alpha^o_i \sim Gamma(shape = \alpha^o_{\alpha}, rate = \alpha^o_{\theta})
+$$
+
+**Figure A5.4:** Histogram shows the probability density function for year-specific overwinter natural mortality, $\alpha^o_i$, based on the median posterior estimates of the gamma distribution shape, $\alpha^o_{\alpha}$ and rate, $\alpha^o_{\theta}$. Blue vertical lines indicate the median posterior estimate of each $\alpha^o_i$.
+
+```{r, echo = FALSE}
+ggplot() +
+  geom_histogram(aes(x = rgamma(10000, 
+                                shape = median(samples[,"wnmort_shape_s"]), 
+                                rate = median(samples[,"wnmort_rate_s"])))) +
+  geom_vline(aes(xintercept = median(samples[,"wnmortality_s[1]"])), 
+             color = "blue") +
+  geom_vline(aes(xintercept = median(samples[,"wnmortality_s[2]"])), 
+             color = "blue") +
+  geom_vline(aes(xintercept = median(samples[,"wnmortality_s[3]"])), 
+             color = "blue") +
+  labs(x = "overwinter natural mortality", y = "count") +
+  theme_minimal()
+```
