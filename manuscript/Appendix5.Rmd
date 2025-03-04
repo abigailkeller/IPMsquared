@@ -71,13 +71,13 @@ knitr::kable(
 
 ## Appendix 5.2
 
-Bayesian model checking was used to determine if the model is an adequate representation of the observed data. Fit was checked with an omnibus discrepancy function, deviance:
+Bayesian model checking was used to determine if the model is an adequate representation of the observed data. Fit was checked with an omnibus discrepancy function, deviance. Here, $y$ refers to the the count of removed crabs, $n^C_{t,j,i,y}$, the total number of removed crabs, $n^R_{t,i,y}$, and the number of recaptured marked crabs, $mc_y^{mc}$:
 
 $$
 T(y, \theta) = -2log(y|\theta)
 $$
 
-as well as a targeted discrepancy function to check zero inflation in the count data:
+as well as a targeted discrepancy function to check zero inflation in the count data. Here, $y$ refers to the the count of removed crabs, $n^C_{t,j,i,y}$:
 
 $$
 T(y) = \sum_iI(y_i = 0)
@@ -153,8 +153,8 @@ ppSamples <- ppSamples_via_nf[, 1:n]
 deviance <- ppSamples_via_nf[, n + 1]
 
 # save
-saveRDS(ppSamples, paste0("PPS.rds"))
-saveRDS(deviance, "deviance_yrep.rds")
+saveRDS(ppSamples, paste0("data/posterior_predictive_check/PPS.rds"))
+saveRDS(deviance, "data/posterior_predictive_check/deviance_yrep.rds")
 ```
 
 **Calculating deviance of data**
@@ -213,10 +213,10 @@ CdevianceCalculator <- compileNimble(
 data_deviance_via_nf <- CdevianceCalculator$run(samples)
 
 # save
-saveRDS(data_deviance_via_nf, "deviance_y.rds")
+saveRDS(data_deviance_via_nf, "data/posterior_predictive_check/deviance_y.rds")
 ```
 
-### Appendix 5.2.1
+\newpage
 
 **Model checking with deviance**
 
@@ -231,11 +231,13 @@ knitr::include_graphics(
 )
 ```
 
+\newpage
+
 **Model checked with zero inflation**
 
-The Bayesian p-value using the targeted zero-inflation check was calculated as the proportion of $T(y_i) > T(y^{rep}_i)$. The zero-inflation check p-value is 0.85. 
+The Bayesian p-value using the targeted zero-inflation check was calculated as the proportion of $T(y_i) > T(y^{rep}_i)$, where $y$ refers to the count data. The zero-inflation check p-value is 0.85. 
 
-**Figure A5.2:** Histogram of proportion of zeros in each set, $i$, of posterior predictive samples, $y^{rep}$. Red line indicates the proportion of zeros in the data, $y$.
+**Figure A5.2:** Histogram of proportion of zeros in each set, $i$, of posterior predictive samples, $y^{rep}$. Red line indicates the proportion of zeros in the count data, $y$.
 
 ```{r, echo=FALSE}
 knitr::include_graphics(
@@ -244,59 +246,4 @@ knitr::include_graphics(
 )
 ```
 
-### Appendix 5.2.2
 
-```{r, echo = FALSE}
-library(tidyverse)
-samples_in <- readRDS("C:/Users/abiga/Documents/Berkeley/Structured_Decision_Making/pop_dynamics_model/IPMsquared/data/posterior_samples/savedsamples_IPM.rds")
-lower <- 2000
-upper <- 10001
-sub <- seq(lower, upper, 5)
-samples <- rbind(samples_in[[1]][sub, ],
-                 samples_in[[2]][sub, ],
-                 samples_in[[3]][sub, ],
-                 samples_in[[4]][sub, ])
-```
-
-$$
-\beta_i \sim Gamma(shape = \beta_{\alpha}, rate = \beta_{\theta})
-$$
-**Figure A5.3:** Histogram shows the probability density function for year-specific natural mortality, $\beta_i$, based on the median posterior estimates of the gamma distribution shape, $\beta_{\alpha}$ and rate, $\beta_{\theta}$. Red vertical lines indicate the median posterior estimate of each $\beta_i$.
-
-```{r, echo = FALSE}
-ggplot() +
-  geom_histogram(aes(x = rgamma(10000, 
-                                shape = median(samples[,"nmort_shape_s"]), 
-                                rate = median(samples[,"nmort_rate_s"])))) +
-  geom_vline(aes(xintercept = median(samples[,"nmortality_s[1]"])), 
-             color = "red") +
-  geom_vline(aes(xintercept = median(samples[,"nmortality_s[2]"])), 
-             color = "red") +
-  geom_vline(aes(xintercept = median(samples[,"nmortality_s[3]"])), 
-             color = "red") +
-  geom_vline(aes(xintercept = median(samples[,"nmortality_s[4]"])), 
-             color = "red") +
-  labs(x = "natural mortality", y = "count") +
-  theme_minimal()
-```
-
-$$
-\alpha^o_i \sim Gamma(shape = \alpha^o_{\alpha}, rate = \alpha^o_{\theta})
-$$
-
-**Figure A5.4:** Histogram shows the probability density function for year-specific overwinter natural mortality, $\alpha^o_i$, based on the median posterior estimates of the gamma distribution shape, $\alpha^o_{\alpha}$ and rate, $\alpha^o_{\theta}$. Blue vertical lines indicate the median posterior estimate of each $\alpha^o_i$.
-
-```{r, echo = FALSE}
-ggplot() +
-  geom_histogram(aes(x = rgamma(10000, 
-                                shape = median(samples[,"wnmort_shape_s"]), 
-                                rate = median(samples[,"wnmort_rate_s"])))) +
-  geom_vline(aes(xintercept = median(samples[,"wnmortality_s[1]"])), 
-             color = "blue") +
-  geom_vline(aes(xintercept = median(samples[,"wnmortality_s[2]"])), 
-             color = "blue") +
-  geom_vline(aes(xintercept = median(samples[,"wnmortality_s[3]"])), 
-             color = "blue") +
-  labs(x = "overwinter natural mortality", y = "count") +
-  theme_minimal()
-```

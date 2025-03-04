@@ -5,8 +5,8 @@ library(cowplot)
 
 
 # read in simulation results
-out <- readRDS("data/simulations_20250221_avg.rds")
-out_no_effort <- readRDS("data/simulations_noeffort_20250221_avg.rds")
+out <- readRDS("data/simulations/simulations_effort.rds")
+out_no_effort <- readRDS("data/simulations/simulations_noeffort.rds")
 
 out_no_effort_summary <- as.data.frame(out_no_effort) %>%
   mutate(iter = seq_len(nrow(out_no_effort))) %>%

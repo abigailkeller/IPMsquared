@@ -5,8 +5,8 @@ library(cowplot)
 
 
 # read in simulation results
-out <- readRDS("data/simulations_20250221_avg.rds")
-out_noeffort <- readRDS("data/simulations_noeffort_20250221_avg.rds")
+out <- readRDS("data/simulations/simulations_effort.rds")
+out_noeffort <- readRDS("data/simulations/simulations_noeffort.rds")
 
 # calculate difference
 difference <- as.data.frame(matrix(NA, nrow = dim(out)[1],

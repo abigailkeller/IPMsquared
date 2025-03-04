@@ -469,7 +469,7 @@ for (e in effort) {
   }
   print(paste0("finished effort: ", e))
 }
-saveRDS(out, "data/simulations_20250221_avg.rds")
+saveRDS(out, "data/simulations/simulations_effort.rds")
 
 # simulate no effort
 out_noeffort <- matrix(NA, nrow = length(index), ncol = constant$n_size)
@@ -482,4 +482,4 @@ for (i in 1:length(index)) {
   )
 
 }
-saveRDS(out_noeffort, "data/simulations_noeffort_20250221_avg.rds")
+saveRDS(out_noeffort, "data/simulations/simulations_noeffort.rds")
