@@ -3,18 +3,18 @@ title: "Appendix 3: Model code"
 output: pdf_document
 ---
 
-This appendix contains the model code, written and implemented with the software `nimble` and implemented in parallel with the `parallel` package.
+This appendix contains the model code, written and implemented with the software `nimble` and implemented in parallel with the `parallel` package. See Appendix 4 for more generic, modular model code that closely follows the model description in the main text without the extra data structures required to account for the heterogeneous data used to fit the model.
 
 First data will be read in:
 
 ```{r, eval = FALSE}
 # read in time series data
-counts <- readRDS("data/model_data/counts.rds")
-ncap <- readRDS("data/model_data/n_cap.rds")
+n_C <- readRDS("data/model_data/counts.rds")
+n_R <- readRDS("data/model_data/n_cap.rds")
 
 # read in time series constants
 index <- readRDS("data/model_data/index.rds")
-index_frac <- readRDS("data/model_data/index_frac.rds")
+D <- readRDS("data/model_data/index_frac.rds")
 totalt <- readRDS("data/model_data/totalt.rds")
 totalo <- readRDS("data/model_data/totalo.rds")
 soak_days <- readRDS("data/model_data/soak_days.rds")
@@ -29,7 +29,7 @@ n1_mc <- readRDS("data/model_data/n1_mc.rds")
 m2_mc <- readRDS("data/model_data/m2_mc.rds")
 
 # read in mark-recapture constants
-mc_index <- readRDS("data/model_data/mc_index.rds")
+D_mc <- readRDS("data/model_data/mc_index.rds")
 totalo_mc <- readRDS("data/model_data/totalo_mc.rds")
 soak_days_mc <- readRDS("data/model_data/soak_days_mc.rds")
 f_index_mc <- readRDS("data/model_data/f_index_mc.rds")
@@ -130,7 +130,7 @@ model_code <- nimbleCode({
     N_recruit[m] ~ T(dnorm(N_mu_recruit, sd = N_sd_recruit), 0, Inf)
   }
 
-  # adundance of adults in year 1
+  # abundance of adults in year 1
   N_adult ~ dunif(1, 1000000)
 
 
@@ -189,7 +189,7 @@ model_code <- nimbleCode({
   prop_adult[1:n_size] <- init_sizes_lnorm(init_lmean_adult, init_lsd_adult,
                                            lower[1:n_size], upper[1:n_size])
 
-  # get initial size-structured abundance of recruits - year 1
+  # get initial size-structured abundance of adults - year 1
   N_init[1:n_size] <- prop_adult[1:n_size] * N_adult
 
   # project to first observed time period - year 1
@@ -669,7 +669,7 @@ out <- clusterEvalQ(cl, {
   )
   assign("init_sizes_gamma", init_sizes_gamma, envir = .GlobalEnv)
 
-  # lognormal distribution for initial size distribution of recruits
+  # lognormal distribution for initial size distribution of adults
   init_sizes_lnorm <- nimbleFunction (
     #input and output types
     run = function(init_lmean = double(0), init_lsd = double(0),
