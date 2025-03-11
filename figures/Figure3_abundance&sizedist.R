@@ -6,6 +6,7 @@ library(viridis)
 
 # read in samples
 out <- readRDS("data/posterior_samples/savedsamples_IPM.rds")
+
 # subset samples
 lower <- 2000
 upper <- 10001
@@ -13,22 +14,24 @@ out_sub <- list(
   out[[1]][lower:upper, ], out[[2]][lower:upper, ],
   out[[3]][lower:upper, ], out[[4]][lower:upper, ]
 )
+
 # function for getting samples
 get_samples <- function(samples, param) {
   samples <- c(samples[[1]][, param], samples[[2]][, param],
                samples[[3]][, param], samples[[4]][, param])
   return(samples)
 }
+
 # get params
-n_adult_1 <- get_samples(out_sub, "N_adult")
+n_adult_1 <- get_samples(out_sub, "lambda_A")
 n_recruit <- list()
 for (i in seq_len(4)) {
-  n_recruit[[i]] <- get_samples(out_sub, paste0("N_recruit[", i, "]"))
+  n_recruit[[i]] <- get_samples(out_sub, paste0("lambda_R[", i, "]"))
 }
-init_mean_recruit <- get_samples(out_sub, "init_mean_recruit")
-init_sd_r <- get_samples(out_sub, "init_sd_r")
-init_lsd_adult <- get_samples(out_sub, "init_lsd_adult")
-init_lmean_adult <- get_samples(out_sub, "init_lmean_adult")
+init_mean_recruit <- get_samples(out_sub, "mu_R_y")
+init_sd_r <- get_samples(out_sub, "sigma_R_y")
+init_lsd_adult <- get_samples(out_sub, "sigma_A_y")
+init_lmean_adult <- get_samples(out_sub, "mu_A_y")
 adult_dist <- list()
 for (i in seq_len(3)) {
   adult_dist[[i]] <- as.data.frame(matrix(NA, ncol = 22,
@@ -63,6 +66,7 @@ n_summaries <- data.frame(
     sapply(c(n_adult[1:3], n_recruit[1:4]), function(x) as.numeric(hdi(x)[3]))
   )
 )
+
 # make plots of N distribution - recruit
 min_size <- 0
 max_size <- 110
@@ -70,10 +74,7 @@ y_recruit <- seq(min_size, max_size, 1)
 n <- 22
 b <- min_size + c(0:n) * (max_size - min_size) / n
 y <- 0.5 * (b[1:n] + b[2:(n + 1)])
-init_mean_recruit <- get_samples(out_sub, "init_mean_recruit")
-init_sd_r <- get_samples(out_sub, "init_sd_r")
-init_lsd_adult <- get_samples(out_sub, "init_lsd_adult")
-init_lmean_adult_1 <- get_samples(out_sub, "init_lmean_adult")
+
 dist_summaries_recruit <- data.frame(
   param = c("n_recruit_1_dist", "n_recruit_2_dist", "n_recruit_3_dist",
             "n_recruit_4_dist", "n_recruit_1_dist", "n_recruit_2_dist",
@@ -139,7 +140,7 @@ for (i in seq_len(4)) {
 }
 
 # summarize adult size distributions
-n_adult_1_dist <- mapply(get_dist_log, init_lmean_adult_1,
+n_adult_1_dist <- mapply(get_dist_log, init_lmean_adult,
                          init_lsd_adult, n_adult_1)
 dist_summaries_adult[1, 4:25] <- apply(n_adult_1_dist, 1, median)
 dist_summaries_adult[5, 4:25] <- apply(n_adult_1_dist, 1,
@@ -170,6 +171,7 @@ dist_summaries_recruit_long <- dist_summaries_recruit %>%
                names_to = "size") %>%
   pivot_wider(values_from = "N",
               names_from = "stat")
+
 ##### total abundance plots
 adult_nplot <- ggplot(data = n_summaries[n_summaries$type == "adult", ]) +
   geom_point(aes(x = param, y = median,
@@ -186,6 +188,7 @@ adult_nplot <- ggplot(data = n_summaries[n_summaries$type == "adult", ]) +
   theme_minimal() +
   theme(axis.text.x = element_blank(),
         legend.position = "None")
+
 recruit_nplot <- ggplot(data = n_summaries[n_summaries$type == "recruit", ]) +
   geom_point(aes(x = param, y = log(median),
                  color = as.factor(year))) +
@@ -202,6 +205,7 @@ recruit_nplot <- ggplot(data = n_summaries[n_summaries$type == "recruit", ]) +
   theme_minimal() +
   theme(axis.text.x = element_blank(),
         legend.position = "None")
+
 plot_w_legend <- ggplot(data = n_summaries[n_summaries$type == "recruit", ]) +
   geom_point(aes(x = param, y = log(median),
                  color = as.factor(year))) +
@@ -217,7 +221,9 @@ plot_w_legend <- ggplot(data = n_summaries[n_summaries$type == "recruit", ]) +
   labs(x = "year", y = expression(N[total]), color = "year") +
   theme_minimal() +
   theme(axis.text.x = element_blank())
+
 legend <- get_legend(plot_w_legend)
+
 ######## size abundance plots
 adult_sizeplot <- ggplot(data = dist_summaries_adult_long) +
   geom_ribbon(aes(x = as.numeric(size),
@@ -233,6 +239,7 @@ adult_sizeplot <- ggplot(data = dist_summaries_adult_long) +
   ggtitle("A. adult abundance and size distribution") +
   theme_minimal() +
   theme(legend.position = "None")
+
 recruit_sizeplot <- ggplot(data = dist_summaries_recruit_long) +
   geom_ribbon(aes(x = as.numeric(size),
                   ymin = lower_ci, ymax = upper_ci,
@@ -247,13 +254,16 @@ recruit_sizeplot <- ggplot(data = dist_summaries_recruit_long) +
   labs(x = "size (mm)", y = expression(N[size]), color = "year") +
   theme_minimal() +
   theme(legend.position = "None")
+
 layout <- "
 AACC#
 AACCE
 BBDDE
 BBDD#
 "
+
 final_plot <- adult_sizeplot + recruit_sizeplot + adult_nplot +
   recruit_nplot + legend + plot_layout(design = layout)
+
 ggsave("figures/Figure3_abundance_sizedist.png",
        dpi = 400, width = 6, height = 5)

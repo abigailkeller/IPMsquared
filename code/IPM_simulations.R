@@ -26,32 +26,32 @@ get_params <- function(samples, index) {
 
   # set parameters
   params <- list(
-    trapm_pmax = as.numeric(samples[index, "trapm_pmax"]),
-    trapm_xmax = as.numeric(samples[index, "trapm_xmax"]),
-    trapm_sigma = as.numeric(samples[index, "trapm_sigma"]),
-    trapf_pmax = as.numeric(samples[index, "trapf_pmax"]),
-    trapf_k = as.numeric(samples[index, "trapf_k"]),
-    trapf_midpoint = as.numeric(samples[index, "trapf_midpoint"]),
-    traps_pmax = as.numeric(samples[index, "traps_pmax"]),
-    traps_k = as.numeric(samples[index, "traps_k"]),
-    traps_midpoint = as.numeric(samples[index, "traps_midpoint"]),
-    nmort_shape_s = as.numeric(samples[index, "nmort_shape_s"]),
-    nmort_rate_s = as.numeric(samples[index, "nmort_rate_s"]),
-    nmort_size = as.numeric(samples[index, "nmort_size"]),
-    wnmort_shape_s = as.numeric(samples[index, "wnmort_shape_s"]),
-    wnmort_rate_s = as.numeric(samples[index, "wnmort_rate_s"]),
-    growth_k = as.numeric(samples[index, "growth_k"]),
-    growth_xinf = as.numeric(samples[index, "growth_xinf"]),
-    growth_C = as.numeric(samples[index, "growth_C"]),
-    growth_ts = as.numeric(samples[index, "growth_ts"]),
-    growth_sd = as.numeric(samples[index, "growth_sd"]),
-    init_sd_r = as.numeric(samples[index, "init_sd_r"]),
-    init_mean_recruit = as.numeric(samples[index, "init_mean_recruit"]),
-    init_lmean_adult = as.numeric(samples[index, "init_lmean_adult"]),
-    init_lsd_adult = as.numeric(samples[index, "init_lsd_adult"]),
-    N_adult = as.numeric(samples[index, "N_adult"]),
-    N_mu_recruit = as.numeric(samples[index, "N_mu_recruit"]),
-    N_sd_recruit = as.numeric(samples[index, "N_sd_recruit"])
+    h_M_max = as.numeric(samples[index, "h_M_max"]),
+    h_M_A = as.numeric(samples[index, "h_M_A"]),
+    h_M_sigma = as.numeric(samples[index, "h_M_sigma"]),
+    h_F_max = as.numeric(samples[index, "h_F_max"]),
+    h_F_k = as.numeric(samples[index, "h_F_k"]),
+    h_F_0 = as.numeric(samples[index, "h_F_0"]),
+    h_S_max = as.numeric(samples[index, "h_S_max"]),
+    h_S_k = as.numeric(samples[index, "h_S_k"]),
+    h_S_0 = as.numeric(samples[index, "h_S_0"]),
+    beta_alpha = as.numeric(samples[index, "beta_alpha"]),
+    beta_theta = as.numeric(samples[index, "beta_theta"]),
+    alpha = as.numeric(samples[index, "alpha"]),
+    alpha_o_alpha = as.numeric(samples[index, "alpha_o_alpha"]),
+    alpha_o_theta = as.numeric(samples[index, "alpha_o_theta"]),
+    gk = as.numeric(samples[index, "gk"]),
+    yinf = as.numeric(samples[index, "yinf"]),
+    C = as.numeric(samples[index, "C"]),
+    ts = as.numeric(samples[index, "ts"]),
+    sigma_G = as.numeric(samples[index, "sigma_G"]),
+    sigma_R_y = as.numeric(samples[index, "sigma_R_y"]),
+    mu_R_y = as.numeric(samples[index, "mu_R_y"]),
+    mu_A_y = as.numeric(samples[index, "mu_A_y"]),
+    sigma_A_y = as.numeric(samples[index, "sigma_A_y"]),
+    lambda_A = as.numeric(samples[index, "lambda_A"]),
+    mu_R_lambda = as.numeric(samples[index, "mu_R_lambda"]),
+    sigma_R_lambda = as.numeric(samples[index, "sigma_R_lambda"])
   )
 
   return(params)
@@ -96,6 +96,7 @@ size_sel_norm <- function(pmax, xmax, sigma, y) {
 
 # size selective hazard rate of trap type fukui and shrimp - logistic
 size_sel_log <- function(pmax, k, midpoint, y) {
+  
   vector <- pmax / (1 + exp(-k * (y - midpoint)))
 
   return(vector)
@@ -104,22 +105,23 @@ size_sel_log <- function(pmax, k, midpoint, y) {
 # calculate trap hazard rate of obs j, based on trap type and soak days
 calc_hazard <- function(params, constant, nobs,
                         obs_ref_f, obs_ref_s, obs_ref_m) {
+  
   # create empty array
   array <- array(NA, dim = c(nobs, constant$n_size))
   # loop through observations
   for (j in 1:nobs) {
     # P(capture)
-    array[j, ] <- size_sel_log(pmax = params$trapf_pmax,
-                               k = params$trapf_k,
-                               midpoint = params$trapf_midpoint,
+    array[j, ] <- size_sel_log(pmax = params$h_F_max,
+                               k = params$h_F_k,
+                               midpoint = params$h_F_0,
                                y = constant$y) * obs_ref_f[j] +
-      size_sel_log(pmax = params$traps_pmax,
-                   k = params$traps_k,
-                   midpoint = params$traps_midpoint,
+      size_sel_log(pmax = params$h_S_max,
+                   k = params$h_S_k,
+                   midpoint = params$h_S_0,
                    y = constant$y) * obs_ref_s[j] +
-      size_sel_norm(pmax = params$trapm_pmax,
-                    xmax = params$trapm_xmax,
-                    sigma = params$trapm_sigma,
+      size_sel_norm(pmax = params$h_M_max,
+                    xmax = params$h_M_A,
+                    sigma = params$h_M_sigma,
                     y = constant$y) * obs_ref_m[j]
   }
   return(array)
@@ -154,42 +156,66 @@ calc_prob <- function(nobs, n_size, hazard) {
   return(p)
 }
 
-# function for seasonal growth kernel -- biweekly time step
-gkernel <- function(params, t1, t2,
-                    n_size, y, lower, upper) {
+# function for seasonal growth and mortality kernel -- biweekly time step
+get_kernel <- function(params, t1, t2,
+                       n_size, y, lower, upper, S) {
   #create empty array
   array <- matrix(NA, ncol = n_size, nrow = n_size)
 
   # season adjusted params
-  S_t <- (params$growth_C * params$growth_k / (2 * pi)) *
-    sin(2 * pi * (t2 - (1 + params$growth_ts)))
-  S_t0 <- (params$growth_C * params$growth_k / (2 * pi)) *
-    sin(2 * pi * (t1 - (1 + params$growth_ts)))
+  S_t <- (params$C * params$gk / (2 * pi)) *
+    sin(2 * pi * (t2 - (1 + params$ts)))
+  S_t0 <- (params$C * params$gk / (2 * pi)) *
+    sin(2 * pi * (t1 - (1 + params$ts)))
 
   #p(y"|y)
   for (i in 1:n_size) {
-    increment <- (params$growth_xinf - y[i]) *
-      (1 - exp(-params$growth_k * (t2 - t1) - S_t + S_t0))
+    increment <- (params$yinf - y[i]) *
+      (1 - exp(-params$gk * (t2 - t1) - S_t + S_t0))
     mean <- y[i] + increment
     array[1:n_size, i] <- (pnorm(upper, mean,
-                                 sd = params$growth_sd) -
-                             pnorm(lower, mean, sd = params$growth_sd))
+                                 sd = params$sigma_G) -
+                             pnorm(lower, mean, sd = params$sigma_G))
   }
 
-  # normalize
+  # normalize and apply natural survival
   for (i in 1:n_size) {
-    array[, i] <- array[, i] / sum(array[, i])
+    array[, i] <- array[, i] / sum(array[, i]) * S
   }
 
   return(array)
 
 }
 
+# natural (non-winter) survival
+survival <- function(params, beta, y, t1, t2) {
+  
+  # number of biweeks
+  deltat <- round((t2 - t1) * (52.1429 / 2))
+    
+  # get survival rate
+  out <- exp(-deltat * (beta + params$alpha / y ^ 2))
+    
+  return(out)
+}
+
+# density- and size-dependent overwinter survival
+overwinter_survival <- function(alpha_o, N_sum, y) {
+  
+  # get probability of survival
+  out <- exp(-(alpha_o * N_sum / y ^ 2))
+    
+  return(out)
+}
+
+
 # gamma distribution for initial size distribution of recruits
 init_sizes_gamma <- function(params, lower, upper) {
-  var <- params$init_sd_r ^ 2
-  shape <- params$init_mean_recruit ^ 2 / var
-  rate <- params$init_mean_recruit / var
+  
+  var <- params$sigma_R_y ^ 2
+  shape <- params$mu_R_y ^ 2 / var
+  rate <- params$mu_R_y / var
+  
   out <- pgamma(q = upper, shape = shape, rate = rate) -
     pgamma(q = lower, shape = shape, rate = rate)
 
@@ -198,17 +224,18 @@ init_sizes_gamma <- function(params, lower, upper) {
 
 # lognormal distribution for initial size distribution of recruits
 init_sizes_lnorm <- function(params, lower, upper) {
-  out <- plnorm(q = upper, meanlog = params$init_lmean_adult,
-                sdlog = params$init_lsd_adult) -
-    plnorm(q = lower, meanlog = params$init_lmean_adult,
-           sdlog = params$init_lsd_adult)
+  
+  out <- plnorm(q = upper, meanlog = params$mu_A_y,
+                sdlog = params$sigma_A_y) -
+    plnorm(q = lower, meanlog = params$mu_A_y,
+           sdlog = params$sigma_A_y)
 
   return(out)
 }
 
 # function to simulate one year
-simulate_year <- function(params, constant, nobs, N, N_recruit, nmort,
-                          wnmortality_s, year, n_years,
+simulate_year <- function(params, constant, nobs, N, N_recruit, beta,
+                          alpha_o, year, n_years,
                           obs_ref_f, obs_ref_s, obs_ref_m) {
 
   # check N_recruit
@@ -239,21 +266,19 @@ simulate_year <- function(params, constant, nobs, N, N_recruit, nmort,
     }
 
     # get kernel
-    kernel <- gkernel(params,
-                      constant$t_index[t], constant$t_index[t + 1],
-                      constant$n_size, constant$y,
-                      constant$lower, constant$upper)
+    S <- survival(params, beta, constant$y, 0, 14 / 365)
+    kernel <- get_kernel(params, constant$t_index[t], constant$t_index[t + 1],
+                         constant$n_size, constant$y,
+                         constant$lower, constant$upper, S)
 
     # project to next time period
     if (t == constant$recruit_intro) {
       N <- kernel %*% (
-        as.numeric(N) *
-          exp(-(nmort + params$nmort_size / constant$y ^ 2)) - ncap
+        as.numeric(N) - ncap
       ) + init_recruit
     } else {
       N <- kernel %*% (
-        as.numeric(N) *
-          exp(-(nmort + params$nmort_size / constant$y ^ 2)) - ncap
+        as.numeric(N)  - ncap
       )
     }
 
@@ -269,33 +294,31 @@ simulate_year <- function(params, constant, nobs, N, N_recruit, nmort,
   N <- N - ncap
 
   # overwinter growth
-  wgrowth_N <- gkernel(params,
-                       max(constant$t_index), 1,
-                       constant$n_size, constant$y,
-                       constant$lower, constant$upper) %*% N
+  wgrowth_N <- get_kernel(params, max(constant$t_index), 1,
+                          constant$n_size, constant$y,
+                          constant$lower, constant$upper, 
+                          rep(1, length(constant$y))) %*% N
 
   N_overwinter <- rep(NA, constant$n_size)
 
   wgrowth_N_sum <- ifelse(round(sum(wgrowth_N)) > 0,
                           round(sum(wgrowth_N)), 0)
 
+  # get overwinter survival
+  S_o <- overwinter_survival(alpha_o, wgrowth_N_sum, constant$y)
   for (k in 1:constant$n_size) {
     new_N <- ifelse(round(wgrowth_N[k]) > 0,
                     round(wgrowth_N[k]), 0)
-    N_overwinter[k] <- rbinom(n = 1,
-                              size = new_N,
-                              prob = exp(-(wnmortality_s *
-                                             wgrowth_N_sum /
-                                             constant$y[k] ^ 2)))
-
+    N_overwinter[k] <- rbinom(n = 1, size = new_N, prob = S_o[k])
   }
+  
   return(N_overwinter)
 
 }
 
 # function to simulate one year - no effort
-simulate_year_noeffort <- function(params, constant, N, N_recruit, nmort,
-                                   wnmortality_s, year, n_years) {
+simulate_year_noeffort <- function(params, constant, N, N_recruit, beta,
+                                   alpha_o, year, n_years) {
 
   # check N_recruit
   N_recruit <- ifelse(as.numeric(N_recruit) < 0, 0, as.numeric(N_recruit))
@@ -305,60 +328,54 @@ simulate_year_noeffort <- function(params, constant, N, N_recruit, nmort,
                                    constant$upper) * N_recruit
 
   for (t in 1:(length(constant$t_index) - 1)) {
-
+    
     # get kernel
-    kernel <- gkernel(params,
-                      constant$t_index[t], constant$t_index[t + 1],
-                      constant$n_size, constant$y,
-                      constant$lower, constant$upper)
-
+    S <- survival(params, beta, constant$y, 0, 14 / 365)
+    kernel <- get_kernel(params, constant$t_index[t], constant$t_index[t + 1],
+                         constant$n_size, constant$y,
+                         constant$lower, constant$upper, S)
+    
     # project to next time period
     if (t == constant$recruit_intro) {
-      N <- kernel %*%
-        (as.numeric(N) *
-           exp(-(nmort + params$nmort_size / constant$y ^ 2))) + init_recruit
+      N <- kernel %*% as.numeric(N) + init_recruit
     } else {
-      N <- kernel %*% (as.numeric(N) *
-                         exp(-(nmort + params$nmort_size / constant$y ^ 2)))
+      N <- kernel %*% as.numeric(N)
     }
-
   }
 
   # overwinter growth
-  wgrowth_N <- gkernel(params,
-                       max(constant$t_index), 1,
-                       constant$n_size, constant$y,
-                       constant$lower, constant$upper) %*% N
+  wgrowth_N <- get_kernel(params, max(constant$t_index), 1,
+                          constant$n_size, constant$y,
+                          constant$lower, constant$upper, 
+                          rep(1, length(constant$y))) %*% N
 
   N_overwinter <- rep(NA, constant$n_size)
 
   wgrowth_N_sum <- ifelse(round(sum(wgrowth_N)) > 0,
                           round(sum(wgrowth_N)), 0)
 
+  # get overwinter survival
+  S_o <- overwinter_survival(alpha_o, wgrowth_N_sum, constant$y)
   for (k in 1:constant$n_size) {
     new_N <- ifelse(round(wgrowth_N[k]) > 0,
                     round(wgrowth_N[k]), 0)
-    N_overwinter[k] <- rbinom(n = 1,
-                              size = new_N,
-                              prob = exp(-(wnmortality_s *
-                                             wgrowth_N_sum /
-                                             constant$y[k] ^ 2)))
-
+    N_overwinter[k] <- rbinom(n = 1, size = new_N, prob = S_o[k])
   }
+  
   return(N_overwinter)
 }
 
 # function to simulate multiple years
 simulate_interannual <- function(params, constant, nobs,
                                  n_years, n_years_burn, N, N_recruit,
-                                 nmort, wnmortality_s,
+                                 beta, alpha_o,
                                  obs_ref_f, obs_ref_s, obs_ref_m) {
 
   out <- as.data.frame(matrix(NA, nrow = n_years, ncol = length(N)))
 
   for (i in 1:n_years) {
     out[i, ] <- simulate_year(params, constant, nobs, N, N_recruit[i],
-                              nmort[i], wnmortality_s[i], i, n_years,
+                              beta[i], alpha_o[i], i, n_years,
                               obs_ref_f, obs_ref_s, obs_ref_m)
   }
 
@@ -368,13 +385,13 @@ simulate_interannual <- function(params, constant, nobs,
 }
 simulate_interannual_noeffort <- function(params, constant, n_years,
                                           n_years_burn, N, N_recruit,
-                                          nmort, wnmortality_s) {
+                                          beta, alpha_o) {
 
   out <- as.data.frame(matrix(NA, nrow = n_years, ncol = length(N)))
 
   for (i in 1:n_years) {
     out[i, ] <- simulate_year_noeffort(params, constant, N, N_recruit[i],
-                                       nmort[i], wnmortality_s[i], i, n_years)
+                                       beta[i], alpha_o[i], i, n_years)
   }
   # subset to averaged years
   sub <- out[(n_years_burn + 1):n_years, ]
@@ -414,20 +431,21 @@ N_recruit <- as.data.frame(matrix(nrow = length(index),
 for (i in 1:length(index)) {
   params <- get_params(out_sub, i)
   N[i, ] <- init_sizes_lnorm(params, constant$lower,
-                             constant$upper) * params$N_adult
-  N_recruit[i, ] <- rnorm(constant$n_years, params$N_mu_recruit,
-                          params$N_sd_recruit)
+                             constant$upper) * params$lambda_A
+  N_recruit[i, ] <- rnorm(constant$n_years, params$mu_R_lambda,
+                          params$sigma_R_lambda)
 }
-# get nmortality params
-nmort <- as.data.frame(matrix(nrow = length(index), ncol = constant$n_years))
-wnmortality_s <- as.data.frame(matrix(nrow = length(index),
-                                      ncol = constant$n_years))
+
+# get natural mortality params
+beta <- as.data.frame(matrix(nrow = length(index), ncol = constant$n_years))
+alpha_o <- as.data.frame(matrix(nrow = length(index), ncol = constant$n_years))
+
 for (i in 1:length(index)) {
   params <- get_params(out_sub, i)
-  nmort[i, ] <- rgamma(constant$n_years, shape = params$nmort_shape_s,
-                       rate = params$nmort_rate_s)
-  wnmortality_s[i, ] <- rgamma(constant$n_years, shape = params$wnmort_shape_s,
-                               rate = params$wnmort_rate_s)
+  beta[i, ] <- rgamma(constant$n_years, shape = params$beta_alpha,
+                      rate = params$beta_theta)
+  alpha_o[i, ] <- rgamma(constant$n_years, shape = params$alpha_o_alpha,
+                         rate = params$alpha_o_theta)
 }
 
 for (e in effort) {
@@ -460,8 +478,8 @@ for (e in effort) {
                                           constant, nobs, constant$n_years,
                                           constant$n_years_burn,
                                           N[k, ], N_recruit[k, ],
-                                          as.numeric(nmort[k, ]),
-                                          as.numeric(wnmortality_s[k, ]),
+                                          as.numeric(beta[k, ]),
+                                          as.numeric(alpha_o[k, ]),
                                           obs_ref_f, obs_ref_s, obs_ref_m),
                      nobs * constant$ntime, prop_s, prop_f, prop_m, k))
 
@@ -469,7 +487,7 @@ for (e in effort) {
   }
   print(paste0("finished effort: ", e))
 }
-saveRDS(out, "data/simulations/simulations_effort.rds")
+saveRDS(out, "data/simulations/simulations_effort_20250311.rds")
 
 # simulate no effort
 out_noeffort <- matrix(NA, nrow = length(index), ncol = constant$n_size)
@@ -477,9 +495,9 @@ colnames(out_noeffort) <- 1:constant$n_size
 for (i in 1:length(index)) {
   out_noeffort[i, ] <- simulate_interannual_noeffort(
     get_params(out_sub, index[i]), constant, constant$n_years,
-    constant$n_years_burn, N[i, ], N_recruit[i, ], as.numeric(nmort[i, ]),
-    as.numeric(wnmortality_s[i, ])
+    constant$n_years_burn, N[i, ], N_recruit[i, ], as.numeric(beta[i, ]),
+    as.numeric(alpha_o[i, ])
   )
 
 }
-saveRDS(out_noeffort, "data/simulations/simulations_noeffort.rds")
+saveRDS(out_noeffort, "data/simulations/simulations_noeffort_20250311.rds")

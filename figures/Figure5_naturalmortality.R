@@ -44,16 +44,16 @@ get_hdi_high <- function(input, ci) {
 }
 
 # get natural and overwinter survival
-nmort_size <- get_samples(out_sub, "nmort_size")
+nmort_size <- get_samples(out_sub, "alpha")
 survival <- list()
 o_survival <- list()
 for (i in seq_len(3)) {
   survival[[i]] <- mapply(get_survival,
-                          get_samples(out_sub, paste0("nmortality_s[", i, "]")),
+                          get_samples(out_sub, paste0("beta[", i, "]")),
                           nmort_size, deltat = 14)
   o_survival[[i]] <- mapply(get_o_survival,
                             get_samples(out_sub,
-                                        paste0("wnmortality_s[", i, "]")),
+                                        paste0("alpha_o[", i, "]")),
                             get_samples(out_sub,
                                         paste0("wgrowth_N_sum[", i, "]")))
 }

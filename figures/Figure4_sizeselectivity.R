@@ -22,15 +22,15 @@ get_samples <- function(samples, param) {
 }
 
 # get params
-trapf_k <- get_samples(out_sub, "trapf_k")
-trapf_midpoint <- get_samples(out_sub, "trapf_midpoint")
-trapf_pmax <- get_samples(out_sub, "trapf_pmax")
-trapm_pmax <- get_samples(out_sub, "trapm_pmax")
-trapm_sigma <- get_samples(out_sub, "trapm_sigma")
-trapm_xmax <- get_samples(out_sub, "trapm_xmax")
-traps_k <- get_samples(out_sub, "traps_k")
-traps_midpoint <- get_samples(out_sub, "traps_midpoint")
-traps_pmax <- get_samples(out_sub, "traps_pmax")
+trapf_k <- get_samples(out_sub, "h_F_k")
+trapf_midpoint <- get_samples(out_sub, "h_F_0")
+trapf_pmax <- get_samples(out_sub, "h_F_max")
+trapm_pmax <- get_samples(out_sub, "h_M_max")
+trapm_sigma <- get_samples(out_sub, "h_M_sigma")
+trapm_xmax <- get_samples(out_sub, "h_M_A")
+traps_k <- get_samples(out_sub, "h_S_k")
+traps_midpoint <- get_samples(out_sub, "h_S_0")
+traps_pmax <- get_samples(out_sub, "h_S_max")
 
 # make plot of size selectivity
 min_size <- 0
@@ -84,6 +84,7 @@ selective_summaries[8, 3:113] <- apply(fukui_select, 1,
                                        function(row) get_hdi_high(row, 0.95))
 selective_summaries[9, 3:113] <- apply(shrimp_select, 1,
                                        function(row) get_hdi_high(row, 0.95))
+
 # convert from wide to long
 selective_summaries_long <- selective_summaries %>%
   pivot_longer(cols = ! c("type", "stat"),
@@ -93,6 +94,7 @@ selective_summaries_long <- selective_summaries %>%
               names_from = "stat")
 selective_summaries_long$type <- factor(selective_summaries_long$type,
                                         levels = c("fukui", "shrimp", "minnow"))
+
 ##### size selectivity plot
 sizesel_plot <- ggplot(data = selective_summaries_long) +
   geom_ribbon(aes(x = as.numeric(size),
@@ -110,6 +112,7 @@ sizesel_plot <- ggplot(data = selective_summaries_long) +
   labs(x = "size (mm)", y = "probability of capture", color = "trap type") +
   theme_minimal() +
   theme(text = element_text(size = 14))
+
 ggsave("figures/Figure4_sizesel.png", sizesel_plot,
        dpi = 400, width = 5, height = 4,
        bg = "white")

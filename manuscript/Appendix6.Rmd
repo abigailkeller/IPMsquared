@@ -46,19 +46,15 @@ upper <- 10001
 
 ```{r, echo = FALSE, results = "hide"}
 # create df with param names
-short_names <- c("init_lmean_adult", "init_lsd_adult", "init_mean_recruit",
-                 "init_sd_r", "growth_xinf", "growth_k", "growth_C",
-                 "growth_ts", "growth_sd",
-                 "nmortality_s[1]", "nmortality_s[2]", "nmortality_s[3]",
-                 "nmortality_s[4]", "nmortality_s[5]", "nmort_size",
-                 "nmort_shape_s", "nmort_rate_s", "wnmortality_s[1]",
-                 "wnmortality_s[2]", "wnmortality_s[3]",
-                 "wnmort_shape_s", "wnmort_rate_s",
-                 "trapf_pmax", "trapm_pmax", "traps_pmax",
-                 "trapf_k", "traps_k", "trapf_midpoint", "traps_midpoint",
-                 "trapm_xmax", "trapm_sigma", "ro_dir", "N_adult",
-                 "N_recruit[1]", "N_recruit[2]", "N_recruit[3]",
-                 "N_recruit[4]", "N_mu_recruit", "N_sd_recruit")
+short_names <- c("mu_A_y", "sigma_A_y", "mu_R_y", "sigma_R_y", "yinf", "gk", 
+                 "C", "ts", "sigma_G", "beta[1]", "beta[2]", "beta[3]", 
+                 "beta[4]", "beta[5]", "alpha", "beta_alpha", "beta_theta", 
+                 "alpha_o[1]", "alpha_o[2]", "alpha_o[3]", "alpha_o_alpha", 
+                 "alpha_o_theta", "h_F_max", "h_M_max", "h_S_max", "h_F_k", 
+                 "h_S_k", "h_F_0", "h_S_0", "h_M_A", "h_M_sigma", "ro_dir", 
+                 "lambda_A", "lambda_R[1]", "lambda_R[2]", "lambda_R[3]",
+                 "lambda_R[4]", "mu_R_lambda", "sigma_R_lambda")
+
 real_names <- c("log(mu[y]^A)", "sigma[y]^A", "mu[y]^R", "sigma[y]^R",
                 "y[infinity]", "k", "C", "t[s]", "sigma^G", "beta[1]",
                 "beta[2]", "beta[3]", "beta[4]", "beta[5]", "alpha",
@@ -68,6 +64,7 @@ real_names <- c("log(mu[y]^A)", "sigma[y]^A", "mu[y]^R", "sigma[y]^R",
                 "h[F]^0", "h[S]^0", "h[M]^A", "h[M]^sigma", "rho",
                 "lambda^A", "lambda[1]^R", "lambda[2]^R", "lambda[3]^R",
                 "lambda[4]^R", "mu[lambda]^R", "mu[sigma]^R")
+
 latex_names <- c("log(\\mu_y^A)", "\\sigma_y^A", "\\mu_y^R", "\\sigma_y^R",
                  "y_{\\infty}", "k", "C", "t_s", "\\sigma^G", "\\beta_1",
                  "\\beta_2", "\\beta_3", "\\beta_4", "\\beta_5", "\\alpha",
@@ -78,6 +75,7 @@ latex_names <- c("log(\\mu_y^A)", "\\sigma_y^A", "\\mu_y^R", "\\sigma_y^R",
                  "\\rho", "\\lambda^A", "\\lambda_1^R", "\\lambda_2^R",
                  "\\lambda_3^R", "\\lambda_4^R", "\\mu_{\\lambda}^R",
                  "\\mu_{\\sigma}^R")
+
 names_df <- as.data.frame(cbind(short_names, real_names, latex_names))
 colnames(names_df) <- c("short_names", "real_names", "latex_names")
 ```
@@ -117,11 +115,14 @@ out_df <- rbind(
   out[[1]][lower:upper, ], out[[2]][lower:upper, ],
   out[[3]][lower:upper, ], out[[4]][lower:upper, ]
 )
+
 # get mean, sd, Rhat, effective sample size
 posterior <- MCMCsummary(out_sub)[, c("mean", "sd", "Rhat", "n.eff")]
 posterior$short_names <- rownames(posterior)
+
 # subset
 posterior <- posterior[posterior$short_names %in% short_names, ]
+
 # get 95% credibility interval
 posterior$lower_ci <- NA
 posterior$upper_ci <- NA
@@ -130,22 +131,23 @@ for (i in seq_len(nrow(posterior))) {
   posterior[i, "lower_ci"] <- as.numeric(hdi(sub, 0.95)[2])
   posterior[i, "upper_ci"] <- as.numeric(hdi(sub, 0.95)[3])
 }
+
 # round
 for (i in seq_len(nrow(posterior))) {
-  if (posterior[i, "short_names"] %in% c("N_adult", "N_recruit[1]",
-                                         "N_recruit[2]", "N_recruit[3]",
-                                         "N_recruit[4]")) {
+  if (posterior[i, "short_names"] %in% c("lambda_A", "lambda_R[1]",
+                                         "lambda_R[2]", "lambda_R[3]",
+                                         "lambda_R[4]")) {
     posterior[i, "mean"] <- round(posterior[i, "mean"], digits = 0)
     posterior[i, "sd"] <- round(posterior[i, "sd"], digits = 0)
     posterior[i, "lower_ci"] <- round(posterior[i, "lower_ci"], digits = 0)
     posterior[i, "upper_ci"] <- round(posterior[i, "upper_ci"], digits = 0)
   } else if (posterior[i, "short_names"] %in% c("nmortality_s[1]",
-                                                "nmortality_s[2]",
-                                                "nmortality_s[3]",
-                                                "nmortality_s[4]",
-                                                "nmortality_s[5]",
-                                                "trapm_pmax", "trapf_pmax",
-                                                "traps_pmax")) {
+                                                "betabeta[2]",
+                                                "beta[3]",
+                                                "beta[4]",
+                                                "beta[5]",
+                                                "h_M_max", "h_K_max",
+                                                "h_S_max")) {
     posterior[i, "mean"] <- round(posterior[i, "mean"], digits = 5)
     posterior[i, "sd"] <- round(posterior[i, "sd"], digits = 5)
     posterior[i, "lower_ci"] <- round(posterior[i, "lower_ci"], digits = 5)
@@ -159,13 +161,16 @@ for (i in seq_len(nrow(posterior))) {
 }
 posterior$mean <- as.character(posterior$mean)
 posterior$sd <- as.character(posterior$sd)
+
 # add real names
 posterior <- left_join(names_df, posterior, by = "short_names")
+
 # function for getting 95% credibility interval
 get_ci <- function(lower, upper) {
   out <- paste0("(", lower, ", ", upper, ")")
   return(out)
 }
+
 # get final df
 posterior_final <- posterior[, c("latex_names", "mean", "sd")]
 posterior_final[, "95 CI"] <- mapply(get_ci,
@@ -176,11 +181,14 @@ posterior_final[, "ESS"] <- posterior$n.eff
 colnames(posterior_final) <- c("parameter", "mean", "sd",
                                "95 CI", "Rhat", "ESS")
 ```
+
 **Table A6:** Posterior summaries, including the mean, standard deviation, 95% credibility interval (highest density interval), $\hat{R}$, and effective sample size. Descriptions of parameters can be found in Table 1. More information about parameter $\rho$ can be found in Appendix 2.1.
+
 ```{r, echo = FALSE}
 # Process the table for parsed text
 posterior_final <- posterior_final %>%
   mutate(parameter = paste0("$", parameter, "$"))
+
 # Render table
 knitr::kable(
   posterior_final,

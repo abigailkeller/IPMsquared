@@ -195,7 +195,7 @@ plot_2800 <- ggplot() +
 plot_w_legend <- ggplot() +
   geom_ribbon(data = effort_summary[effort_summary$nobs == 1400, ],
               aes(x = as.numeric(size),
-                  ymin = lower_sd2, ymax = upper_sd2,
+                  ymin = lower_sd, ymax = upper_sd,
                   fill = type),
               alpha = 0.2) +
   geom_line(data = effort_summary[effort_summary$nobs == 1400, ],
