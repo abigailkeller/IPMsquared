@@ -149,13 +149,13 @@ model_code <- nimbleCode({
   
   
   ## inter-annual change
-  # project to new year with seasonal growth & size-dependent natural mortality
+  # project to new year with seasonal growth 
   for (i in 1:(n_year - 1)) {
     wgrowth_N[i, 1:n_size] <- get_kernel(yinf, gk, sigma_G, C, ts,
-                                      max_D, 1,
-                                      n_size, pi, y[1:n_size],
-                                      lower[1:n_size], upper[1:n_size],
-                                      ones[1:n_size]) %*%
+                                         max_D, 1,
+                                         n_size, pi, y[1:n_size],
+                                         lower[1:n_size], upper[1:n_size],
+                                         ones[1:n_size]) %*%
       N[additionalt[i, 2] + 1, i, 1:n_size]
     
     # total density after seasonal growth
@@ -464,7 +464,7 @@ cl <- makeCluster(4)
 
 set.seed(10120)
 
-clusterExport(cl, c("model_code", "inits", "data", "constants"))
+clusterExport(cl, c("model_code", "inits", "data", "constants", "N_overwinter"))
 
 # Create a function with all the needed code
 out <- clusterEvalQ(cl, {
