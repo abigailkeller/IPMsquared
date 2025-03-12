@@ -88,6 +88,8 @@ $$
 The posterior predictive samples (PPS) and deviance of PPS was calculated using the following nimble function:
 
 ```{r, eval = FALSE}
+library(nimble)
+
 ppSamplerNF <- nimbleFunction(
   setup = function(model, samples) {
     
@@ -139,21 +141,33 @@ ppSampler <- ppSamplerNF(
   myModel, # uncompiled model (see Appendix 3)
   samples # posterior samples
 )
+
 # compile posterior predictive samples
 cppSampler <- compileNimble(
   ppSampler, 
   project = CmyModel # compiled model (see Appendix 3)
 )
+
 # run compiled function
 ppSamples_via_nf <- cppSampler$run(samples)
 
 # get PPS and samples
+dataNodes <- myModel$getNodeNames(dataOnly = TRUE)
 n <- length(CmyModel$expandNodeNames(dataNodes, returnScalarComponents = TRUE))
+node_names <- myModel$expandNodeNames(dataNodes, returnScalarComponents = TRUE)
 ppSamples <- ppSamples_via_nf[, 1:n]
 deviance <- ppSamples_via_nf[, n + 1]
 
-# save
-saveRDS(ppSamples, paste0("data/posterior_predictive_check/PPS.rds"))
+# save PPS (break up into smaller dfs)
+for (i in 1:14) {
+  temp <- grep(paste0("n_C\\[", i, ", "), node_names)
+  saveRDS(node_names[temp], 
+          paste0("data/posterior_predictive_check/node_names_",i,".rds"))
+  saveRDS(ppSamples_via_nf[, temp],
+          paste0("data/posterior_predictive_check/PPS_",i,".rds"))
+}
+
+# save deviance
 saveRDS(deviance, "data/posterior_predictive_check/deviance_yrep.rds")
 ```
 
@@ -169,7 +183,7 @@ calc_deviance_y <- nimbleFunction(
     theta <- colnames(samples)
     
     # calculate model graph dependencies of theta to update
-    deps <- CmyModel$getDependencies(theta, self = TRUE)
+    deps <- model$getDependencies(theta, self = TRUE)
     
     # data nodes
     dataNodes <- model$getNodeNames(dataOnly = TRUE)
@@ -186,7 +200,7 @@ calc_deviance_y <- nimbleFunction(
       values(model, theta) <<- samples[i, ]
       
       # update dependencies
-      CmyModel$calculate(deps)
+      model$calculate(deps)
       
       # calculate deviance
       deviance[i] <- 2 * model$calculate(dataNodes)
@@ -204,11 +218,13 @@ devianceCalculator <- calc_deviance_y(
   myModel, # uncompiled model, contains data (see Appendix 3)
   samples # posterior samples
 )
+
 # compile deviance calculator
 CdevianceCalculator <- compileNimble(
   devianceCalculator, 
   project = CmyModel # compiled model, contains data (see Appendix 3)
 )
+
 # run compiled function
 data_deviance_via_nf <- CdevianceCalculator$run(samples)
 
@@ -235,7 +251,7 @@ knitr::include_graphics(
 
 **Model checked with zero inflation**
 
-The Bayesian p-value using the targeted zero-inflation check was calculated as the proportion of $T(y_i) > T(y^{rep}_i)$, where $y$ refers to the count data. The zero-inflation check p-value is 0.85. 
+The Bayesian p-value using the targeted zero-inflation check was calculated as the proportion of $T(y_i) > T(y^{rep}_i)$, where $y$ refers to the count data. The zero-inflation check p-value is 0.92. 
 
 **Figure A5.2:** Histogram of proportion of zeros in each set, $i$, of posterior predictive samples, $y^{rep}$. Red line indicates the proportion of zeros in the count data, $y$.
 

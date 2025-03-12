@@ -45,7 +45,7 @@ zero_count_total <- as.data.frame(matrix(0, ncol = 3, nrow = 6404))
 colnames(zero_count_total) <- c("iter", "total", "zero")
 zero_count_total$iter <- 1:6404
 for(i in 1:14) {
-  file <- paste0("posterior_predictive_check/ppSamples_count",i,".rds")
+  file <- paste0("data/posterior_predictive_check/PPS_",i,".rds")
   input <- readRDS(file)
   total <- ncol(input)
   zero <- apply(input, 1, function(x) sum(x == 0))
