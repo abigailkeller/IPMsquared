@@ -1,265 +1,224 @@
 ---
-title: "Appendix 5: Robustness Assessments"
+title: "Appendix 5: Posterior summaries and trace plots"
 output: pdf_document
 ---
 # Appendix 5
-
-To assess model performance and robustness, we conducted both a model selection and model checking procedure. For model selection, we evaluated multiple functional forms for describing the overwinter mortality using Watanabe–Akaike information criterion (WAIC). To check the model, we calculated posterior predictive p-values.
-
-## Appendix 5.1
-
-The inter-annual population transitions (i.e., transition from year $i$ to year $i+1$) are largely described by density-dependent overwinter mortality. Since density dependence only enters the model during this process and is therefore likely influential for forecasting the stable size distribution, we compared multiple functional forms for size- and density-dependent overwinter mortality (Equations 15-16 in main text).
-
-We fit four separate models that are identical, apart from the functional form of overwinter survival (Equations 15-16). These models varied by whether the relationship between size- and density-dependence is additive or interactive, as well as how rapidly mortality decreases with size.
-
-**Model 1:** interactive density- and size-dependence, steeper mortality decrease with size
-
-$$
-S_o(y,N^T_{t_{max},i}) = exp(-\frac{\alpha_i^o \times N^T_{t_{max},i}}{y^2})
-$$
-
-$$
-\alpha^o_i \sim Gamma(\alpha^o_{\alpha}, \alpha^o_{\theta})
-$$
-
-**Model 2:** interactive density- and size-dependence, less steep mortality decrease with size
-
-$$
-S_o(y,N^T_{t_{max},i}) = exp(-\frac{\alpha_i^o \times N^T_{t_{max},i}}{y})
-$$
-
-$$
-\alpha^o_i \sim Gamma(\alpha^o_{\alpha}, \alpha^o_{\theta})
-$$
-
-**Model 3:** additive density- and size-dependence, steeper mortality decrease with size
-
-$$
-S_o(y,N^T_{t_{max},i}) = exp(-(\frac{\alpha^o}{N^T_{t_{max},i}} + \frac{\psi}{y^2}))
-$$
-
-**Model 4:** additive density- and size-dependence, less steep mortality decrease with size
-
-$$
-S_o(y,N^T_{t_{max},i}) = exp(-(\frac{\alpha^o}{N^T_{t_{max},i}} + \frac{\psi}{y}))
-$$
-
-WAIC was calculated using the combined posterior samples from four chains, after discarding 2000 burn-in samples (32000 total samples). Model 1, with a size- and density-dependent overwinter mortality interaction and a steeper mortality decrease with size had the lowest WAIC and was used in subsequent analyses.
-
-```{r, echo = FALSE, warning = FALSE, message = FALSE}
+```{r, echo = FALSE, results = "hide", message = FALSE, warning=FALSE}
 library(tidyverse)
+library(patchwork)
+library(MCMCvis)
+library(bayestestR)
 library(kableExtra)
-library(knitr)
-df <- data.frame(
-  Model = c("Model 1", "Model 2", "Model 3", "Model 4"),
-  WAIC = c(6441.55, 6448.93, 6481.68, 6506.52),
-  lppd = c(-3169.32, -3171.91, -3187.81, -3198.85),
-  pWAIC = c(51.46, 52.56, 53.03, 54.41)
-) %>% 
-  mutate(delta_AIC = WAIC - min(WAIC))
-colnames(df) <- c("Model", "WAIC", "lppd", "pWAIC", "$\\Delta$WAIC")
+```
 
+```{r, echo = FALSE, results = "hide"}
+# create functions
+create_traceplot <- function(out, lower, upper, param, names_df) {
+  name <- names_df$real_names[which(names_df$short_names == param)]
+  plot <- ggplot() +
+    geom_line(aes(x = lower:upper,
+                  y = out[[1]][lower:upper, param]),
+              color = "pink") +
+    geom_line(aes(x = lower:upper,
+                  y = out[[2]][lower:upper, param]),
+              color = "purple") +
+    geom_line(aes(x = lower:upper,
+                  y = out[[3]][lower:upper, param]),
+              color = "blue") +
+    geom_line(aes(x = lower:upper,
+                  y = out[[4]][lower:upper, param]),
+              color = "red") +
+    scale_x_continuous(breaks = c(2000, 6000, 10000)) +
+    labs(x = "iteration", y = "value") +
+    ggtitle(parse(text = name)) +
+    theme_minimal() +
+    theme(plot.title = element_text(hjust = 0.5))
+  return(plot)
+}
+```
+
+```{r, echo = FALSE, results = "hide"}
+# read in samples
+out <- readRDS("../data/posterior_samples/savedsamples_IPM.rds")
+lower <- 2000
+upper <- 10001
+```
+
+```{r, echo = FALSE, results = "hide"}
+# create df with param names
+short_names <- c("mu_A_y", "sigma_A_y", "mu_R_y", "sigma_R_y", "yinf", "gk", 
+                 "C", "ts", "sigma_G", "beta[1]", "beta[2]", "beta[3]", 
+                 "beta[4]", "beta[5]", "alpha", "beta_alpha", "beta_theta", 
+                 "alpha_o[1]", "alpha_o[2]", "alpha_o[3]", "alpha_o_alpha", 
+                 "alpha_o_theta", "h_F_max", "h_M_max", "h_S_max", "h_F_k", 
+                 "h_S_k", "h_F_0", "h_S_0", "h_M_A", "h_M_sigma", "ro_dir", 
+                 "lambda_A", "lambda_R[1]", "lambda_R[2]", "lambda_R[3]",
+                 "lambda_R[4]", "mu_R_lambda", "sigma_R_lambda")
+
+real_names <- c("log(mu[y]^A)", "sigma[y]^A", "mu[y]^R", "sigma[y]^R",
+                "y[infinity]", "k", "C", "t[s]", "sigma^G", "beta[1]",
+                "beta[2]", "beta[3]", "beta[4]", "beta[5]", "alpha",
+                "beta[alpha]", "beta[theta]", "alpha[1]^o", "alpha[2]^o",
+                "alpha[3]^o", "alpha[alpha]^o", "alpha[theta]^o",
+                "h[F]^max", "h[M]^max", "h[S]^max", "h[F]^k", "h[S]^k",
+                "h[F]^0", "h[S]^0", "h[M]^A", "h[M]^sigma", "rho",
+                "lambda^A", "lambda[1]^R", "lambda[2]^R", "lambda[3]^R",
+                "lambda[4]^R", "mu[lambda]^R", "mu[sigma]^R")
+
+latex_names <- c("log(\\mu_y^A)", "\\sigma_y^A", "\\mu_y^R", "\\sigma_y^R",
+                 "y_{\\infty}", "k", "C", "t_s", "\\sigma^G", "\\beta_1",
+                 "\\beta_2", "\\beta_3", "\\beta_4", "\\beta_5", "\\alpha",
+                 "\\beta_{\\alpha}", "\\beta_{\\theta}", "\\alpha_1^o",
+                 "\\alpha_2^o", "\\alpha_3^o", "\\alpha_{\\alpha}^o",
+                 "\\alpha_{\\theta}^o", "h_F^{max}", "h_M^{max}", "h_S^{max}",
+                 "h_F^k", "h_S^k", "h_F^0", "h_S^0", "h_M^A", "h_M^{\\sigma}",
+                 "\\rho", "\\lambda^A", "\\lambda_1^R", "\\lambda_2^R",
+                 "\\lambda_3^R", "\\lambda_4^R", "\\mu_{\\lambda}^R",
+                 "\\mu_{\\sigma}^R")
+
+names_df <- as.data.frame(cbind(short_names, real_names, latex_names))
+colnames(names_df) <- c("short_names", "real_names", "latex_names")
+```
+
+```{r, echo = FALSE, results = "hide"}
+# separate parameters into three sets
+params1 <- short_names[1:15]
+params2 <- short_names[16:30]
+params3 <- short_names[31:39]
+plots1 <- create_traceplot(out, lower, upper, params1[1], names_df)
+plots2 <- create_traceplot(out, lower, upper, params2[1], names_df)
+plots3 <- create_traceplot(out, lower, upper, params3[1], names_df)
+for (i in 2:length(params1)) {
+  new_plot <- create_traceplot(out, lower, upper, params1[i], names_df)
+  plots1 <- plots1 + new_plot
+}
+plots1 <- plots1 + plot_layout(ncol = 3)
+for (i in 2:length(params2)) {
+  new_plot <- create_traceplot(out, lower, upper, params2[i], names_df)
+  plots2 <- plots2 + new_plot
+}
+plots2 <- plots2 + plot_layout(ncol = 3)
+for (i in 2:length(params3)) {
+  new_plot <- create_traceplot(out, lower, upper, params3[i], names_df)
+  plots3 <- plots3 + new_plot
+}
+plots3 <- plots3 + plot_layout(ncol = 3)
 ```
 
 ```{r, echo = FALSE}
-# Render table
-knitr::kable(
-  df
+# create posterior summary dataframe
+out_sub <- list(
+  out[[1]][lower:upper, ], out[[2]][lower:upper, ],
+  out[[3]][lower:upper, ], out[[4]][lower:upper, ]
 )
-```
-
-
-## Appendix 5.2
-
-Bayesian model checking was used to determine if the model is an adequate representation of the observed data. Fit was checked with an omnibus discrepancy function, deviance. Here, $y$ refers to the the count of removed crabs, $n^C_{t,j,i,y}$, the total number of removed crabs, $n^R_{t,i,y}$, and the number of recaptured marked crabs, $mc_y^{mc}$:
-
-$$
-T(y, \theta) = -2log(y|\theta)
-$$
-
-as well as a targeted discrepancy function to check zero inflation in the count data. Here, $y$ refers to the the count of removed crabs, $n^C_{t,j,i,y}$:
-
-$$
-T(y) = \sum_iI(y_i = 0)
-$$
-
-**Generating posterior predictive samples and calculating deviance**
-
-The posterior predictive samples (PPS) and deviance of PPS was calculated using the following nimble function:
-
-```{r, eval = FALSE}
-library(nimble)
-
-ppSamplerNF <- nimbleFunction(
-  setup = function(model, samples) {
-    
-    # theta
-    topNodes <- model$getNodeNames(stochOnly = TRUE, topOnly = TRUE)
-    
-    # nodes to simulate
-    simNodes <- model$getNodeNames()[!(model$getNodeNames() %in% topNodes)]
-    
-    # data nodes
-    dataNodes <- model$getNodeNames(dataOnly = TRUE)
-    
-    n <- length(model$expandNodeNames(dataNodes, returnScalarComponents = TRUE))
-    vars <- colnames(samples[, topNodes])
-    
-    # subset posterior samples to just theta (top nodes in graph)
-    samples_sub <- samples[, topNodes]
-    
-  },
-  run = function(samples = double(2)) {
-    
-    nSamp <- dim(samples)[1]
-    ppSamples <- matrix(nrow = nSamp, ncol = n + 1)
-    
-    for(i in 1:nSamp) {
-      
-      # add theta to model
-      values(model, vars) <<- samples_sub[i, ]
-      
-      # update nodes based on theta
-      model$simulate(simNodes, includeData = TRUE)
-      
-      # save PPS
-      ppSamples[i, 1:n] <- values(model, dataNodes)
-      
-      # store deviance of each sample
-      ppSamples[i, n + 1] <- 2 * model$calculate(dataNodes)
-    }
-    returnType(double(2))
-    return(ppSamples)
-  })
-```
-
-The posterior predictive samples (PPS) and deviance were calculated and saved using the nimble function:
-
-```{r, eval = FALSE}
-# generate posterior predictive sampler
-ppSampler <- ppSamplerNF(
-  myModel, # uncompiled model (see Appendix 3)
-  samples # posterior samples
+out_df <- rbind(
+  out[[1]][lower:upper, ], out[[2]][lower:upper, ],
+  out[[3]][lower:upper, ], out[[4]][lower:upper, ]
 )
 
-# compile posterior predictive samples
-cppSampler <- compileNimble(
-  ppSampler, 
-  project = CmyModel # compiled model (see Appendix 3)
-)
+# get mean, sd, Rhat, effective sample size
+posterior <- MCMCsummary(out_sub)[, c("mean", "sd", "Rhat", "n.eff")]
+posterior$short_names <- rownames(posterior)
 
-# run compiled function
-ppSamples_via_nf <- cppSampler$run(samples)
+# subset
+posterior <- posterior[posterior$short_names %in% short_names, ]
 
-# get PPS and samples
-dataNodes <- myModel$getNodeNames(dataOnly = TRUE)
-n <- length(CmyModel$expandNodeNames(dataNodes, returnScalarComponents = TRUE))
-node_names <- myModel$expandNodeNames(dataNodes, returnScalarComponents = TRUE)
-ppSamples <- ppSamples_via_nf[, 1:n]
-deviance <- ppSamples_via_nf[, n + 1]
-
-# save PPS (break up into smaller dfs)
-for (i in 1:14) {
-  temp <- grep(paste0("n_C\\[", i, ", "), node_names)
-  saveRDS(node_names[temp], 
-          paste0("data/posterior_predictive_check/node_names_",i,".rds"))
-  saveRDS(ppSamples_via_nf[, temp],
-          paste0("data/posterior_predictive_check/PPS_",i,".rds"))
+# get 95% credibility interval
+posterior$lower_ci <- NA
+posterior$upper_ci <- NA
+for (i in seq_len(nrow(posterior))) {
+  sub <- out_df[, which(colnames(out_df) == posterior[i, "short_names"])]
+  posterior[i, "lower_ci"] <- as.numeric(hdi(sub, 0.95)[2])
+  posterior[i, "upper_ci"] <- as.numeric(hdi(sub, 0.95)[3])
 }
 
-# save deviance
-saveRDS(deviance, "data/posterior_predictive_check/deviance_yrep.rds")
+# round
+for (i in seq_len(nrow(posterior))) {
+  if (posterior[i, "short_names"] %in% c("lambda_A", "lambda_R[1]",
+                                         "lambda_R[2]", "lambda_R[3]",
+                                         "lambda_R[4]")) {
+    posterior[i, "mean"] <- round(posterior[i, "mean"], digits = 0)
+    posterior[i, "sd"] <- round(posterior[i, "sd"], digits = 0)
+    posterior[i, "lower_ci"] <- round(posterior[i, "lower_ci"], digits = 0)
+    posterior[i, "upper_ci"] <- round(posterior[i, "upper_ci"], digits = 0)
+  } else if (posterior[i, "short_names"] %in% c("nmortality_s[1]",
+                                                "betabeta[2]",
+                                                "beta[3]",
+                                                "beta[4]",
+                                                "beta[5]",
+                                                "h_M_max", "h_K_max",
+                                                "h_S_max")) {
+    posterior[i, "mean"] <- round(posterior[i, "mean"], digits = 5)
+    posterior[i, "sd"] <- round(posterior[i, "sd"], digits = 5)
+    posterior[i, "lower_ci"] <- round(posterior[i, "lower_ci"], digits = 5)
+    posterior[i, "upper_ci"] <- round(posterior[i, "upper_ci"], digits = 5)
+  } else {
+    posterior[i, "mean"] <- round(posterior[i, "mean"], digits = 2)
+    posterior[i, "sd"] <- round(posterior[i, "sd"], digits = 2)
+    posterior[i, "lower_ci"] <- round(posterior[i, "lower_ci"], digits = 2)
+    posterior[i, "upper_ci"] <- round(posterior[i, "upper_ci"], digits = 2)
+  }
+}
+posterior$mean <- as.character(posterior$mean)
+posterior$sd <- as.character(posterior$sd)
+
+# add real names
+posterior <- left_join(names_df, posterior, by = "short_names")
+
+# function for getting 95% credibility interval
+get_ci <- function(lower, upper) {
+  out <- paste0("(", lower, ", ", upper, ")")
+  return(out)
+}
+
+# get final df
+posterior_final <- posterior[, c("latex_names", "mean", "sd")]
+posterior_final[, "95 CI"] <- mapply(get_ci,
+                                     posterior$lower_ci,
+                                     posterior$upper_ci)
+posterior_final[, "Rhat"] <- posterior$Rhat
+posterior_final[, "ESS"] <- posterior$n.eff
+colnames(posterior_final) <- c("parameter", "mean", "sd",
+                               "95 CI", "Rhat", "ESS")
 ```
 
-**Calculating deviance of data**
+**Table A5:** Posterior summaries, including the mean, standard deviation, 95% credibility interval (highest density interval), $\hat{R}$, and effective sample size. Descriptions of parameters can be found in Table 1. More information about parameter $\rho$ can be found in Appendix 2.1.
 
-Bayesian p-values are calculated by comparing the deviance of the posterior predictive samples and the deviance of the observed data. Deviance of the data was calculated using the following nimble function:
+```{r, echo = FALSE}
+# Process the table for parsed text
+posterior_final <- posterior_final %>%
+  mutate(parameter = paste0("$", parameter, "$"))
 
-```{r, eval = FALSE}
-calc_deviance_y <- nimbleFunction(
-  setup = function(model, samples) {
-    
-    # theta = top nodes and latent states
-    theta <- colnames(samples)
-    
-    # calculate model graph dependencies of theta to update
-    deps <- model$getDependencies(theta, self = TRUE)
-    
-    # data nodes
-    dataNodes <- model$getNodeNames(dataOnly = TRUE)
-    
-  },
-  run = function(samples = double(2)) {
-    
-    nSamp <- dim(samples)[1]
-    deviance <- rep(NA, nSamp)
-    
-    for(i in 1:nSamp) {
-      
-      # add theta
-      values(model, theta) <<- samples[i, ]
-      
-      # update dependencies
-      model$calculate(deps)
-      
-      # calculate deviance
-      deviance[i] <- 2 * model$calculate(dataNodes)
-    }
-    returnType(double(1))
-    return(deviance)
-  })
+# Render table
+knitr::kable(
+  posterior_final,
+  escape = FALSE,
+  format = "latex",
+  booktabs = TRUE,
+  longtable = TRUE
+) %>%
+  kable_styling(full_width = FALSE, latex_options = c("repeat_header")) %>%
+  kableExtra::row_spec(-1,
+                       extra_latex_after = "\\renewcommand{\\arraystretch}{2}")
 ```
+\newpage
+**Figure A5:** Trace plots of posterior samples. Colors refer to separate chains. Descriptions of parameters can be found in Table 1.
 
-The deviance of the data was calculated and saved using the nimble function:
+```{r, echo = FALSE, fig.height=8.5}
+plots1
+```
+\newpage
 
-```{r, eval = FALSE}
-# generate deviance calculator
-devianceCalculator <- calc_deviance_y(
-  myModel, # uncompiled model, contains data (see Appendix 3)
-  samples # posterior samples
-)
+**Figure A5 continued.**
 
-# compile deviance calculator
-CdevianceCalculator <- compileNimble(
-  devianceCalculator, 
-  project = CmyModel # compiled model, contains data (see Appendix 3)
-)
-
-# run compiled function
-data_deviance_via_nf <- CdevianceCalculator$run(samples)
-
-# save
-saveRDS(data_deviance_via_nf, "data/posterior_predictive_check/deviance_y.rds")
+```{r, echo = FALSE, fig.height=8.5}
+plots2
 ```
 
 \newpage
 
-**Model checking with deviance**
+**Figure A5 continued.**
 
-The Bayesian p-value calculated using deviance as the proportion of $T(y_i) > T(y^{rep}_i)$. The deviance p-value is 0.92. 
-
-**Figure A5.1:** Histogram of deviance generated for each posterior sample for $y$ (red) and $y^{rep}$ (blue).
-
-```{r, echo=FALSE}
-knitr::include_graphics(
-  paste0("C:/Users/abiga/Documents/Berkeley/Structured_Decision_Making/",
-         "pop_dynamics_model/IPMsquared/figures/ppp_deviance_plot.png")
-)
+```{r, echo = FALSE, fig.height=5.1}
+plots3
 ```
-
-\newpage
-
-**Model checked with zero inflation**
-
-The Bayesian p-value using the targeted zero-inflation check was calculated as the proportion of $T(y_i) > T(y^{rep}_i)$, where $y$ refers to the count data. The zero-inflation check p-value is 0.92. 
-
-**Figure A5.2:** Histogram of proportion of zeros in each set, $i$, of posterior predictive samples, $y^{rep}$. Red line indicates the proportion of zeros in the count data, $y$.
-
-```{r, echo=FALSE}
-knitr::include_graphics(
-  paste0("C:/Users/abiga/Documents/Berkeley/Structured_Decision_Making/",
-         "pop_dynamics_model/IPMsquared/figures/ppp_zeros.png")
-)
-```
-
-
