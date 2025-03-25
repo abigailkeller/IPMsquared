@@ -14,7 +14,7 @@ sorting=nyt
 ]{biblatex}
 \addbibresource{maintext.bib}
 
-\title{An integrated population model to disentangle size-structured harvest and natural mortality}
+\title{An integrated integral population model ($IPM^2$) to disentangle size-structured harvest and natural mortality}
 \author[1,*]{Abigail G. Keller}
 \author[2]{Benjamin R. Goldstein}
 \author[3]{Leah Skare}
@@ -38,53 +38,29 @@ sorting=nyt
 
 \section{Introduction}
 
-1. hard to disentangle harvest and natural mortality for exploited or harvested populations
+Assessing the efficacy of invasive species management interventions requires understanding if and how removal actions change population abundance and dynamics. However, population suppression can be challenging to differentiate from natural biological variation, reflecting the perennial challenge of distinguishing harvest and natural mortality in assessment of fishery stocks \parencite{aanes2007estimation}. Often variability in harvest mortality is confounded with variability in natural mortality \parencite{lewy2003modelling}, yet separating these fluctuations is crucial for obtaining reliable estimates of population abundance and demographic rates \parencite{walters2004fisheries}. Invasive species removal program success is highly variable \parencite{prior2018does}, so reliably quantifying harvest rates and developing quantitative targets for suppression activities are essential for defining intervention success and efficiently allocating limited management resources \parencite{green2021functional}.
 
-2. harder for species with complex demography: important role of body size in modulating dynamics
+This challenge of disentangling sources of mortality is amplified for species with complex, size-structured demography. Body size can be one of the most important traits of an individual organism, often determining the strength of ecological interactions and influencing key life-history processes like growth and mortality \parencite{de2003influence}. The ontogenetic scaling of ecological performance with body size has been used to explain patterns at the population level \parencite{werner1994ontogenetic}. Population dynamics can be shaped by competitive and predatory (cannibalistic) intra-specific interactions between different size cohorts \parencite{claessen2004population}, predator-prey size-dependent functional responses \parencite{aljetlawi2004prey}, variable reproductive capacity across size \parencite{hixon2014boffffs}, and size-selective rates of harvest \parencite{tu2018fishing}. Since these size-structured rates and interactions simultaneously modulate population dynamics, unraveling their individual contributions can be difficult. 
 
-3. even harder for invasive species: opportunistically-collected datasets, large measurement error; however, to assess the effectiveness of control programs, need to know how removal changes the population dynamics
+Removal sampling data are the primary source of monitoring information for many invasive populations \parencite{udell2022open}. While multinomial N-mixture models can be used to estimate abundance with animals removed successively from multiple sites \parencite{dorazio2005improving}, these models strictly assume population closure and no other sources of mortality. Additionally, invasive species datasets are often collected opportunistically as part of removal programs, rather than experimentally designed, limiting inference about population demographic rates \parencite{tiberti2021alien, crall2010improving, rogosch2021comparing}. These removal observations are often not collected systematically across time and space and can be associated with large measurement error that can mask biological signals \parencite{auger2016state, sibert2003horizontal, katsanevakis2012monitoring}.
 
-4. we can use state-space frameworks and integrated population models to distinguish process and observation dynamics, as well as facilitate parameter identifiability
+Despite the unique statistical inference challenges associated with invasive species removal data, the ecological, economic, and social costs of under- and over-estimating removal harvest rates can be high. Inefficient invasive population suppression plans can result in a waste of human and economic resources and can affect the confidence of people and stakeholders involved in removal \parencite{tiberti2021alien}. As invasive species management becomes more ambitious in scope and scale, population control can be controversial, stimulating conflicts among people and debates about achievability and efficiency \parencite{crowley2017conflict}. These undesirable social outcomes underscore the need for rigorous assessments of the effectiveness of control programs.
 
-5. green crabs are a good species to do this with: important intra- and inter-specific interactions structured by size (field demonstration of the hydra effect, overcompensation, or the increase in abundance in response to harvest), the observation process is size-dependent, and there is limited information in individual datasets
+Combining existing classes of models can be useful for distinguishing process and observation dynamics, facilitating parameter identifiability, and enabling inference of complex, size-structured demographic rates from imperfect observations. First, an integral projection model can be used to make population projections based on individual-level, size-dependent vital rates \parencite{merow2014advancing, rees2014building}. In contrast to matrix population models with large data requirements, the integral projection model uses a kernel composed of continuous functions to describe the probability of transitioning between sizes due to size-dependent growth and mortality rates \parencite{ellner2006integral}. The integral projection model can therefore substantially simplify inference by only requiring estimates of parameters in these continuous functions, rather than parameters to describe every possible size transition. 
 
-6. with the combined strength of information in multiple datasets, this integrated population model is critical for understanding how a species with complex demography will respond to removal
+The integral projection model can then be formulated in a state-space framework to estimate demographic rates with size-structured time series data \parencite{white2016fitting}. State-space approaches partition latent process model dynamics from both process and measurement error, providing a hierarchical structure that separately models 1) an unobserved, process time series that reflects the true, hidden population state and 2) an observation time series that contains imperfect measurements related to the process time series \parencite{auger2021guide}. By separating latent process model dynamics from both process and observation error, the state-space framework allows distinct estimation of harvest mortality — the observation process — from natural biological variation.
 
-inter- and sub-tidal zones
+These state-space approaches, however, can suffer from challenges of parameter identifiability, especially in scenarios when information requirements of complex models exceed information available in a single dataset \parencite{auger2016state}. Integrated population models can resolve these identifiability issues by jointly analyzing multiple datasets in an integrated framework. By combining survey and demographic data, these models increase the precision of parameter estimates and facilitate estimation of “additional” parameters not identifiable with individual datasets \parencite{riecke2019integrated, abadi2010assessment}. By combining an integrated population model with an integral projection model – an integrated integral projection model ($IPM^2$) – the relationship between individual traits and demographic performance can be used to forecast population-level processes \parencite{plard2019ipm}.
 
-baited traps are used for removal
+An integrated integral projection model ($IPM^2$) will be useful for understanding size-structured population dynamics and removal effectiveness of invasive European green crab (\textit{Carcinus maenas}). Listed as one of the world’s 100 worst invaders \parencite{lowe2000100}, the European green crab has successfully colonized all continents except Antarctica \parencite{yamada2001global}, negatively impacting benthic communities \parencite{grosholz2005recent}, eelgrass habitat \parencite{garbary2014drastic, howard2019habitat}, and commercial shellfish industries \parencite{grosholz2011modeling}. The European green crab is a resilient marine invader, largely because of a mismatch in spatial scale between local removal programs and the crab’s wide-ranging dispersal and population processes \parencite{keller2025transition}. While adult crabs occupy sheltered bays and estuaries, the crab’s dispersal larval phase in open marine waters often facilitates recolonization of suppressed populations from neighboring habitats \parencite{yamada2021ocean}. Understanding the relationship between removal effort and population suppression will therefore be critical for identifying the feasibility of suppression and for efficiently allocating conservation resources. 
 
-The occupancy of sheltered bays and estuaries by reproductive crab populations alternates with a dispersive larval phase in open marine waters (Behrens Yamada et al. 2015), which facilitates recolonization of suppressed popula- tions from neighbouring habitats.
+The green crab’s local dynamics are regulated by complex, size-structured demography. Adult crabs exert direct control of recruitment, largely through strong negative adult-juvenile interactions (i.e., cannibalism) \parencite{grosholz2021stage, romano2017cannibalism}. Competition with native crabs is also size-structured, with larger crabs maintaining a competitive advantage for space and resources \parencite{mcdonald2001competitive, jensen2007biotic}. Importantly, these individual, size-structured interactions modulate population-level processes; a field experiment in California, USA found a 30-fold, single-year increase in total green crab abundance in response to removal \parencite{grosholz2021stage}. This high level of juvenile survival associated with low adult abundance, often referred to as overcompensation or the "hydra effect", underscores the importance of quantifying size-structured population response to removal (Abrams 2009). 
 
-simultaneous size-structured processes; observation process (some size classes completely unobserved, mesh size of the traps inhibits capture of crabs of small size); size-dependent growth and size-dependent natural mortality; lots of intra-specific interactions
+The green crab observation process is also size-selective, further complicating distinction between simultaneous size-structured processes. Common in marine systems, many green crab size classes are completely unobserved, as baited traps used for removal do not catch all individuals with equal probability across size classes \parencite{jorgensen2009size}. Additionally, the observability of the population changes within a trapping season as individuals grow into size classes capable of being caught in traps. Quantifying the relationship between removal effort and size-structured removal rates will be necessary for assessing the feasibility and impact of removal, understanding long-term dynamics, and optimizing management actions and decisions for this high priority species. 
 
-local population dynamics
+Here we develop an integrated integral projection model ($IPM^2$) to quantify size-structured harvest rates of invasive European green crab. As part of a state-space framework, process dynamics are described using an integral projection model, where the population structure changes over time through seasonal growth, natural mortality, and removal, and observations are generated through the use of multiple size-selective removal methods (Figure 1). Combining multiple datasets in an integrated framework allows for distinct inference about size-structured harvest and natural mortality rates, “additional parameters” for which no explicit data is collected (Figure 2). The $IPM^2$ facilitates prediction of the stable size distribution and equilibrium abundance under different removal strategies, providing a framework for accurate assessment of the effectiveness of invasive species control programs.
 
-A field experiment in California, USA found high levels of juvenile survival associated with low adult abundance, often referred to as overcompensation or the "hydra effect" (Grosholz et al. 2021; Abrams 2009).
-
-and observed massive shifts in size structure from large to adult crabs in response to size-selective removal.
-
-role of size-structured internal population dynamics
-
-mesocosm experiments demonstrate strong negative adult-juvenile interactions (e.g. cannibalism) 
-
-cannibalism common in decapod crustacea (39)
-
-adults exert strong direct control of recruitment
-
-open population; long dispersal planktonic phase
-
-Euro- pean green crabs have successfully colonized five continents (29), negatively impacted benthic communities in California (30), pro- duced 20 million in losses of commercial shellfish annually in the US (31), and are listed as one of the world’s 100 worst invaders (32).
-
-within-year population reductions and shifts to smaller sizes, which are consistent with growth overfishing, show that removal programs may achieve short-term/local benefits but seem unable to sustainably suppress populations (Flynn)
-
-proxies for relative abundance are often measured in catch per unit effort (CPUE), which can be a poor proxy of  abundance
-
-distinguishing size-structured harvest rates from size-structured natural mortality rates will therefore be critical for understanding how a green crab population will respond to removal.
-
-size-dependent competition
-
-\section{Methods}
+\section{Methods and materials}
 
 \subsection{Demographic data}
 
