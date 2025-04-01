@@ -100,13 +100,13 @@ The size-at-age data, $W_{a,i}$, indicating carapace width at age $a$ in year $i
 The expected carapace width, $\widetilde{W}_{a}$, of a crab at age $a$ is:
 
 $$
-\widetilde{W}_{a,i} = y_{\infty}(1-exp(-k(a-t_0) - S(a) + S(t0))) + \epsilon_i
+\widetilde{W}_{a,i} = y_{\infty}(1-exp(-k(a-t_0) - s(a) + s(t0))) + \epsilon_i
 $$
 $$
-S(a) = \frac{Ck}{2\pi}sin(2\pi(a-t_s))
+s(a) = \frac{Ck}{2\pi}sin(2\pi(a-t_s))
 $$
 $$
-S(t_0) = \frac{Ck}{2\pi}sin(2\pi(t_0-t_s))
+s(t_0) = \frac{Ck}{2\pi}sin(2\pi(t_0-t_s))
 $$
 To account for non-independence among data collected within the same year, we add a normally distributed error term with standard deviation, $\tau_y$.
 
@@ -165,13 +165,13 @@ seasonal_growth <- nimbleCode({
     size[i] ~ dnorm(y_hat[i], tau_y)
     # deterministic portion
     y_hat[i] <- (
-      size_inf * (1 - exp(-k * (t[i] - t0) - S_t[i] + S_t0)) + ranef[year[i]]
+      size_inf * (1 - exp(-k * (t[i] - t0) - s_t[i] + s_t0)) + ranef[year[i]]
     )
     # sinusoidal growth after inflection point
-    S_t[i] <- (C * k / (2 * pi)) * sin(2 * pi * (t[i] - ts))
+    s_t[i] <- (C * k / (2 * pi)) * sin(2 * pi * (t[i] - ts))
   }
   # seasonal growth before inflection point
-  S_t0 <- (C * k / (2 * pi)) * sin(2 * pi * (t0 - ts))
+  s_t0 <- (C * k / (2 * pi)) * sin(2 * pi * (t0 - ts))
   # year random effect
   for (y in 1:nyears) {
     ranef[y] ~ dnorm(0, tau_ranef)
