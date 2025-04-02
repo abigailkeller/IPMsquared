@@ -90,27 +90,27 @@ Initial population density and annual recruitment:
 
 
 $$
-\mu_y^A \sim Uniform(3.25, 4.5)
+\mu^A \sim Uniform(3.25, 4.5)
 $$
 
 $$
-\sigma_y^A \sim Uniform(0.1, 1)
+\sigma^A \sim Uniform(0.1, 1)
 $$
 
 $$
-\mu_y^R \sim Uniform(1, 25)
+\mu^R \sim Uniform(1, 25)
 $$
 
 $$
-\sigma_y^R \sim Uniform(0.01, 20)
+\sigma^R \sim Uniform(0.01, 20)
 $$
 
 $$
-\mu_{\lambda}^R \sim Uniform(1, 1000000)
+\mu^{\lambda} \sim Uniform(1, 1000000)
 $$
 
 $$
-\mu_{\sigma}^R \sim Uniform(0, 10000)
+\sigma^{\lambda} \sim Uniform(0, 10000)
 $$
 
 $$

@@ -51,7 +51,7 @@ model_code <- nimbleCode({
   
   # Equation 1
   ## get initial size-structured abundance of adults - year 1
-  N_init[1:n_size] <- get_init_adult(mu_A_y, sigma_A_y, 
+  N_init[1:n_size] <- get_init_adult(mu_A, sigma_A, 
                                      lower[1:n_size], upper[1:n_size], lambda_A)
   
   # project to first observed time period - year 1
@@ -67,16 +67,16 @@ model_code <- nimbleCode({
   # Equation 2
   ## annual abundance of recruits
   for (m in 1:n_year) {
-    lambda_R[m] ~ T(dnorm(mu_R_lambda, sd = sigma_R_lambda), 0, Inf)
+    lambda_R[m] ~ T(dnorm(mu_lambda, sd = sigma_lambda), 0, Inf)
   }
   
   # Equation 3
   ## annual size distribution of recruits
-  R[1:n_year, 1:n_size] <- get_init_recruits(mu_R_y, sigma_R_y, lower[1:n_size], 
+  R[1:n_year, 1:n_size] <- get_init_recruits(mu_R, sigma_R, lower[1:n_size], 
                                              upper[1:n_size], 
                                              lambda_R[1:n_year], n_year,
                                              n_size)
-
+  
   #############################
   # Integral projection model #
   #############################
@@ -96,7 +96,7 @@ model_code <- nimbleCode({
   # intra-annual change
   for (i in 1:n_year) {
     for (t in 1:(totalt[i]-1)) {
-
+      
       # Equations 5 - 6
       ## project
       N[t + 1, i, 1:n_size] <- get_kernel(yinf, gk, sigma_G,
@@ -112,7 +112,7 @@ model_code <- nimbleCode({
       ## natural survival
       S[t + 1, i, 1:n_size] <- survival(alpha, beta[i], y[1:n_size], D[t, i],
                                         D[t + 1, i])
-
+      
     }
   }
   
@@ -126,7 +126,7 @@ model_code <- nimbleCode({
   # applying the growth kernel and natural mortality
   for (i in 1:n_year_short) {
     for (t in additionalt[year_short[i], 1]:additionalt[year_short[i], 2]) {
-
+      
       # Equations 5 - 6
       ## project
       N[t + 1, year_short[i], 1:n_size] <- get_kernel(yinf, gk, sigma_G,
@@ -241,7 +241,7 @@ model_code <- nimbleCode({
                                      n_size, pi, y[1:n_size], lower[1:n_size],
                                      upper[1:n_size], S_mc[1:n_size]) %*%
     n1[1:n_size]
-    
+  
   S_mc[1:n_size] <- survival(alpha, beta[5], y[1:n_size], D_mc[1], D_mc[2])
   
   # Equation 23
@@ -343,21 +343,21 @@ model_code <- nimbleCode({
   ##
   
   # initial adult size (mean and sd)
-  mu_A_y ~ dunif(3.25, 4.5)
-  sigma_A_y ~ dunif(0.1, 1)
+  mu_A ~ dunif(3.25, 4.5)
+  sigma_A ~ dunif(0.1, 1)
   
   # initial recruit size (mean and sd)
-  mu_R_y ~ dunif(1, 25)
-  sigma_R_y ~ dunif(0.01, 20)
+  mu_R ~ dunif(1, 25)
+  sigma_R ~ dunif(0.01, 20)
   
   # abundance of recruits (mean and sd)
-  mu_R_lambda ~ dunif(1, 1000000)
-  sigma_R_lambda ~ dunif(0, 10000)
+  mu_lambda ~ dunif(1, 1000000)
+  sigma_lambda ~ dunif(0, 10000)
   
   # abundance of adults in year 1
   lambda_A ~ dunif(1, 1000000)
-
-
+  
+  
 })
 
 # bundle up data and constants
@@ -446,10 +446,10 @@ inits <- function() {
     h_S_max = runif(1, 0.001, 0.005), h_S_k = 0.2, h_S_0 = 45,
     ro_dir = 0.01, beta_alpha = 2, beta_theta = 1, alpha = 0.1,
     alpha_o_alpha = 2, alpha_o_theta = 1, gk = 1, yinf = 85,
-    C = 0.79, ts = -0.64, sigma_G = 2.5, sigma_R_y = 1,
-    mu_R_y = 20, mu_A_y = 4, sigma_A_y = 0.2,
-    lambda_A = 1800, lambda_R = c(1000, 100, 1000, 100), mu_R_lambda = 500,
-    sigma_R_lambda = 100, beta = rep(0.001, 5),
+    C = 0.79, ts = -0.64, sigma_G = 2.5, sigma_R = 1,
+    mu_R = 20, mu_A = 4, sigma_A = 0.2,
+    lambda_A = 1800, lambda_R = c(1000, 100, 1000, 100), mu_lambda = 500,
+    sigma_lambda = 100, beta = rep(0.001, 5),
     alpha_o = c(0.0308, 0.00669, 0.0346), N_overwinter = N_overwinter
   )
 }
@@ -492,10 +492,10 @@ out <- clusterEvalQ(cl, {
       p <- rdirch(1, alpha)
       return(rmulti(1, size = size, prob = p))
     })
-
+  
   assign("ddirchmulti", ddirchmulti, .GlobalEnv)
   assign("rdirchmulti", rdirchmulti, .GlobalEnv)
-
+  
   # size selective hazard rate of trap type minnow - bell-shaped curve
   size_sel_norm <- nimbleFunction (
     # input and output types
@@ -503,14 +503,14 @@ out <- clusterEvalQ(cl, {
                    y = double(1))
     {
       returnType(double(1))
-
+      
       vector <- pmax * exp(-(y - xmax) ^ 2 / (2 * sigma ^ 2))
-
+      
       return(vector)
     }
   )
   assign("size_sel_norm", size_sel_norm, envir = .GlobalEnv)
-
+  
   # size selective hazard rate of trap type fukui and shrimp - logistic
   size_sel_log <- nimbleFunction (
     #input and output types
@@ -518,15 +518,15 @@ out <- clusterEvalQ(cl, {
                    y = double(1))
     {
       returnType(double(1))
-
+      
       vector <- pmax / (1 + exp(-k * (y - midpoint)))
-
+      
       return(vector)
     }
   )
   assign("size_sel_log", size_sel_log, envir = .GlobalEnv)
-
-
+  
+  
   # calculate trap hazard rate of obs j, based on trap type and soak days
   calc_hazard <- nimbleFunction (
     #input and output types
@@ -540,7 +540,7 @@ out <- clusterEvalQ(cl, {
                    y = double(1))
     {
       returnType(double(2))
-
+      
       # create empty array
       array <- array(init = FALSE, dim = c(nobs, n_size))
       # loop through observations
@@ -555,22 +555,22 @@ out <- clusterEvalQ(cl, {
                         sigma = h_M_sigma, y = y) *
           obs_ref_m[j] * soak_days[j]
       }
-
+      
       return(array)
     }
   )
   assign("calc_hazard", calc_hazard, envir = .GlobalEnv)
-
+  
   # calculate conditional probability of capture
   calc_cond_prob <- nimbleFunction (
     #input and output types
     run = function(nobs = double(0), n_size = double(0), hazard = double(2))
     {
       returnType(double(2))
-
+      
       # create empty array
       array <- array(init = FALSE, dim = c(nobs, n_size))
-
+      
       # loop through sizes
       for (k in 1:n_size) {
         #P(capture in trap j | captured at all)
@@ -580,18 +580,18 @@ out <- clusterEvalQ(cl, {
     }
   )
   assign("calc_cond_prob", calc_cond_prob, envir = .GlobalEnv)
-
-
+  
+  
   # calculate total capture probability
   calc_prob <- nimbleFunction (
     #input and output types
     run = function(nobs = double(0), n_size = double(0), hazard = double(2))
     {
       returnType(double(1))
-
+      
       # create empty array
       p <- rep(NA, n_size)
-
+      
       # loop through sizes
       for (k in 1:n_size) {
         # 1 - exp(-P(captured at all))
@@ -601,7 +601,7 @@ out <- clusterEvalQ(cl, {
     }
   )
   assign("calc_prob", calc_prob, envir = .GlobalEnv)
-
+  
   # function for seasonal growth kernel -- biweekly time step
   get_kernel <- nimbleFunction (
     # input and output types
@@ -612,17 +612,17 @@ out <- clusterEvalQ(cl, {
                    lower = double(1), upper = double(1), S = double(1))
     {
       returnType(double(2))
-
+      
       # create empty array
       array <- matrix(NA, ncol = n_size, nrow = n_size)
-
+      
       if(!is.na(t2) & t2 == 0) {
         array <- diag(n_size)
       } else {
         # season adjusted params
         S_t <- (C * k / (2 * pi)) * sin(2 * pi * (t2 - (1 + ts)))
         S_t0 <- (C * k / (2 * pi)) * sin(2 * pi * (t1 - (1 + ts)))
-
+        
         # p(y"|y)
         for (i in 1:n_size) {
           increment <- (yinf - y[i]) *
@@ -631,7 +631,7 @@ out <- clusterEvalQ(cl, {
           array[1:n_size, i] <- (pnorm(upper, mean, sd = sigma_G) -
                                    pnorm(lower, mean, sd = sigma_G))
         }
-
+        
         # normalize and apply natural mortality
         for (i in 1:n_size) {
           array[, i] <- array[, i] / sum(array[, i]) * S
@@ -665,7 +665,7 @@ out <- clusterEvalQ(cl, {
   # annual size distributions of recruit
   get_init_recruits <- nimbleFunction (
     
-    run = function(mu_R_y = double(0), sigma_R_y = double(0),
+    run = function(mu_R = double(0), sigma_R = double(0),
                    lower = double(1), upper = double(1),
                    lambda_R = double(1), n_year = double(0),
                    n_size = double(0))
@@ -676,9 +676,9 @@ out <- clusterEvalQ(cl, {
       out <- matrix(NA, ncol = n_size, nrow = n_year)
       
       # moment match from normal to gamma
-      var <- sigma_R_y ^ 2
-      shape <- mu_R_y ^ 2 / var
-      rate <- mu_R_y / var
+      var <- sigma_R ^ 2
+      shape <- mu_R ^ 2 / var
+      rate <- mu_R / var
       prop_recruit <- pgamma(q = upper, shape = shape, rate = rate) -
         pgamma(q = lower, shape = shape, rate = rate)
       
@@ -691,7 +691,7 @@ out <- clusterEvalQ(cl, {
     }
   )
   assign("get_init_recruits", get_init_recruits, envir = .GlobalEnv)
-
+  
   # natural (non-winter) survival
   survival <- nimbleFunction (
     
@@ -726,15 +726,15 @@ out <- clusterEvalQ(cl, {
     }
   )
   assign("overwinter_survival", overwinter_survival, envir = .GlobalEnv)
-
-
+  
+  
   # build model
   myModel <- nimbleModel(code = model_code,
                          data = data,
                          constants = constants,
                          inits = inits())
-
-
+  
+  
   # build the MCMC
   mcmcConf_myModel <- configureMCMC(
     myModel,
@@ -742,8 +742,8 @@ out <- clusterEvalQ(cl, {
                  "h_F_k", "h_F_0", "h_S_max", "h_S_k",
                  "h_S_0", "beta_alpha", "beta_theta", "gk",
                  "yinf", "C", "ts", "sigma_G",
-                 "sigma_R_y", "mu_R_y", "mu_A_y",
-                 "sigma_A_y", "mu_R_lambda", "sigma_R_lambda",
+                 "sigma_R", "mu_R", "mu_A",
+                 "sigma_A", "mu_lambda", "sigma_lambda",
                  "lambda_R", "lambda_A", "beta", "alpha_o",
                  "alpha", "beta_alpha", "beta_theta",
                  "alpha_o_alpha", "alpha_o_theta", "N_overwinter",
@@ -777,6 +777,6 @@ out <- clusterEvalQ(cl, {
 })
 
 # save samples
-saveRDS(out, "data/posterior_samples/savedsamples_IPM_20250307.rds")
+saveRDS(out, "data/posterior_samples/savedsamples_IPM.rds")
 
 stopCluster(cl)

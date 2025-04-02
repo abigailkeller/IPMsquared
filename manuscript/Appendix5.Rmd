@@ -46,16 +46,16 @@ upper <- 10001
 
 ```{r, echo = FALSE, results = "hide"}
 # create df with param names
-short_names <- c("mu_A_y", "sigma_A_y", "mu_R_y", "sigma_R_y", "yinf", "gk", 
+short_names <- c("mu_A", "sigma_A", "mu_R", "sigma_R", "yinf", "gk", 
                  "C", "ts", "sigma_G", "beta[1]", "beta[2]", "beta[3]", 
                  "beta[4]", "beta[5]", "alpha", "beta_alpha", "beta_theta", 
                  "alpha_o[1]", "alpha_o[2]", "alpha_o[3]", "alpha_o_alpha", 
                  "alpha_o_theta", "h_F_max", "h_M_max", "h_S_max", "h_F_k", 
                  "h_S_k", "h_F_0", "h_S_0", "h_M_A", "h_M_sigma", "ro_dir", 
                  "lambda_A", "lambda_R[1]", "lambda_R[2]", "lambda_R[3]",
-                 "lambda_R[4]", "mu_R_lambda", "sigma_R_lambda")
+                 "lambda_R[4]", "mu_lambda", "sigma_lambda")
 
-real_names <- c("log(mu[y]^A)", "sigma[y]^A", "mu[y]^R", "sigma[y]^R",
+real_names <- c("log(mu^A)", "sigma^A", "mu^R", "sigma^R",
                 "y[infinity]", "k", "C", "t[s]", "sigma^G", "beta[1]",
                 "beta[2]", "beta[3]", "beta[4]", "beta[5]", "alpha",
                 "beta[alpha]", "beta[theta]", "alpha[1]^o", "alpha[2]^o",
@@ -63,9 +63,9 @@ real_names <- c("log(mu[y]^A)", "sigma[y]^A", "mu[y]^R", "sigma[y]^R",
                 "h[F]^max", "h[M]^max", "h[S]^max", "h[F]^k", "h[S]^k",
                 "h[F]^0", "h[S]^0", "h[M]^A", "h[M]^sigma", "rho",
                 "lambda^A", "lambda[1]^R", "lambda[2]^R", "lambda[3]^R",
-                "lambda[4]^R", "mu[lambda]^R", "mu[sigma]^R")
+                "lambda[4]^R", "mu^lambda", "sigma^lambda")
 
-latex_names <- c("log(\\mu_y^A)", "\\sigma_y^A", "\\mu_y^R", "\\sigma_y^R",
+latex_names <- c("log(\\mu^A)", "\\sigma^A", "\\mu^R", "\\sigma^R",
                  "y_{\\infty}", "k", "C", "t_s", "\\sigma^G", "\\beta_1",
                  "\\beta_2", "\\beta_3", "\\beta_4", "\\beta_5", "\\alpha",
                  "\\beta_{\\alpha}", "\\beta_{\\theta}", "\\alpha_1^o",
@@ -73,8 +73,8 @@ latex_names <- c("log(\\mu_y^A)", "\\sigma_y^A", "\\mu_y^R", "\\sigma_y^R",
                  "\\alpha_{\\theta}^o", "h_F^{max}", "h_M^{max}", "h_S^{max}",
                  "h_F^k", "h_S^k", "h_F^0", "h_S^0", "h_M^A", "h_M^{\\sigma}",
                  "\\rho", "\\lambda^A", "\\lambda_1^R", "\\lambda_2^R",
-                 "\\lambda_3^R", "\\lambda_4^R", "\\mu_{\\lambda}^R",
-                 "\\mu_{\\sigma}^R")
+                 "\\lambda_3^R", "\\lambda_4^R", "\\mu^{\\lambda}",
+                 "\\mu^{\\sigma}")
 
 names_df <- as.data.frame(cbind(short_names, real_names, latex_names))
 colnames(names_df) <- c("short_names", "real_names", "latex_names")

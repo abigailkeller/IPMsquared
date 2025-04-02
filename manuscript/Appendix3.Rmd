@@ -59,7 +59,7 @@ model_code <- nimbleCode({
   
   # Equation 1
   ## get initial size-structured abundance of adults - year 1
-  N_init[1:n_size] <- get_init_adult(mu_A_y, sigma_A_y, 
+  N_init[1:n_size] <- get_init_adult(mu_A, sigma_A, 
                                      lower[1:n_size], upper[1:n_size], lambda_A)
   
   # project to first observed time period - year 1
@@ -75,12 +75,12 @@ model_code <- nimbleCode({
   # Equation 2
   ## annual abundance of recruits
   for (m in 1:n_year) {
-    lambda_R[m] ~ T(dnorm(mu_R_lambda, sd = sigma_R_lambda), 0, Inf)
+    lambda_R[m] ~ T(dnorm(mu_lambda, sd = sigma_lambda), 0, Inf)
   }
   
   # Equation 3
   ## annual size distribution of recruits
-  R[1:n_year, 1:n_size] <- get_init_recruits(mu_R_y, sigma_R_y, lower[1:n_size], 
+  R[1:n_year, 1:n_size] <- get_init_recruits(mu_R, sigma_R, lower[1:n_size], 
                                              upper[1:n_size], 
                                              lambda_R[1:n_year], n_year,
                                              n_size)
@@ -351,16 +351,16 @@ model_code <- nimbleCode({
   ##
   
   # initial adult size (mean and sd)
-  mu_A_y ~ dunif(3.25, 4.5)
-  sigma_A_y ~ dunif(0.1, 1)
+  mu_A ~ dunif(3.25, 4.5)
+  sigma_A ~ dunif(0.1, 1)
   
   # initial recruit size (mean and sd)
-  mu_R_y ~ dunif(1, 25)
-  sigma_R_y ~ dunif(0.01, 20)
+  mu_R ~ dunif(1, 25)
+  sigma_R ~ dunif(0.01, 20)
   
   # abundance of recruits (mean and sd)
-  mu_R_lambda ~ dunif(1, 1000000)
-  sigma_R_lambda ~ dunif(0, 10000)
+  mu_lambda ~ dunif(1, 1000000)
+  sigma_lambda ~ dunif(0, 10000)
   
   # abundance of adults in year 1
   lambda_A ~ dunif(1, 1000000)
@@ -458,10 +458,10 @@ inits <- function() {
     h_S_max = runif(1, 0.001, 0.005), h_S_k = 0.2, h_S_0 = 45,
     ro_dir = 0.01, beta_alpha = 2, beta_theta = 1, alpha = 0.1,
     alpha_o_alpha = 2, alpha_o_theta = 1, gk = 1, yinf = 85,
-    C = 0.79, ts = -0.64, sigma_G = 2.5, sigma_R_y = 1,
-    mu_R_y = 20, mu_A_y = 4, sigma_A_y = 0.2,
-    lambda_A = 1800, lambda_R = c(1000, 100, 1000, 100), mu_R_lambda = 500,
-    sigma_R_lambda = 100, beta = rep(0.001, 5),
+    C = 0.79, ts = -0.64, sigma_G = 2.5, sigma_R = 1,
+    mu_R = 20, mu_A = 4, sigma_A = 0.2,
+    lambda_A = 1800, lambda_R = c(1000, 100, 1000, 100), mu_lambda = 500,
+    sigma_lambda = 100, beta = rep(0.001, 5),
     alpha_o = c(0.0308, 0.00669, 0.0346), N_overwinter = N_overwinter
   )
 }
@@ -679,7 +679,7 @@ out <- clusterEvalQ(cl, {
   # annual size distributions of recruit
   get_init_recruits <- nimbleFunction (
     
-    run = function(mu_R_y = double(0), sigma_R_y = double(0),
+    run = function(mu_R = double(0), sigma_R = double(0),
                    lower = double(1), upper = double(1),
                    lambda_R = double(1), n_year = double(0),
                    n_size = double(0))
@@ -690,9 +690,9 @@ out <- clusterEvalQ(cl, {
       out <- matrix(NA, ncol = n_size, nrow = n_year)
       
       # moment match from normal to gamma
-      var <- sigma_R_y ^ 2
-      shape <- mu_R_y ^ 2 / var
-      rate <- mu_R_y / var
+      var <- sigma_R ^ 2
+      shape <- mu_R ^ 2 / var
+      rate <- mu_R / var
       prop_recruit <- pgamma(q = upper, shape = shape, rate = rate) -
         pgamma(q = lower, shape = shape, rate = rate)
       
@@ -756,8 +756,8 @@ out <- clusterEvalQ(cl, {
                  "h_F_k", "h_F_0", "h_S_max", "h_S_k",
                  "h_S_0", "beta_alpha", "beta_theta", "gk",
                  "yinf", "C", "ts", "sigma_G",
-                 "sigma_R_y", "mu_R_y", "mu_A_y",
-                 "sigma_A_y", "mu_R_lambda", "sigma_R_lambda",
+                 "sigma_R", "mu_R", "mu_A",
+                 "sigma_A", "mu_lambda", "sigma_lambda",
                  "lambda_R", "lambda_A", "beta", "alpha_o",
                  "alpha", "beta_alpha", "beta_theta",
                  "alpha_o_alpha", "alpha_o_theta", "N_overwinter",
