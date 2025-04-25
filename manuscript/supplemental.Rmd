@@ -21,3 +21,46 @@ knitr::include_graphics(
 )
 ```
 
+\newpage
+
+**Table S1**: Total equilibrium abundance across all size classes, $N_{total}$ for population forecasts in response to varying removal efforts. Mean refers to the mean $N_{total}^E$ across all simulation replicates, and sd refers to the standard deviation of $N_{total}^E$ across all simulation replicates.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+library(tidyverse)
+library(kableExtra)
+
+# read in simulation results
+out <- readRDS("C:/Users/abiga/Documents/Berkeley/Structured_Decision_Making/pop_dynamics_model/IPMsquared/data/simulations/simulations_effort.rds")
+out_noeffort <- readRDS("C:/Users/abiga/Documents/Berkeley/Structured_Decision_Making/pop_dynamics_model/IPMsquared/data/simulations/simulations_noeffort.rds")
+
+# summarize
+summary <- as.data.frame(matrix(NA, nrow = 19, ncol = 4))
+colnames(summary) <- c("type", "effort", "$N_{total}^E$ (mean)", "$N_{total}^E$ (sd)")
+
+# no effort
+summary[1, ] <- c("NA", 0, round(mean(rowSums(out_noeffort)), 1), 
+                  round(sd(rowSums(out_noeffort)), 1))
+
+# effort summaries
+summary[2:19, ] <- as.data.frame(out) %>% 
+  mutate(N = rowSums(across(1:22))) %>% 
+  mutate(type = case_when(prop_s == 1 ~ "Shrimp",
+                          prop_f == 1 ~ "Fukui",
+                          prop_m == 1 ~ "Minnow")) %>% 
+  group_by(type, nobs) %>% 
+  summarise(mean = round(mean(N), 1), sd = round(sd(N), 1))
+```
+
+```{r, echo = FALSE}
+# Render table
+knitr::kable(
+  summary,
+  escape = FALSE,
+  format = "latex",
+  booktabs = TRUE,
+  longtable = TRUE
+) %>%
+  kable_styling(full_width = FALSE, latex_options = c("repeat_header")) %>%
+  kableExtra::row_spec(-1,
+                       extra_latex_after = "\\renewcommand{\\arraystretch}{2}")
+```

@@ -17,13 +17,17 @@ knitr::include_graphics(
          "pop_dynamics_model/IPMsquared/figures/supplemental_map.png")
 )
 ```
-Below we describe the total removal effort and catch of European green crab (EGC, *C. maenas*) in Drayton Harbor (D1). While the removal count data is collected at many time points throughout the trapping season, we discretize the time intervals into biweekly periods in the model.
+Below we describe the total removal effort and catch of European green crab (EGC, *C. maenas*) in Drayton Harbor (D1). While the removal count data is collected at many time points throughout the trapping season (~ April - October), we discretize the time intervals into biweekly periods in the model.
+
 Drayton Harbor data were subset to only include recruits (age < 1) that appear in a single cohort in the fall of each year (Figure 1B). This subset only removed three recruit individuals in 2022 from the dataset, which  were from an off-cycle recruitment cohort.
+
+Three different trap types were used with different mesh sizes and entrance openings: Fukui, Minnow, and Shrimp. Fukui traps have 12 mm mesh with approximately 20 cm entrance openings. Gee-brand minnow traps have 6 mm mesh with approximately 5 cm entrances. Promar-brand 4-way shrimp traps have 1/2"-1" mesh size and approximately 10 cm entrance opening
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 library(tidyverse)
 library(kableExtra)
 library(knitr)
+
 # read in data
 counts <- readRDS("../data/model_data/counts.rds")
 f_index <- readRDS("../data/model_data/f_index.rds")
@@ -47,10 +51,21 @@ for (i in seq_along(years)) {
     df_catch <- rbind(df_catch, vec)
   }
 }
-julian_day_df <- index_frac * 365 + 60
+
+# get Julian day
+biweek <- c(59, 76, 91, 106, 121, 137, 152, 167, 182, 198, 213, 
+            229, 244, 259, 274, 290, 305, 320, 335)
+index_full <- index_frac / 14 * 365 + 3
+julian_day_df <- as.data.frame(matrix(NA, nrow = max(totalt), ncol = 4))
+for (i in 1:4) {
+  for (t in 1:totalt[i]) {
+    julian_day_df[t, i] <- biweek[index_full[t, i]]
+  }
+}
 julian_day <- c(julian_day_df[1:totalt[1], 1], julian_day_df[1:totalt[2], 2],
                 julian_day_df[1:totalt[3], 3], julian_day_df[1:totalt[4], 4])
-julian_day <- julian_day[!is.na(julian_day)]
+
+# get all catch
 df_catch <- cbind(julian_day, df_catch)
 colnames(df_catch) <- c("Julian day", "year", "F (catch)", "F (effort)",
                         "M (catch)", "M (effort)", "S (catch)", "S (effort)")
