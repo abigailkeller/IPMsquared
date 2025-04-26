@@ -124,12 +124,14 @@ Since the model was estimated hierarchically, with the seasonal growth model was
 
 ## Appendix 2.2
 
-The parameter $\alpha^D_{t,j,i,y}$ described in the main text governs the mean and variance of the multinomial-dirichlet mixture distribution and generates the observed conditional probability of capture, $p^C_{t,j,i,y}$, across individual traps from the mean conditional probability of capture, $\tilde{p}^C_{t,j,i,y}$.
+Similarly to how a beta-binomial replaces a single probability with a Beta distribution of probabilities among binomial draws to account for overdispersion, the Dirichlet-multinomial mixture replaces a single vector of probabilities (that sum to onw) with a Dirichlet distribution of such vectors to account for overdispersion in counts among traps.
 
-The parameter $\alpha^D_{t,j,i,y}$ is linked to the sampled parameter, $\rho$:
+The parameter $\alpha^D$ described in the main text governs the amount of overdispersion in the Dirichlet-multinomial mixture distribution and generates the conditional probability of capture, $p^C_{t,j,i,y}$, across individual traps.
+
+The parameter $\alpha^D$ is linked to the sampled parameter, $\rho$:
 
 $$
-\alpha^D_{t,j,i,y} = \tilde{p}^C_{t,j,i,y} \times p^D
+\alpha^D = p^C(y)_{t,j,i} \times p^D
 $$
 
 $$

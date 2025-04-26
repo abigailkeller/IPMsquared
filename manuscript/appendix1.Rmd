@@ -128,7 +128,7 @@ To account for non-independence among data collected within the same year, we ad
 $$
 \epsilon_i \sim Normal(0, \tau_y)
 $$
-To account for individual variation in growth rate, the observed size-at-age data, $W_{a,i}$, follows a normal distribution, with the expected carapace width $\widetilde{W}_{a,i}$, and standard deviation, $\tau_{w}$.
+To account for variation in growth rate, the observed size-at-age data, $W_{a,i}$, follows a normal distribution, with the expected carapace width $\widetilde{W}_{a,i}$, and standard deviation, $\tau_{w}$.
 
 $$
 W_{a,i} \sim Normal(\widetilde{W}_{a,i}, \tau_{w})

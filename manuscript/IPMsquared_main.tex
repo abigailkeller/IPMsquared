@@ -43,9 +43,9 @@ sorting=nyt
 
 3.	We develop an integrated integral projection model (IPM\textsuperscript{2}) that leverages the strengths of the integrated population model and integral projection model to enable inference about complex, size-structured demographic rates from imperfect observations. We apply the IPM\textsuperscript{2} in the context of invasive European green crab (\textit{Carcinus maenas}), a species for which individual body size strongly regulates both the observation-generating process and latent, population dynamics.
 
-4.	The IPM\textsuperscript{2} facilitates the distinct estimation of green crab size-structured harvest and natural mortality rates, parameters for which no explicit data is collected and unidentifiable in component datasets of the integrated population model. The model represents how the green crab population changes over time, providing the first estimates of size-structured abundance of this high priority species. 
+4.	The IPM\textsuperscript{2} facilitates the distinct estimation of green crab size-structured harvest and natural mortality rates, parameters for which no explicit data is collected and are unidentifiable in component datasets of the integrated population model. The model represents how the green crab population changes over time, providing the first estimates of size-structured abundance of this high priority species. 
 
-5.	By forecasting the stable size distribution and equilibrium population size under varying removal efforts, we demonstrate that extremely high levels of removal effort can reduce the equilibrium green crab population size. Yet these high mortality rates also shift the stable size distribution and increase the equilibrium abundance of smaller crabs, since size-selective removal alters intra-specific interactions. These results highlight the value of the IPM\textsuperscript{2} framework for inferring complex population dynamics with information needs that outpace information in observational datasets, providing a path forward for accurate assessment of conservation programs.
+5.	By forecasting the stable size distribution and equilibrium population size under varying removal efforts, we demonstrate that extremely high levels of removal effort can reduce the equilibrium green crab population size. Yet these high mortality rates also shift the stable size distribution and increase the equilibrium abundance of smaller crabs, since size-selective removal alters intra-specific interactions. These results highlight the value of the IPM\textsuperscript{2} framework for inferring complex population dynamics with information needs that outpace information in individual observational datasets, providing a path forward for accurate assessment of conservation programs.
 
 
 \textbf{Key words:} integrated population model, integral projection model, state-space framework, invasive species, European green crab, size structure
@@ -58,21 +58,22 @@ Assessing the efficacy of invasive species management interventions requires und
 
 This challenge of disentangling sources of mortality is amplified for species with complex, size-structured demography. Body size can determine the strength of ecological interactions an individual experiences and can influence its key life-history processes like growth and mortality \parencite{de2003influence}. The ontogenetic scaling of ecological performance with body size ultimately drives patterns at the population level \parencite{werner1994ontogenetic}. Population dynamics can be shaped by competitive and predatory (cannibalistic) intra-specific interactions between different size cohorts \parencite{claessen2004population}, predator-prey size-dependent functional responses \parencite{aljetlawi2004prey}, variable reproductive capacity across size \parencite{hixon2014boffffs}, and size-selective rates of harvest \parencite{tu2018fishing}. Since these size-structured rates and interactions simultaneously modulate population dynamics, unraveling their individual contributions can be difficult. 
 
-To monitor invasive populations, ecologists are often limited to removal sampling data \parencite{udell2022open}, which are typically collected opportunistically as part of removal programs, rather than experimentally designed \parencite{tiberti2021alien, crall2010improving, rogosch2021comparing}. Consequently, these data fail to meet the strict assumptions of multinomial N-mixture models, which can be used to estimate abundance with animals removed successively from multiple sites \parencite{dorazio2005improving} for closed populations. These removal observations are often not collected systematically across time and space and can be associated with large measurement error that can mask biological signals \parencite{auger2016state, sibert2003horizontal, katsanevakis2012monitoring}.
+To monitor invasive populations, ecologists are often limited to removal sampling data \parencite{udell2022open}, which are typically collected opportunistically as part of removal programs, rather than experimentally designed \parencite{tiberti2021alien, crall2010improving, rogosch2021comparing}. Consequently, these data fail to meet the strict assumptions of models commonly used to estimate abundance with animals removed successively from multiple sites for closed populations \parencite{dorazio2005improving}. These removal observations are often not collected systematically across time and space and can be associated with large measurement error that can mask biological signals \parencite{auger2016state, sibert2003horizontal, katsanevakis2012monitoring}.
 
 Despite the unique statistical inference challenges associated with invasive species removal data, the costs of under- or over-estimating removal harvest rates can be high. Ineffective invasive population suppression plans waste human and economic resources and can degrade the confidence of people and stakeholders involved in removal \parencite{tiberti2021alien}. As invasive species management becomes more ambitious in scope and scale, population control can be controversial, stimulating conflicts among people and debates about achievability and efficiency \parencite{crowley2017conflict}. These undesirable social outcomes underscore the need for rigorous assessments of the effectiveness of control programs.
 
 Combining existing classes of models can be useful for distinguishing process from observation dynamics, facilitating parameter identifiability, and enabling inference about complex, size-structured demographic rates from imperfect observations. First, an integral projection model can be used to make population projections based on individual-level, size-dependent vital rates \parencite{merow2014advancing, rees2014building}. In contrast to matrix population models with large data requirements, the integral projection model uses a kernel composed of continuous functions to describe the probability of transitioning between sizes \parencite{ellner2006integral}. The integral projection model can therefore substantially simplify inference by only requiring estimates of parameters in these continuous functions, rather than parameters to describe every possible size transition. 
 
-To estimate demographic rates, the integral projection model can then be formulated in a state-space framework leveraging size-structured time series data \parencite{white2016fitting}. State-space approaches partition latent process model dynamics from both process and measurement error, providing a hierarchical structure that separately models 1) an unobserved, process time series that reflects the true, hidden population state and 2) an observation time series that contains imperfect measurements related to the process time series \parencite{auger2021guide}. By separating latent process model dynamics from both process and observation error, the state-space framework allows estimation of harvest mortality — the observation process — separately from natural biological variation.
+To estimate demographic rates, the integral projection model can then be formulated in a state-space framework leveraging size-structured time series data \parencite{white2016fitting}. State-space approaches partition process and measurement error to estimate latent process model dynamics, providing a hierarchical structure that separately models 1) an unobserved, process time series that reflects the true, hidden population state and 2) an observation time series that contains imperfect measurements related to the process time series \parencite{auger2021guide, newman2006hidden}. By incorporating both process and observation error, the state-space framework allows estimation of harvest mortality — the observation process — separately from natural biological variation.
 
-State-space approaches, however, can suffer from challenges of parameter identifiability, especially in scenarios when information requirements of complex models exceed information available in a single dataset \parencite{auger2016state}. Integrated population models can resolve these identifiability issues by jointly analyzing multiple datasets in an integrated framework. By integrating survey and demographic data, these models increase the precision of parameter estimates and facilitate estimation of additional parameters not identifiable with individual datasets \parencite{riecke2019integrated, abadi2010assessment}. By combining an integrated population model with an integral projection model into an integrated integral projection model (IPM\textsuperscript{2}), the relationship between individual size and demographic performance can be used to forecast population-level processes \parencite{plard2019ipm}.
+State-space approaches, however, can suffer from challenges of parameter identifiability, especially in scenarios when information requirements of complex models exceed information available in a single dataset \parencite{auger2016state, knape2008estimability}. Integrated population models can resolve these identifiability issues by jointly analyzing multiple datasets in an integrated framework \parencite{besbeas2002integrating}. By integrating survey and demographic data, these models increase the precision of parameter estimates and facilitate estimation of additional parameters not identifiable with individual datasets \parencite{riecke2019integrated, abadi2010assessment}. By combining an integrated population model with an integral projection model into an integrated integral projection model (IPM\textsuperscript{2}), the relationship between individual size and demographic performance can be used to forecast population-level processes \parencite{plard2019ipm}.
 
-An IPM\textsuperscript{2} will be useful for understanding population dynamics and removal effectiveness of invasive European green crab (\textit{Carcinus maenas}). The green crab’s population dynamics are regulated by complex, size-structured demography. Adult crabs exert direct control of recruitment, largely through strong negative adult-juvenile interactions (i.e., cannibalism) \parencite{grosholz2021stage, romano2017cannibalism}. Competition with native crabs is also size-structured, with larger crabs maintaining a competitive advantage for space and resources \parencite{mcdonald2001competitive, jensen2007biotic}. Importantly, these individual, size-structured interactions modulate population-level processes; a field experiment in California, USA found a 30-fold, single-year increase in total green crab abundance in response to removal \parencite{grosholz2021stage}. This high level of juvenile survival associated with low adult abundance, often referred to as overcompensation or the "hydra effect", underscores the importance of quantifying size-structured population response to removal \parencite{abrams2009does}. 
+An IPM\textsuperscript{2} will be useful for understanding population dynamics and removal effectiveness of invasive European green crab (\textit{Carcinus maenas}). The green crab’s population dynamics are highly non-linear and are regulated by complex, size-structured demography. Adult crabs exert direct control of recruitment, largely through strong negative adult-juvenile interactions like cannibalism
+\parencite{grosholz2021stage, romano2017cannibalism}. Competition with native crabs is also size-structured, with larger crabs maintaining a competitive advantage for space and resources \parencite{mcdonald2001competitive, jensen2007biotic}. Importantly, these individual, size-structured interactions modulate population-level processes; a field experiment in California, USA found a 30-fold, single-year increase in total green crab abundance in response to removal \parencite{grosholz2021stage}. This high level of juvenile survival associated with low adult abundance, often referred to as overcompensation or the ``hydra effect", underscores the importance of quantifying size-structured population response to removal \parencite{abrams2009does}. 
 
 The green crab observation process is also size-selective, further complicating distinction between simultaneous size-structured processes. Baited traps used for removal do not catch all individuals with equal probability across size classes, with the larval stage and smaller green crab size classes completely unobserved \parencite{jorgensen2009size}. Additionally, the observability of the population changes within a trapping season as individuals grow into size classes capable of being caught in traps. Quantifying the relationship between removal effort and size-structured removal rates will be necessary for assessing the feasibility and impact of removal, understanding long-term dynamics, and optimizing management actions and decisions for this high priority species. 
 
-Here we develop an integrated integral projection model (IPM\textsuperscript{2}) to quantify size-structured harvest rates of invasive European green crab. As part of a state-space framework, process dynamics are described using an integral projection model, where the population structure changes over time through seasonal growth, natural mortality, and removal, and observations are generated through the use of multiple size-selective removal methods (Figure 1). Combining multiple datasets in an integrated framework allows for distinct inference about size-structured harvest and natural mortality rates, “additional parameters” for which no explicit data is collected (Figure 2). The IPM\textsuperscript{2} facilitates prediction of the stable size distribution and equilibrium abundance under different removal strategies, providing a framework for accurate assessment of the effectiveness of invasive species control programs.
+Here we develop an integrated integral projection model (IPM\textsuperscript{2}) to quantify size-structured harvest rates of invasive European green crab. As part of a state-space framework, process dynamics are described using an integral projection model, where the population structure changes over time through seasonal growth, natural mortality, and removal, and observations are generated through the use of multiple size-selective removal methods (Figure 1). Combining multiple datasets in an integrated framework allows for distinct inference about size-structured harvest and natural mortality rates, “additional parameters” for which no explicit data is collected. Three datasets contribute to different aspects of the model, with size-at-age data informing seasonal growth rates, mark-recapture data primarily informing natural mortality and trap capture rates, and a time series dataset merging all components and informing latent and observation processes across multiple years (Figure 2). The IPM\textsuperscript{2} facilitates prediction of the stable size distribution and equilibrium abundance under different removal strategies, providing a framework for accurate assessment of the effectiveness of invasive species control programs.
 
 \section{Methods and materials}
 
@@ -84,9 +85,9 @@ The European green crab is a resilient marine invader, able to withstand a wide 
 
 \subsection{Demographic data}
 
-Population-level inference is focused on size-structured green crab abundance at Drayton Harbor in Washington, USA in the Salish Sea (Appendix 1.1, Figure A1.1). The primary dataset (D1) comprises an intra-annual time series of counts of removed crabs collected in April - October from 2020-2023 and is structured by body size (Figure 1B). Multiple trap types (Fukui, Minnow, and Shrimp) with different size-selective removal rates were used (Figure 1B), and traps were baited and left to "soak" in intertidal and subtidal habitat for 24-48 hours. As Drayton Harbor is a protected bay, nearly enclosed by a land spit, we assume no movement of non-larval crabs in and out of the study site within each year. 
+Population-level inference is focused on size-structured green crab abundance at Drayton Harbor in Washington, USA in the Salish Sea (Appendix 1.1, Figure A1.1). The primary dataset (D1) comprises an intra-annual time series of counts of removed crabs collected in April - October from 2020-2023 and is structured by body size (Figure 1B). Multiple trap types (Fukui, Minnow, and Shrimp) with different size-selective removal rates were used (Figure 1B), and traps were baited and left to ``soak" in intertidal and subtidal habitat for 24-48 hours. As Drayton Harbor is a protected bay, nearly enclosed by a land spit, we assume no movement of non-larval crabs in and out of the study site within each year. 
 
-Inference was supplemented by two additional datasets, size-at-age data (D2) and batch mark-recapture data (D3). Size-at-age data were collected from two sources: 1) records from crab removal observations in northeastern Pacific estuaries from Yamada et al. (2005), when the somatic growth of a strong recruitment class was tracked over time, and 2) crabs with an assigned age from Drayton Harbor that were easily identifiable based on size and sternum color (i.e., auxiliary information from the D1 sampling scheme) \parencite{yamada2005growth}. While data from these Drayton Harbor recruits entered the integrated population model likelihood twice (D1 and D2), extensive simulation-based research has revealed that IPMs are robust to dependent data \parencite{abadi2010assessment}. Size-structured batch mark-recapture data (D3) was collected by Grosholz et al. 2021 in a mark-recapture experiment in Seadrift lagoon, California, USA \parencite{grosholz2021stage}. Green crabs were captured with Fukui traps, batch marked (not individually identifiable), and released, and then recaptured within a few weeks. 
+Inference was supplemented by two additional datasets, size-at-age data (D2) and batch mark-recapture data (D3). Size-at-age data were collected from two sources: 1) records from crab removal observations in northeastern Pacific estuaries from Yamada et al. (2005), when the somatic growth of a large recruitment class was tracked over time, and 2) crabs from Drayton Harbor for which age could reliably be assigned based on size and sternum color (i.e., auxiliary information from the D1 sampling scheme) \parencite{yamada2005growth}. While data from these Drayton Harbor recruits entered the integrated population model likelihood twice (D1 and D2), extensive simulation-based research has revealed that IPMs are robust to dependent data \parencite{abadi2010assessment}. Size-structured batch mark-recapture data (D3) was included to inform trap capture rate parameters of Fukui traps. There data were collected by Grosholz et al. 2021 in a mark-recapture experiment in Seadrift lagoon, California, USA \parencite{grosholz2021stage}, where green crabs were captured with Fukui traps, batch marked (not individually identifiable), released, and then recaptured within a few weeks. 
 
 More information on all three datasets can be found in Appendix 1. 
 
@@ -96,45 +97,19 @@ We start by detailing the overall state-space IPM\textsuperscript{2} model, incl
 
 \subsubsection{Process model}
 
-The process model describes how unobserved, latent states representing size-structured population size depend on past states \parencite{auger2021guide}. The following process equations describe the initial adult population size and annual recruitment, as well as the growth and survival kernel that projects the population forward in time based on seasonal size-dependent growth and size-dependent natural survival \parencite{rees2014building}. These equations describe how the population changes within a year (intra-annual change) and between years (inter-annual change) (Figure 1A). The model tracks the state of the population in terms of its distribution of carapace sizes, $N_{t, i, y}$, which is the density function of individuals of size $y$ during year $i$ at time $t$. 
-
-\subsubsection*{Initial population density and annual recruitment}
-
-The first size distribution, $N_{t=1, i=1, y}$, is a function of the abundance of adults at the first time period during the first year, $\lambda^{A}$, the mean initial adult size in millimeters, $\mu^A$, and the standard deviation of initial adult size in millimeters, $\sigma^A$. $f_L$ represents the log-normal probability density function.
-
-\begin{equation}
-N_{t=1, i=1, y} = f_L(y; \mu^A, \sigma^A) \times \lambda^A
-\end{equation}
-
-Ovigerous females spawn in August-December \parencite{klassen2007biological}, and these planktonic larvae exit estuarine habitat to develop in high salinity coastal waters alongside larvae produced by neighboring habitats. Advection then brings larvae back into the estuary during recruitment \parencite{young2019life}. Recruitment is therefore modeled as an annual event with open demography, where the annual abundance of recruits, $\lambda^R_i$, is independent of adult abundance and follows a normal distribution, truncated such that $\lambda^R_i > 0$  
-
-\begin{equation}
-\lambda^R_i \sim Normal(\mu^{\lambda}, \sigma^{\lambda})
-\end{equation}
-
-The annual size distribution of recruits, $R_{i, y}$, is a function of the annual abundance of recruits, $\lambda^R_i$, the mean initial recruit size in millimeters, $\mu^R$, and the standard deviation of initial recruit size in millimeters, $\sigma^R$. $f$ represents the normal probability density function.
-
-\begin{equation}
-R_{i, y} = f(y; \mu^R, \sigma^R) \times \lambda^R
-\end{equation}
-
-Most crabs will settle from their planktonic larval stage in January to April \parencite{yamada2005growth}. The recruits therefore enter the process model in mid-May, corresponding to $t=6$, when it can be assumed $\mu^R > 0$, yet well before they grow into an observable size (Figure 1B).
-
-\begin{equation}
-N_{t=6, i, y} =  N_{t=6, i, y} + R_{i, y}
-\end{equation}
+The process model describes how the population at Drayton Harbor changes through time due to growth, natural mortality, removal, and annual recruitment (Figure 1A). The following process equations describe the integral projection model that uses a kernel to project the population forward in time based on seasonal size-dependent growth and size-dependent natural survival \parencite{rees2014building}. Over the winter between years, the size-dependent natural survival in the kernel becomes density-dependent. We then describe the annual recruitment process and how the time series is initialized with the first population density. These equations detail how the population changes within a year (intra-annual change) and between years (inter-annual change) (Figure 1A). The model tracks the state of the population in terms of its distribution of carapace sizes, $N(y)_{t, i}$, which is the density function of individuals of size $y$ during year $i$ at time $t$. 
 
 \subsubsection*{Integral projection model}
 
-The population density, $N_{t,i,y}$, is then projected forward in time using an integral projection model. The integral projection uses a continuous distribution over $y$, and the abundance of individuals is discretized using a small size interval ($\Delta y = 5$) centered on size $y$. The total population size, $N_{i,t}$ is $\sum_{y \in \Omega} N_{i,t,y}$, where $\Omega$ represents all biologically feasible sizes (0 - 110 mm).
+The population density, $N(y)_{t,i}$, is projected forward in time using an integral projection model. The integral projection uses a continuous distribution over $y$, and for estimation, the abundance of individuals is discretized using a small size interval ($\Delta y = 5$). The discretization is centered on size $y$, such that the IPM kernel is constructed using the midpoints of the discrete IPM mesh. The total population size is $\int_{y \in \Omega} N(y)_{i,t}dy$, where $\Omega$ represents all biologically feasible sizes (0 - 110 mm).
 
-A kernel, $K(y', y, T)$, describes the probability density of moving from size $y$ to size $y'$. This kernel is time-dependent, where $T = [D(t), D(t+1)]$, a vector of Julian calendar dates associated with $t$ and $t+1$. $N_{t+1,i,y}$ is therefore a function of $N_{t,i,y}$, $K(y', y, T)$, and the removed crabs, $n^R_{t,i,y}$
+A kernel, $K(y', y, T)$, describes the probability density of moving from size $y$ to size $y'$. This kernel is time-dependent, where $T = \{D(t), D(t+1)\}$, a vector of Julian calendar dates associated with $t$ and $t+1$. $N(y)_{t+1,i}$ is therefore a function of $N(y)_{t,i}$, $K(y', y, T)$, and the number of removed crabs, $n^R(y)_{t,i}$
 
 \begin{equation}
-N_{t+1,i,y} = \sum_{y \in \Omega} K(y',y, T) (N_{t,i,y} - n^R_{t,i,y}) 
+N(y)_{t+1,i} = \int_{y' \in \Omega} K(y',y, T) (N(y)_{t,i} - n^R(y)_{t,i}) dy
 \end{equation}
 
-In contrast to matrix population models with discrete size bins and transition probabilities between each size pair \parencite{caswell2001matrix}, the kernel is defined as a combination of functions that are continuous over size $y$. The kernel is the product of a growth kernel, $G(y',y, T)$, and size-dependent natural survival, $S(y)$:
+The kernel is defined as the product of a growth kernel, $G(y',y, T)$, and size-dependent natural survival, $S(y)$:
 
 \begin{equation}
 K(y',y, T) = G(y',y, T) \times S(y)
@@ -142,7 +117,7 @@ K(y',y, T) = G(y',y, T) \times S(y)
 
 \subsubsection*{Seasonal growth}
 
-Like many ectotherms, green crab growth is strongly seasonal, with the growth rate peaking in the summer due to seasonal variation in temperature, light, and food availability \parencite{contreras2003population, garcia2012technical}. We therefore use a seasonal growth model that modifies the traditional von Bertalanffy growth model proposed by Beverton and Holt \parencite{beverton2012dynamics, somers1988seasonally}.
+Like many ectotherms, green crab growth is strongly seasonal, with the growth rate peaking in the summer due to seasonal variation in temperature, light, and food availability \parencite{contreras2003population, garcia2012technical}. We therefore use a seasonal growth model that modifies the traditional von Bertalanffy growth model to allow the growth rate to change as a function of time \parencite{beverton2012dynamics, somers1988seasonally}.
 
 \begin{equation}
 \mu^G_{y,T} = y + (y_{\infty}-y)(1-\text{exp}(-k\Delta t-s_t+s_{t0}))
@@ -153,14 +128,14 @@ s_t = \frac{Ck}{2\pi} \text{sin}(2\pi(D(t+1)-t_s)
 \begin{equation}
 s_{t0} = \frac{Ck}{2\pi} \text{sin}(2\pi(D(t)-t_s)
 \end{equation}
-
 where $\mu^G_{y,T}$ is the mean size at $t+1$, $y_{\infty}$ is the asymptotic average size, $k$ is a measure of the exponential rate of approach to the asymptotic size, $C$ modulates the amplitude of the growth oscillations, and $t_s$ is the time between the start of the calendar year and the start of the convex portion of the first sinusoidal growth oscillation \parencite{garcia2012technical}.
 
 To account for variation in growth rate among individuals, $G(y',y, T)$ is described as:
 
 \begin{equation}
-G(y',y=x, T) = f(y'; \mu^G_{y=x, T}, \sigma^G)
+G(y',y=x, T) = \phi(y'; \mu^G_{y=x, T}, \sigma^G)
 \end{equation}
+where $\sigma^G$ is the standard deviation in the growth rate.
 
 \subsubsection*{Natural mortality}
 
@@ -169,7 +144,6 @@ The rate of natural mortality decreases with size, as smaller crabs have lower i
 \begin{equation}
 S(y)_i = \text{exp}\left(-\Delta t(\beta_i+\frac{\alpha}{y^2})\right)
 \end{equation}
-
 where $\beta$ is the intensity of size-independent natural mortality and $\alpha$ is the intensity of size-dependent natural mortality \parencite{carlson2010bayesian}. Here, process error enters the model as year-specific, size-independent natural mortality:
 
 \begin{equation}
@@ -178,10 +152,13 @@ where $\beta$ is the intensity of size-independent natural mortality and $\alpha
 
 \subsubsection*{Density-dependent overwinter mortality}
 
-To transition from year $i$ to year $i+1$, the population density experiences seasonal growth and density- and size-dependent overwinter survival. The abundance of crabs surviving the winter, $N_{t=1,i+1,y}$, is drawn from a binomial distribution, where the number of trials is the abundance of crabs after seasonal growth and removal in the last time period, $t_{max}$, and the probability of success is the probability of overwinter survival, $S^o(y)_i$. Here $T=[D(t=t_{max}), D(t=1)]$. 
+To transition from year $i$ to year $i+1$, the population density experiences seasonal growth and density- and size-dependent overwinter survival. The abundance of crabs in each size interval surviving the winter, $N(y)_{t=1,i+1}$, is drawn from a binomial distribution, where the number of trials is the abundance of crabs after seasonal growth and removal in the last time period, $t_{max}$, and the probability of success is the probability of overwinter survival, $S^o(y)_i$. Here, the time interval, $T$, used in the seasonal growth equation, $G(y',y,T)$, corresponds to the last time point in the year, $t_{max}$, and the first time point in the following year (i.e., $T=\{D(t=t_{max}), D(t=1)\}$). 
 
 \begin{equation}
-N_{t=1,i+1,y} \sim \text{Binomial}\left( \sum_{y \in \Omega} G(y',y, T) (N_{t_{max},i,y} - n^R_{t_{max},i,y}),  S^o(y)_i\right)
+N(y')_{t,i} = \int_{y' \in \Omega} G(y',y, T) (N(y)_{t_{max},i} - n^R(y)_{t_{max},i})dy
+\end{equation}
+\begin{equation}
+N(y)_{t=1,i+1} \sim \text{Binomial}\left( N(y')_{t,i},  S^o(y)_i\right)
 \end{equation}
 
 Due to thermal stress and starvation, the intensity of overwinter mortality is likely stronger than other times of the year and plays an important role in population regulation through density-dependent control on population size \parencite{henderson1988size}. Overwinter mortality is also size-selective; smaller animals tend to have lower energy reserves than larger animals and use reserves more rapidly due to the allometry of metabolic rate \parencite{hurst2007causes}. Probability of overwinter survival, $S^o$, is therefore modeled as a density-size interaction, such that the intensity of size-dependent overwinter mortality increases at higher population densities. $N^T_{t_{max},i}$ is the total abundance at site $i$ at the onset of winter.
@@ -189,6 +166,7 @@ Due to thermal stress and starvation, the intensity of overwinter mortality is l
 \begin{equation}
 S^o(y,N^T_{t_{max},i}) = \text{exp}\left(-\frac{\alpha_i^o \times N^T_{t_{max},i}}{y^2}\right)
 \end{equation}
+Since density-dependence during overwinter mortality plays an important role in long-term population dynamics, we performed a model selection procedure to test a variety of formulations for Equations 11-12 (further described in the Model Fitting section below and in Appendix 6.1).
 
 Process error enters as a year-specific strength of density- and size-dependent overwinter mortality.
 
@@ -196,31 +174,61 @@ Process error enters as a year-specific strength of density- and size-dependent 
 \alpha^o_i \sim \text{Gamma}(\alpha^o_{\alpha}, \alpha^o_{\theta})
 \end{equation}
 
+\subsubsection*{Initial population density and annual recruitment}
+
+To initiate the process model time series, we estimate the size distribution and density of adults in the first time period. We also estimate the size-structured abundance of recruits that enter the process model in mid-May of each year. 
+
+The first size distribution, $N(y)_{t=1, i=1}$, is defined in terms of the abundance of adults in the first time period during the first year, $\lambda^{A}$, the mean initial adult size in millimeters, $\mu^A$, and the standard deviation of initial adult size in millimeters, $\sigma^A$. Since the first year of time series data (D1) in 2020, $i = 1$, was at the beginning of the establishment in Drayton Harbor, we expected the size distribution to be dominated by age-one crabs with a few age-two crabs representing the first cohort of colonizing crabs. We therefore assumed a log-normal initial density, $N(y)$, to allow for a unimodal size distribution with a longer right tail. Here, $\phi_L$ represents the log-normal probability density function.
+
+\begin{equation}
+N(y)_{t=1, i=1} = \phi_L(y; \mu^A, \sigma^A) \times \lambda^A
+\end{equation}
+
+Ovigerous females spawn in August-December \parencite{klassen2007biological}, and these planktonic larvae exit estuarine habitat to develop in high salinity coastal waters alongside larvae produced by neighboring habitats. Advection then brings larvae back into the estuary during recruitment \parencite{young2019life}. Recruitment is therefore modeled as an annual event with open demography, where the annual abundance of recruits, $\lambda^R_i$, is independent of adult abundance and follows a normal distribution, truncated such that $\lambda^R_i > 0$  
+
+\begin{equation}
+\lambda^R_i \sim Normal(\mu^{\lambda}, \sigma^{\lambda})
+\end{equation}
+
+The annual size distribution of recruits, $R(y)_{i}$, is defined in terms of the annual abundance of recruits, $\lambda^R_i$, the mean initial recruit size in millimeters, $\mu^R$, and the standard deviation of initial recruit size in millimeters, $\sigma^R$. $\phi$ represents the normal probability density function.
+
+\begin{equation}
+R(y)_{i} = \phi(y; \mu^R, \sigma^R) \times \lambda^R
+\end{equation}
+
+Most crabs will settle from their planktonic larval stage in January to April \parencite{yamada2005growth}. Instead of estimating the time of planktonic settlement, we represent the recruits entering the population at a time point when 1) it can be assumed that the larvae have already settled as juveniles (i.e., mean initial recruit size, $\mu^R$, is greater than zero) and 2) well before the recruits grow into an observable size (Figure 1B). The recruits therefore enter the process model in mid-May, corresponding to $t=6$. 
+
+\begin{equation}
+N(y)_{t=6, i} =  N(y)_{t=6, i} + R(y)_{i}
+\end{equation}
+
 \subsubsection{Observation model}
 
-\subsubsection*{Conditional multinomial observation model}
+The observation equations describe the data-generating process for the three datasets. A conditional multinomial observation model was used to describe how the time series data (D1) relates to the latent abundance, $N(y)_{t,i}$, at Drayton Harbor. Harvest mortality through trapping is described as a size-selective hazard rate, which is informed by both the time series data (D1) and batch mark-recapture data (D3). The seasonal growth process was informed by the size-at-age data (D2). Inference was conducted sequentially, such that the seasonal growth parameters were fit with the size-at-age records, and the summarized posteriors were used to develop prior distributions in the integrated population model with D1 and D3.
 
-A conditional multinomial observation model is used to describe the data-generating process for the removal count data $n^C_{t,i,y,j}$, representing the number of crabs of size $y$, caught at time $t$, during year $i$, in trap $j$ (Figure 1) \parencite{kery2015modeling} conditional on the size-structured latent abundance $N_{t,i,y}$. 
+The process model equations in section 3.3.1 describe the latent population dynamics at Drayton Harbor (D1), including the latent states, overwinter mortality, initial population density, and recruitment process (Figure 2). Other process parameters, including the seasonal growth and natural mortality parameters, are informed by multiple datasets (Table 1, Figure 2). Below we also describe how D2 and D3 inform the shared parameters in the process equations (Figure 2).
 
-Multiple traps are placed simultaneously at each time period, so we break the observation model into two pieces: 1) a binomial with an unknown sample size, the total abundance of crabs, $N_{t,i,y}$, and 2) a multinomial conditioned on a known sample size, the total number of removed crabs across all traps in each time period, $n^R_{t,i,y}$.
+\subsubsection*{Conditional multinomial observation model (D1)}
 
-The total number of removed crabs, $n^R_{t,i,y}$, follows a binomial distribution with number of trials equal to the latent total abundance of crabs, $N_{t,i,y}$, and total capture probability across all traps set during the same time period, $p_{t,i,y}$.
+A conditional multinomial observation model is used to describe the data-generating process for the time series data at Drayton Harbor (D1, Figure 1). Here, the removal count data, $n^C(y)_{t,i,j}$, represents the number of crabs of size $y$, caught at time $t$, during year $i$, in trap $j$, conditioned on the size-structured latent abundance, $N(y)_{t,i}$ \parencite{kery2015modeling}. 
 
-\begin{equation}
-n^R_{t,i,y} \sim \text{Binomial}(N_{t,i,y}, p_{t,i,y})
-\end{equation}
-
-The size-structured count of crabs in each trap, $n^C_{t,i,y,j}$, follows a multinomial-Dirichlet mixture distribution where the probability of capture in trap $j$, $p^C_{t,j,i,y}$, is conditioned on being captured at all. Since the trap compositional data are overdispersed due to green crab aggregation and spatial behaviors, the Dirichlet allows for greater variance in the count data than predicted by a multinomial distribution \parencite{thorson2017model}. The observed conditional probability of capture, $p^C_{t,j,i,y}$, therefore varies from the mean conditional probability of capture, $\tilde{p}^C_{t,j,i,y}$. More information on the multinomial-Dirichlet mixture can be found in Appendix 2.2.
+Multiple traps were placed simultaneously at each time period, so we factor the probability of the removal count data in one time period as 1) a binomial distribution for the total number of removed crabs, $n^R(y)_{t,i}$ and 2) a Dirichlet-multinomial distribution to describe which traps the crabs are caught in, given the total number trapped. The total number of removed crabs, $n^R(y)_{t,i}$, follows a binomial distribution with number of trials equal to the latent total abundance of crabs, $N(y)_{t,i}$, and total capture probability across all traps set during the same time period, $p(y)_{t,i}$.
 
 \begin{equation}
-n^C_{t,j,i,y} | n^R_{t,i,y} \sim \text{Multinomial}(n^R_{t,i,y}, p^C_{t,j,i,y}|\tilde{p}^C_{t,j,i,y}) \times \text{Dirichlet}(\tilde{p}^C_{t,j,i,y}| \alpha^D_{t,j,i,y})
+n^R(y)_{t,i} \sim \text{Binomial}(N(y)_{t,i}, p(y)_{t,i})
 \end{equation}
 
-\subsubsection*{Size-selective hazard rates}
+The size-structured count of crabs in each trap, $n^C(y)_{t,i,j}$, follows a multinomial-Dirichlet mixture distribution where the probability of capture in trap $j$, $p^C(y)_{t,j,i}$, is conditioned on being captured at all. Since the trap compositional data are overdispersed due to green crab aggregation and spatial behaviors, the Dirichlet allows for greater variance in the count data than predicted by a multinomial distribution \parencite{thorson2017model}. The parameter $\alpha^D$ describes the amount of over-dispersion.
 
-Harvest mortality through trapping occurs in continuous time, described as a size-selective hazard rate, $H(y)$, representing the instantaneous intensity of capture \parencite{ergon2018utility}. The shape and magnitude of this size-selective hazard rate varies among the three trap types used for removal: Fukui, Minnow, and Shrimp traps.
+\begin{equation}
+n^C(y)_{t,j,i} | n^R(y)_{t,i} \sim \text{MultinomialDirichlet}(n^R(y)_{t,i}, p^C(y)_{t,j,i}| \alpha^D)
+\end{equation}
 
-Both Fukui and Shrimp traps capture larger crabs at higher rates than smaller crabs. The respective hazard rates of Fukui and Shrimp traps, $H_F(y)$ and $H_S(y)$, are modeled as a logistic function of crab size:
+\subsubsection*{Size-selective hazard rates (D1 and D3)}
+
+Removal through trapping occurs in continuous time, described as a size-selective hazard rate, $H(y)$, representing the instantaneous intensity of capture \parencite{ergon2018utility}. The shape and magnitude of this size-selective hazard rate varies among the three trap types used for removal: Fukui, Minnow, and Shrimp traps. Both the time series count data (D1) and mark-recapture data (D3) inform the size-selective probability of capture of Fukui traps, and only D1 informs the size-selective probability of capture of Minnow and Shrimp traps (Figure 2). 
+
+Fukui and Shrimp traps capture larger crabs at higher rates than smaller crabs. The respective hazard rates of Fukui and Shrimp traps, $H_F(y)$ and $H_S(y)$, are modeled as a logistic function of crab size:
 
 \begin{equation}
 H_F(y) = \frac{h^{max}_F}{1+\text{exp}\left\{-h^k_F(y-h^0_F)\right\}}
@@ -235,52 +243,64 @@ The Minnow trap mesh size is smaller than the maximum crab size, so this trap's 
 H_M(y) = h^{max}_M \times exp(\frac{y-h^{A}_M}{2 h^{\sigma}_M})
 \end{equation}
 
-Each baited trap, $j$, is placed in the habitat for a short ($\sim$24-48 hr) time interval, $\Delta b_{t,i,j}$. The probability of avoiding being trapped, $S_{t,i,y}$, is the integrated hazard rate, summed across all traps set during the same time period, $O_{t,i}$.
+Each baited trap, $j$, is placed in the habitat for a short ($\sim$24-48 hr) time interval, $\Delta b_{t,i,j}$. The probability of avoiding being trapped, $S(y)_{t,i}$, is the integrated hazard rate, summed across all traps set during the same time period, $O_{t,i}$.
 
 \begin{equation}
-S_{t,i,y} = \text{exp}\left(-\sum_{j=1}^{O_{t,i}} H_{t,j,i,y}\Delta b_{t,i,j}\right)
+S(y)_{t,i} = \text{exp}\left(-\sum_{j=1}^{O_{t,i}} H(y)_{t,j,i}\Delta b_{t,i,j}\right)
 \end{equation}
 
-The total capture probability, $p_{t,i,y}$, is described as the probability of not surviving the trapping time interval, $p_{t,i,y} = 1-S_{t,i,y}$. The mean conditional probability of capture, $\tilde{p}^C_{t,j,i,y}$, is then $H_{t,j,i,y}/\sum_{j=1}^{O_{t,i}}H_{t,j,i,y}$.
+The total capture probability, $p(y)_{t,i}$, is described as the probability of not surviving the trapping time interval, $p(y)_{t,i} = 1-S(y)_{t,i}$. The conditional probability of capture, $p^C(y)_{t,j,i}$, is then $H(y)_{t,j,i}/\sum_{j=1}^{O_{t,i}}H(y)_{t,j,i}$.
 
-\subsubsection*{Integrated population model}
+\subsubsection*{Size-at-age observation process (D2)}
 
-We combined the population data from three data sources to jointly estimate demographic parameters, observation parameters, and latent states (Figure 2; Table 1). The size-at-age data (D2) directly informed the seasonal growth parameters. Inference was conducted sequentially, such that the seasonal growth parameters were fit with the size-at-age records, and the summarized posteriors were used to develop prior distributions in the overall IPM. More information on model fitting with D2 can be found in Appendix 1.2. 
-
-The mark-recapture data (D3) primarily informed the observation parameters that describe the size-selective hazard rates of the Fukui trap type, although these data also informed components of the growth and natural mortality kernel (Table 1; Figure 2). Inference using the time series data (D1, Figure 1B) and mark-recapture data (D3) was performed simultaneously, with both datasets entering the likelihood as data, rather than priors. The state-space model was therefore augmented with the following equations to integrate the mark-recapture data (D3).
-
-The number of marked and released crabs of size $y$, $n_y^{mc}$, at $t_1^{mc}$ underwent seasonal growth and natural mortality to the next time period, $t_2^{mc}$.
+The size-at-age data, $W_{a,i}$, indicate the carapace width of an individual crab at age $a$ in year $i$. These data are fit to a similar seasonal growth model as in Equations 3-5, except instead of describing incremental growth from size $y$ to $y'$, the below growth equation describes growth from the age of the crab when it is of size 0, $t_0$, to the expected size of a crab at age $a$, $\widetilde{W}_{a}$. A normally distributed error term, $\epsilon_i$, is used to account for non-independence among data collected in the same year, since growth rate is likely affected by water temperature, which varies from year-to-year.
 
 \begin{equation}
-n_{y,t_2}^{mc} = \sum_{y \in \Omega} K(y',y, T^{mc}) n_{y,t_1}^{mc} 
+\widetilde{W}_{a,i} = y_{\infty}(1-exp(-k(a-t_0) - s(a) + s(t0))) + \epsilon_i
 \end{equation}
 
-The number of recaptured and marked crabs of size $y$ at $t_2^{mc}$, $m_{y}^{mc}$, follows a binomial distribution:
+To account for variation in growth rate, the observed size-at-age data, $W_{a,i}$, follow a normal distribution, with the expected carapace width $\widetilde{W}_{a,i}$, and standard deviation, $\tau_{w}$.
 
 \begin{equation}
-m_{y}^{mc} \sim \text{Binomial}(n_{y,t_2}^{mc}, p_y^{mc}) 
+W_{a,i} \sim Normal(\widetilde{W}_{a,i}, \tau_{w})
 \end{equation}
 
-where $p_y^{mc}$ is the total probability of capture based on the total number of Fukui traps set, $O^{mc}$, over the time period $\Delta b^{mc}$:
+More information on model fitting with D2 can be found in Appendix 1.2.
+
+\subsubsection*{Mark-recapture observation process (D3)}
+
+The mark-recapture data (D3) primarily informed the observation parameters that describe the size-selective hazard rates of the Fukui trap type, $H_F(y)$ (Equation 19, Table 1, Figure 2).
+
+The batch mark-recapture data consists of 1) the count of marked and released crabs of size $y$ in the first time period, $n^{mc}(y)$, and 2) the number of recaptured and marked crabs of size $y$ in the second time period, $m^{mc}(y)$. These data follow a binomial distribution:
 
 \begin{equation}
-p_y^{mc} = 1-\text{exp}\left(-\sum_{j=1}^{O^{mc}}\int H_F(y)\Delta b^{mc}\right)
+m^{mc}(y) \sim \text{Binomial}(n^{mc}(y)_{t_2}, p^{mc}(y)) 
+\end{equation}
+where $p^{mc}(y)$ is the total probability of capture based on the total number of Fukui traps set, $O^{mc}$, over the time period $\Delta b^{mc}$:
+
+\begin{equation}
+p^{mc}(y) = 1-\text{exp}\left(-\sum_{j=1}^{O^{mc}}\int H_F(y)\Delta b^{mc}\right)
 \end{equation}
 
+These data also informed components of the growth and natural mortality kernel (Table 1; Figure 2). The number of marked and released crabs, $n^{mc}(y)$, at $t_1^{mc}$ underwent seasonal growth and natural mortality to the next time period, $t_2^{mc}$.
+
+\begin{equation}
+n^{mc}(y)_{t{_2}} = \int_{y \in \Omega} K(y',y, T^{mc}) n^{mc}(y)_{t_1}dy
+\end{equation}
 
 \subsection{Model fitting}
 We fit the IPM\textsuperscript{2} in a Bayesian framework using NIMBLE v.1.2.1 \parencite{de2017programming}. We used vague priors for all parameters, which are provided in Appendix 2.1. Parameters were estimated by running four Markov chain Monte Carlo (MCMC) chains of 100 000 iterations, thinned by a factor of 10. Of these 10 000 samples, 2 000 were discarded as burn-in. We used visual inspection of the MCMC chains and the Brooks and Gelman diagnostic $\hat{R}$ to assess model convergence, and we found that all parameters had an $\hat{R} \leq 1.05$ \parencite{brooks1998general}. All analyses were conducted in R version 4.4.1 \parencite{Rcore}. Code for the entire model is provided in Appendix 3, and generic, modular code that closely follows the model description is provided in Appendix 4. Posterior summaries, as well as convergence diagnostics and trace plots of model parameters can be found in Appendix 5.
 
-To assess model performance and robustness, we conducted both a model selection and a model checking procedure \parencite{conn2018guide}. For model selection, we evaluated multiple functional forms of overwinter mortality using Watanabe–Akaike information criterion (WAIC). The inter-annual population transitions (i.e., transition from year $i$ to year $i + 1$) are largely described by density-dependent overwinter mortality. Since density dependence only enters the model during this process and is therefore likely influential for forecasting the stable size distribution, we compared multiple functional forms for size- and density-dependent overwinter mortality and used the formulation with the lowest WAIC in the final analysis (Eq. 15-16, Appendix 6.1).
+To assess model performance and robustness, we conducted both a model selection and a model checking procedure \parencite{conn2018guide}. For model selection, we evaluated multiple functional forms of overwinter mortality using Watanabe–Akaike information criterion (WAIC). The inter-annual population transitions (i.e., transition from year $i$ to year $i + 1$) are largely described by density-dependent overwinter mortality. Since density dependence only enters the model during this process and is therefore likely influential for forecasting the stable size distribution, we compared multiple functional forms for size- and density-dependent overwinter mortality and used the formulation with the lowest WAIC in the final analysis (Eq. 11-12, Appendix 6.1).
 
-To check the model, we calculated posterior predictive p-values using the deviance as an omnibus discrepancy function and proportion of zeros as a targeted discrepancy function to check for zero inflation of the count data (Appendix 6.2). We found that the model was an adequate representation of the data-generating process by these measures, with p-values of 0.92 for both the deviance and proportion of zeros discrepancy functions (Appendix 6.2; Figures A.6.1 and A6.2).
+To check the model, we calculated posterior predictive p-values using deviance as an omnibus discrepancy function and proportion of zeros as a targeted discrepancy function to check for zero inflation of the count data (Appendix 6.2). We found that the model was an adequate representation of the data-generating process by these measures, with p-values of 0.92 for both the deviance and proportion of zeros discrepancy functions (Appendix 6.2; Figures A.6.1 and A6.2). These p-values may be conservative, however, as Bayesian p-values tend to be biased toward 0.5 \parencite{conn2018guide}.
 
 
 \subsection{Population forecasts}
 
-To evaluate how a green crab population responds to varying removal efforts, we calculated the stable size distribution and equilibrium abundance through stochastic forward simulations with posterior samples. We randomly selected 1000 samples from the full posterior, and for each posterior sample, we generated an initial adult population size and projected the population forward 25 years, applying varying removal efforts for each set of 1000 simulations. These varying removal efforts included a total of 0, 28, 112, 560, 840, 1400, and 2800 annual Shrimp, Fukui, or Minnow traps, applied evenly over the trapping season of 14 biweeks (21 total sets of 1000 simulations; seven removal efforts x three trap types). Year-varying quantities, like recruit abundance, size-independent natural mortality, and size- and density-dependent overwinter mortality were drawn stochastically each year in the forward simulations (Table 1). To ensure proper comparisons between removal effort and trap type combinations, the same set of year-varying stochastic draws for each posterior sample was consistent across the 21 simulation sets. 
+To evaluate how a green crab population responds to varying removal efforts, we calculated the stable size distribution and equilibrium abundance through stochastic forward simulations with posterior samples. We randomly selected 1000 samples from the full posterior, and for each posterior sample, we generated an initial adult population size and projected the population forward 25 years, applying varying removal efforts for each set of 1000 simulations. These varying removal efforts included a total of 0, 28, 112, 560, 840, 1400, and 2800 annual Shrimp, Fukui, or Minnow traps, applied evenly over the trapping season of 14 biweeks (21 total sets of 1000 simulations; seven removal efforts x three trap types). Year-varying quantities, like recruit abundance, size-independent natural mortality, and size- and density-dependent overwinter mortality were drawn stochastically each year in the forward simulations (Table 1). To reduce simulation noise between removal effort and trap type combinations, the same set of year-varying stochastic draws for each posterior sample was consistent across the 21 simulation sets. 
 
-For each simulation, the size-structured abundance at the end each of year after overwinter mortality, $N_{t=1,i+1,y}$, was recorded (Figure 1A). Simulation outputs were summarized as the mean size-structured abundance at the end of years 6-25, with the first five years discarded as burn-in to ensure the population reached an equilibrium.
+For each simulation, the size-structured abundance at the end each of year after overwinter mortality, $N_{t=1,i+1,y}$, was recorded (Figure 1A). Simulation outputs were summarized as the mean size-structured abundance at the end of years 6-25, with the first five years treated as transient to ensure the population reached an equilibrium.
 
 \section{Results}
 
@@ -296,11 +316,11 @@ By combining information in multiple datasets, the integrated population model a
 
 Removal rates were estimated for three trap types -- Fukui, Shrimp, and Minnow -- with different rates of removal and size selectivities (Figure 4). Overall, Shrimp traps removed crabs at the highest rate, and Minnow traps were only effective at removing crabs in the 30-60 mm size range. No trap effectively removed crabs smaller than 30 mm, consistent with the completely unobserved small crab portion of the population (Figure 1B).
 
-Overwinter natural survival rates were lower than natural survival rates at other periods of the year (Figure 5), consistent with the expectation that overwinter mortality plays an important role in population regulation. Model comparison with WAIC demonstrated support for overwinter mortality as a function of the interaction between individual crab size and total population density (Appendix 6.1, Eq. 15-16). Overwinter survival rates varied significantly from year to year, and corresponded to total abundance and recruitment strength. Years with higher overall population density coincided with particularly low overwinter survival of small crabs (Figure 5B). In response to a large recruitment event in 2022 (Figure 3), between 2022 and 2023, overwinter survival rates dropped to 0.6 for crabs of the largest size and less than 0.2 for crabs of smaller size (Figure 5B). Conversely, survival rates were high over the winter between 2021 and 2022 in response to a small recruitment event in 2021 (Figure 3B) and an adult size structure biased toward larger crabs (Figure 3A). 
+Overwinter natural survival rates were lower than natural survival rates at other periods of the year (Figure 5), consistent with the expectation that density-dependence in overwinter mortality plays an important role in population regulation. Model comparison with WAIC demonstrated support for overwinter mortality as a function of the interaction between individual crab size and total population density (Appendix 6.1, Eq. 11-12). Overwinter survival rates varied significantly from year to year, and corresponded to total abundance and recruitment strength. Years with higher overall population density coincided with particularly low overwinter survival of small crabs (Figure 5B). In response to a large recruitment event in 2022 (Figure 3), between 2022 and 2023, overwinter survival rates dropped to 0.6 for crabs of the largest size and less than 0.2 for crabs of smaller size (Figure 5B). Conversely, survival rates were high over the winter between 2021 and 2022 in response to a small recruitment event in 2021 (Figure 3B) and an adult size structure biased toward larger crabs (Figure 3A). 
 
 \subsection{Isolating growth in body size as a time- and size-dependent process}
 
-Isolating the contribution of growth in body size in individuals to changes in population size structure helped facilitate inference of other size-structured demographic rates. This growth rate was strongly seasonal and varied throughout the year, with growth rate peaking in the summer months and approaching zero in the winter months (Appendix 1; Figure A1.2). The mean asymptotic crab size, $y_{\infty}$ was 83.9 mm (81.8-86.2 95\% CrI)(Appendix 5). Growth rate also varied across individuals;  the standard deviation in growth rate, $\sigma^G$, was 2.4 mm (2.0-2.7 95\% CrI).
+Isolating the contribution of growth in body size in individuals to changes in population size structure helped facilitate inference of other size-structured demographic rates. This growth rate was strongly seasonal and varied throughout the year, with growth rate peaking in the summer months and approaching zero in the winter months (Appendix 1; Figure A1.2). The mean asymptotic crab size, $y_{\infty}$ was 83.9 mm (81.8-86.2 95\% CrI) (Appendix 5). Growth was also variable; the standard deviation in growth rate, $\sigma^G$, was 2.4 mm (2.0-2.7 95\% CrI).
 
 \subsection{Population forecasts}
 
@@ -409,7 +429,7 @@ Embedding this size-structured model within a decision-making framework, however
  \hline\hline
  \multicolumn{3}{||c||}{\textbf{Population-level quantities}} \\ 
  \hline
- $N_{t,i,y}$ & Population density function of individuals of size $y$, during year $i$, at time $t$. & Latent \\ 
+ $N(y)_{t,i}$ & Population density function of individuals of size $y$, during year $i$, at time $t$. & Latent \\ 
  \hline
  $\lambda^A$ & Adult abundance at the first time period, $t=1$, during the first year, $i=1$. & Latent \\
  \hline
@@ -421,17 +441,17 @@ Embedding this size-structured model within a decision-making framework, however
  \hline\hline
  \multicolumn{3}{||c||}{\textbf{Observational data}} \\ 
  \hline
- $n^R_{t,i,y}$ & Count of removed crabs during time $t$, in year $i$, of size $y$ in the time-series dataset (D1). & - \\ 
+ $n^R(y)_{t,i}$ & Count of removed crabs during time $t$, in year $i$, of size $y$ in the time-series dataset (D1). & - \\ 
  \hline
- $n^C_{t,j,i,y}$ & Count of removed crabs in time $t$, in trap $j$, in year $i$, of size $y$ in the time-series dataset (D1). & - \\
+ $n^C(y)_{t,j,i}$ & Count of removed crabs in time $t$, in trap $j$, in year $i$, of size $y$ in the time-series dataset (D1). & - \\
  \hline
  $O_{t,i}$ & Number of observations (traps) in time $t$, in year $i$ in the time-series dataset (D1). & - \\
  \hline
  $W_{a,i}$ & Size of crabs of $a$, during year $i$ in the size-at-age dataset (D2). & - \\
  \hline
- $n^{mc}_{y}$ & Number of marked and released crabs of size $y$ in the mark-recapture dataset (D3). & - \\
+ $n^{mc}(y)$ & Number of marked and released crabs of size $y$ in the mark-recapture dataset (D3). & - \\
  \hline
- $m^{mc}_{y}$ & Number of recaptured marked crabs of size $y$ in the mark-recapture dataset (D3). & - \\
+ $m^{mc}(y)$ & Number of recaptured marked crabs of size $y$ in the mark-recapture dataset (D3). & - \\
  \hline
  $O^{mc}$ & Number of observations (Fukui traps) in the mark-recapture dataset (D3). & - \\
  \hline
@@ -454,7 +474,7 @@ Embedding this size-structured model within a decision-making framework, however
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{Figure3_abundance_sizedist.png}
-    \caption{Total abundance and size distribution of \textit{A.} adults and \textit{B.} recruits. The left panels show the size distribution, or the number of individuals in each size class, $N_{size}$. Size corresponds to crab carapace width. The right panels show the total abundance of crabs across all size classes, $N_{total}$, in each year. Colors indicate the year, and error bars indicate the 95\% credibility interval. Note that the right panel is the integral of the left panel.}
+    \caption{Total abundance and size distribution of \textit{A.} adults and \textit{B.} recruits in the fitted model. The left panels show the total abundance of crabs across all size classes, $N_{total}$, at the beginning of each year. The right panels show the size distribution, or the number of individuals in each size class, $N(y)$. Size corresponds to crab carapace width. Colors indicate the year, and error bars indicate the 95\% credibility interval. Note that the left panel is the integral of the right panel.}
 \end{figure}
 
 \begin{figure}[H]
@@ -466,13 +486,13 @@ Embedding this size-structured model within a decision-making framework, however
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{Figure5_survival.png}
-    \caption{Size-structured natural survival rate in the \textit{A.} non-winter season between Julian days 91 and 305 (Eq. 11) and \textit{B.} overwinter (Eq. 15) between Julian day 306 and Julian day 90 of the following year. Colors indicate year, and error bars indicate the 95\% credibility interval.}
+    \caption{Size-structured natural survival rate in the \textit{A.} non-winter season between Julian days 91 and 305 (Eq. 7) and \textit{B.} overwinter (Eq. 11) between Julian day 306 and Julian day 90 of the following year. Colors indicate year, and error bars indicate the 95\% credibility interval.}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{Figure6_IPM_simulations.png}
-    \caption{Population forecasts in response to varying removal efforts. Size distributions show the crab abundance in each size class, $N_{size}$, at the end of the year after overwinter mortality when \textit{A.} 0 traps, \textit{B.} 112 traps, \textit{C.} 560 traps, and \textit{D.} 2800 traps were applied evenly over a trapping season of 14 biweeks. Solid line indicates the median size-structured abundance across simulation replicates, and the shaded area indicates $\pm1$ standard deviation across simulation replicates. Colors indicate trap type used (i.e., in panel B, the purple line shows the resulting size distribution after a trapping effort of 112 Minnow traps).}
+    \caption{Population forecasts in response to varying removal efforts. Size distributions show the equilibrium crab abundance in each size class, $N(y)^E$, at the end of the year after overwinter mortality when \textit{A.} 0 traps, \textit{B.} 112 traps, \textit{C.} 560 traps, and \textit{D.} 2800 traps were applied evenly over a trapping season of 14 biweeks. Solid line indicates the median size-structured abundance across simulation replicates, and the shaded area indicates $\pm1$ standard deviation across simulation replicates. Colors indicate trap type used (i.e., in panel B, the purple line shows the resulting size distribution after a trapping effort of 112 Minnow traps).}
 \end{figure}
 
 \section{Acknowledgements}

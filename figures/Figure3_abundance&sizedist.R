@@ -28,10 +28,10 @@ n_recruit <- list()
 for (i in seq_len(4)) {
   n_recruit[[i]] <- get_samples(out_sub, paste0("lambda_R[", i, "]"))
 }
-init_mean_recruit <- get_samples(out_sub, "mu_R_y")
-init_sd_r <- get_samples(out_sub, "sigma_R_y")
-init_lsd_adult <- get_samples(out_sub, "sigma_A_y")
-init_lmean_adult <- get_samples(out_sub, "mu_A_y")
+init_mean_recruit <- get_samples(out_sub, "mu_R")
+init_sd_r <- get_samples(out_sub, "sigma_R")
+init_lsd_adult <- get_samples(out_sub, "sigma_A")
+init_lmean_adult <- get_samples(out_sub, "mu_A")
 adult_dist <- list()
 for (i in seq_len(3)) {
   adult_dist[[i]] <- as.data.frame(matrix(NA, ncol = 22,
@@ -237,7 +237,7 @@ adult_sizeplot <- ggplot(data = dist_summaries_adult_long) +
   scale_x_continuous(limits = c(2.5, 107.5)) +
   scale_color_manual(values = viridis_pal()(4)) +
   scale_fill_manual(values = viridis_pal()(4)) +
-  labs(x = "size (mm)", y = expression(N[size]), color = "year") +
+  labs(x = "size (mm)", y = "N(y)", color = "year") +
   theme_minimal() +
   theme(legend.position = "None")
 
@@ -251,7 +251,7 @@ recruit_sizeplot <- ggplot(data = dist_summaries_recruit_long) +
   scale_x_continuous(limits = c(2.5, 30)) +
   scale_color_manual(values = viridis_pal()(4)) +
   scale_fill_manual(values = viridis_pal()(4)) +
-  labs(x = "size (mm)", y = expression(N[size]), color = "year") +
+  labs(x = "size (mm)", y = "N(y)", color = "year") +
   theme_minimal() +
   theme(legend.position = "None")
 
