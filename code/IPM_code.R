@@ -74,7 +74,7 @@ model_code <- nimbleCode({
                                           upper[1:n_size], 
                                           S[t + 1, i, 1:n_size])  %*%
         (N[t, i, 1:n_size] - n_R[t, i, 1:n_size]) +
-        recruit_intro[t, i] * R[i, 1:n_size] # introduce recruits, t = 6 (Eq. 16)
+        recruit_intro[t, i] * R[i, 1:n_size] # introduce recruits, t = 6
       
       # Equation 7
       ## natural survival
@@ -189,11 +189,11 @@ model_code <- nimbleCode({
     for (t in 1:totalt[i]) {
       for (k in 1:n_size) {
         
-        # Equation 17
+        # Equation 16
         ## binomial distribution with total crabs removed, n_R
         n_R[t, i, k] ~ dbinom(size = round(N[t, i, k]), prob = p[t, i, k])
         
-        # Equation 18
+        # Equation 17
         ## dirichlet-multinomial mixture, conditional probability of capture
         alpha_D[t, 1:totalo[t, i], i, k] <- p_C[t, 1:totalo[t, i], 
                                                 i, k] * n_p_dir
@@ -202,7 +202,7 @@ model_code <- nimbleCode({
                                 size = n_R[t, i, k])
       }
       
-      # Equations 19 - 21
+      # Equations 18 - 20
       ## calculate hazard rate
       hazard[t, 1:totalo[t, i], i, 1:n_size] <- calc_hazard(
         totalo[t, i], n_size, h_F_max, h_F_k, h_F_0, h_S_max, h_S_k, h_S_0, 
@@ -211,7 +211,7 @@ model_code <- nimbleCode({
         soak_days[t, 1:totalo[t, i], i], y[1:n_size]
       )
       
-      # Equation 22
+      # Equation 21
       ## total capture probability
       p[t, i, 1:n_size] <- calc_prob(totalo[t, i], n_size,
                                      hazard[t, 1:totalo[t, i], i, 1:n_size])
@@ -235,13 +235,13 @@ model_code <- nimbleCode({
   # Mark-recapture data #
   #######################
   
-  # Equation 25
+  # Equation 24
   ## draw recaptured samples, m2, from projected marked samples, n1_project
   for (k in 1:n_size) {
     m2[k] ~ dbinom(size = round(n1_project[k]), prob = p_mc[k])
   }
   
-  # Equation 26
+  # Equation 25
   ## total capture probability with mark-recapture data
   p_mc[1:n_size] <- calc_prob(totalo_mc, n_size,
                               hazard_mc[1:totalo_mc, 1:n_size])
@@ -253,7 +253,7 @@ model_code <- nimbleCode({
     m_index_mc[1:totalo_mc], soak_days_mc[1:totalo_mc], y[1:n_size]
   )
   
-  # Equation 27
+  # Equation 26
   ## apply kernel from time of marking to time of recapture
   n1_project[1:n_size] <- get_kernel(yinf, gk, sigma_G, C, ts, D_mc[1], D_mc[2],
                                      n_size, pi, y[1:n_size], lower[1:n_size],

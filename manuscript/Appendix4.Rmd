@@ -29,7 +29,7 @@ model_code <- NimbleCode({
       ## project
       N[t + 1, i, 1:n_size] <- kernel[1:n_size, 1:n_size, t] %*%
         (N[t, i, 1:n_size] - n_R[t, i, 1:n_size]) +
-        recruit_intro[t, i] * R[i, 1:n_size] # introduce recruits, t = 6 (Eq. 16)
+        recruit_intro[t, i] * R[i, 1:n_size] # introduce recruits, t = 6
 
       # Equation 2
       ## kernel
@@ -109,18 +109,18 @@ model_code <- NimbleCode({
     for (t in 1:Tmax) {
       for (k in 1:n_size) {
         
-        # Equation 17
+        # Equation 16
         ## binomial distribution with total crabs removed, n_R
         n_R[t, i, k] ~ dbinom(size = round(N[t, i, k]), prob = p[t, i, k])
 
-        # Equation 18
+        # Equation 17
         ## dirichlet-multinomial mixture, conditional probability of capture
         alpha_D[t, 1:totalo, i, k] <- p_C[t, 1:totalo, i, k] * n_p_dir
         n_C[t, 1:totalo, i, k] ~ ddirchmulti(alpha = alpha_D[t, 1:totalo, i, k],
                                              size = n_R[t, i, k])
       }
       
-      # Equations 19 - 21
+      # Equations 18 - 20
       ## calculate hazard rate
       hazard[t, 1:totalo, i, 1:n_size] <- calc_hazard(
         totalo, n_size, h_F_max, h_F_k, h_F_0, h_S_max, h_S_k, h_S_0, h_M_max,
@@ -128,7 +128,7 @@ model_code <- NimbleCode({
         m_index[t, 1:totalo, i], soak_days[t, 1:totalo, i], y[1:n_size]
         )
 
-      # Equation 22
+      # Equation 21
       ## total capture probability
       p[t, i, 1:n_size] <- calc_prob(totalo, n_size,
                                      hazard[t, 1:totalo, i, 1:n_size])
@@ -152,13 +152,13 @@ model_code <- NimbleCode({
   # Mark-recapture data #
   #######################
   
-  # Equation 25
+  # Equation 24
   ## draw recaptured samples, m2, from projected marked samples, n1_project
   for (k in 1:n_size) {
     m2[k] ~ dbinom(size = round(n1_project[k]), prob = p_mc[k])
   }
   
-  # Equation 26
+  # Equation 25
   ## total capture probability with mark-recapture data
   p_mc[1:n_size] <- calc_prob(totalo_mc, n_size,
                               hazard_mc[1:totalo_mc, 1:n_size])
@@ -170,7 +170,7 @@ model_code <- NimbleCode({
         m_index_mc[1:totalo_mc], soak_days[1:totalo_mc], y[1:n_size]
   )
   
-  # Equation 27
+  # Equation 26
   ## apply kernel from time of marking to time of recapture
   n1_project[1:n_size] <- kernel_mc[1:n_size, 1:n_size] %*%
     n1[1:n_size]
@@ -432,7 +432,7 @@ overwinter_survival <- nimbleFunction (
 
 ### Conditional multinomial observation model
 
-This function corresponds to equations 19-21 in main text.
+This function corresponds to equations 18-20 in main text.
 
 ```{r, eval = FALSE}
 # calculate trap hazard rate of obs j, based on trap type and soak days
@@ -467,7 +467,7 @@ calc_hazard <- nimbleFunction (
 
 ```
 
-These functions correspond to equation 22 in main text
+These functions correspond to equation 21 in main text
 
 ```{r, eval = FALSE}
 # calculate conditional probability of capture
@@ -509,7 +509,7 @@ calc_prob <- nimbleFunction (
 
 ### Size-selective hazard rates
 
-These functions correspond to equations 19-21 in main text.
+These functions correspond to equations 18-20 in main text.
 
 ```{r, eval = FALSE}
 # bell-shaped size selective hazard rate
@@ -541,7 +541,7 @@ size_sel_log <- nimbleFunction (
 
 ### Dirichlet-multinomial mixture
 
-These functions correspond to equation 18 in main text.
+These functions correspond to equation 17 in main text.
 
 ```{r, eval = FALSE}
 # define dirichlet multinomial mixture

@@ -124,7 +124,7 @@ Since the model was estimated hierarchically, with the seasonal growth model was
 
 ## Appendix 2.2
 
-Similarly to how a beta-binomial replaces a single probability with a Beta distribution of probabilities among binomial draws to account for overdispersion, the Dirichlet-multinomial mixture replaces a single vector of probabilities (that sum to onw) with a Dirichlet distribution of such vectors to account for overdispersion in counts among traps.
+Similarly to how a beta-binomial replaces a single probability with a Beta distribution of probabilities among binomial draws to account for overdispersion, the Dirichlet-multinomial mixture replaces a single vector of probabilities (that sum to one) with a Dirichlet distribution of such vectors to account for overdispersion in counts among traps.
 
 The parameter $\alpha^D$ described in the main text governs the amount of overdispersion in the Dirichlet-multinomial mixture distribution and generates the conditional probability of capture, $p^C_{t,j,i,y}$, across individual traps.
 
