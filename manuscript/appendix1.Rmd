@@ -204,7 +204,7 @@ constants <- list(
   nyears = length(unique(data$year_index)), # number of years
   pi = pi # pi
 )
-data <- list(
+model_data <- list(
   size = data$CW, # size captured
   t = data$age # ages
 )
@@ -227,13 +227,15 @@ Finally, we will run the MCMC in parallel:
 # run MCMC chains in parallel
 cl <- makeCluster(4)
 set.seed(10120)
-clusterExport(cl, c("seasonal_growth", "inits_season", "data", "constants"))
+clusterExport(cl, c("seasonal_growth", "inits_season", 
+                    "model_data", "constants"))
 # Create a function with all the needed code
 out <- clusterEvalQ(cl, {
   library(nimble)
   library(coda)
   # build the model
-  model_season <- nimbleModel(seasonal_growth, constants, data, inits_season)
+  model_season <- nimbleModel(seasonal_growth, constants, 
+                              model_data, inits_season)
   # build the MCMC
   mcmcConf_season <- configureMCMC(
     model_season,
@@ -263,11 +265,13 @@ Here we provide posterior summaries of the seasonal growth parameters fit with t
 library(MCMCvis)
 library(bayestestR)
 library(patchwork)
+
 # read in samples
 samples <- readRDS("../data/posterior_samples/savedsamples_growth.rds")
 lower <- 100
 upper <- 10001
 ```
+
 ```{r, echo = FALSE}
 # create df with param names
 short_names <- c("C", "k", "size_inf", "t0", "tau.ranef", "tau.y", "ts")
@@ -276,17 +280,21 @@ latex_names <- c("C", "k", "y_{\\infty}", "t_0", "\\tau_w", "\\tau_y", "t_s")
 names_df <- as.data.frame(cbind(short_names, real_names, latex_names))
 colnames(names_df) <- c("short_names", "real_names", "latex_names")
 ```
+
 ```{r, echo=FALSE}
 # create posterior summary dataframe
 out_sub <- list(samples[[1]][lower:upper, ], samples[[2]][lower:upper, ],
                 samples[[3]][lower:upper, ], samples[[4]][lower:upper, ])
 out_df <- rbind(samples[[1]][lower:upper, ], samples[[2]][lower:upper, ],
                 samples[[3]][lower:upper, ], samples[[4]][lower:upper, ])
+
 # get mean, sd, Rhat, effective sample size
 posterior <- MCMCsummary(out_sub)[, c("mean", "sd", "Rhat", "n.eff")]
 posterior$short_names <- rownames(posterior)
+
 # subset
 posterior <- posterior[posterior$short_names %in% short_names, ]
+
 # get 95% credibility interval
 posterior$lower_ci <- NA
 posterior$upper_ci <- NA
@@ -295,6 +303,7 @@ for (i in seq_len(nrow(posterior))) {
   posterior[i, "lower_ci"] <- as.numeric(hdi(sub, 0.95)[2])
   posterior[i, "upper_ci"] <- as.numeric(hdi(sub, 0.95)[3])
 }
+
 # round
 for (i in seq_len(nrow(posterior))) {
   if (posterior[i, "short_names"] == "size_inf") {
@@ -311,13 +320,16 @@ for (i in seq_len(nrow(posterior))) {
 }
 posterior$mean <- as.character(posterior$mean)
 posterior$sd <- as.character(posterior$sd)
+
 # add real names
 posterior <- left_join(names_df, posterior, by = "short_names")
+
 # function for getting 95% credibility interval
 get_ci <- function(lower, upper) {
   out <- paste0("(", lower, ", ", upper, ")")
   return(out)
 }
+
 # get final df
 posterior_final <- posterior[, c("latex_names", "mean", "sd")]
 posterior_final[, "95 CI"] <- mapply(get_ci,
@@ -338,6 +350,7 @@ posterior_final <- posterior_final %>%
   mutate(
     parameter = paste0("$", parameter, "$")
   )
+
 # Render table
 knitr::kable(
   posterior_final,
@@ -357,6 +370,7 @@ knitr::kable(
 ```{r include-figure, echo=FALSE}
 knitr::include_graphics("../figures/appendix_growth_plot.png")
 ```
+
 ```{r, echo = FALSE, results = "hide"}
 # create functions
 create_traceplot <- function(out, lower, upper, param, names_df) {

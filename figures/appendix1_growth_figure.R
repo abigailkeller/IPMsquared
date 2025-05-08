@@ -10,6 +10,7 @@ out_sub <- list(out[[1]][100:10001, ], out[[2]][100:10001, ],
                 out[[3]][100:10001, ], out[[4]][100:10001, ])
 
 t <- seq(from = 0.3, to = 3.59, by = 0.01)
+
 # function to get length
 get_length <- function(c, k, ts, t0, size_inf) {
   s_t <- (c * k / (2 * pi)) * sin(2 * pi * (t - ts))

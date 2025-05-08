@@ -267,13 +267,13 @@ model_code <- nimbleCode({
   ################
   
   # asymptotic size -- (from seasonal growth posterior)
-  yinf ~ dnorm(95.4, sd = 5.52)
+  yinf ~ dnorm(98.5, sd = 11.2)
   # growth rate -- (from seasonal growth posterior)
-  gk ~ dnorm(0.67, sd = 0.1)
+  gk ~ dnorm(0.55, sd = 0.16)
   # amplitude of growth oscillations -- (from seasonal growth posterior)
-  C ~ dnorm(0.79, sd = 0.11)
+  C ~ dnorm(0.95, sd = 0.48)
   # inflection point of growth oscillations -- (from seasonal growth posterior)
-  ts ~ dnorm(-0.642, sd = 0.027)
+  ts ~ dnorm(-0.72, sd = 0.14)
   
   
   ################
@@ -777,6 +777,6 @@ out <- clusterEvalQ(cl, {
 })
 
 # save samples
-saveRDS(out, "data/posterior_samples/savedsamples_IPM.rds")
+saveRDS(out, "data/posterior_samples/savedsamples_IPM_20250507.rds")
 
 stopCluster(cl)

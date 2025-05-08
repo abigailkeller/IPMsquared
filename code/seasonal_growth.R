@@ -1,6 +1,7 @@
 library(tidyverse)
 library(nimble)
 library(MCMCvis)
+library(parallel)
 
 # read in data
 data <- readRDS('data/model_data/growth_data.rds')
@@ -29,6 +30,14 @@ seasonal_growth <- nimbleCode({
   
 })
 
+data <- data[!data$Waterbody == "Drayton Harbor", ]
+years <- as.data.frame(cbind(unique(data$Year), 1:length(unique(data$Year))))
+colnames(years) <- c("Year", "year_index")
+data <- left_join(data, years, "Year")
+
+data <- data %>% 
+  select(CW, year_index, age_march)
+colnames(data) <- c("CW", "year_index", "age")
 
 
 # bundle up data and constants
@@ -37,8 +46,9 @@ constants <- list(nsizes = length(data$CW), # number of crabs
                   nyears = length(unique(data$year_index)), # number of years
                   pi = pi # pi
 )
-data <- list(size = data$CW, # size captured
-             t = data$age # ages
+
+model_data <- list(size = data$CW, # size captured
+                   t = data$age # ages
 )
 
 # set initial values
@@ -49,7 +59,7 @@ inits_season <- list (size_inf = 100,
                       t0 = 0,
                       tau.y = 0.05,
                       tau.ranef = 0.05,
-                      ranef = rep(0,length(unique(data_sub$year_index)))
+                      ranef = rep(0, length(unique(data$year_index)))
                       )
 
 # run MCMC chains in parallel
@@ -57,7 +67,8 @@ cl <- makeCluster(4)
 
 set.seed(10120)
 
-clusterExport(cl, c("seasonal_growth", "inits_season", "data", "constants"))
+clusterExport(cl, c("seasonal_growth", "inits_season", 
+                    "model_data", "constants"))
 
 # Create a function with all the needed code
 out <- clusterEvalQ(cl, {
@@ -65,7 +76,8 @@ out <- clusterEvalQ(cl, {
   library(coda)
   
   # build the model
-  model_season <- nimbleModel(seasonal_growth,constants,data,inits_season)
+  model_season <- nimbleModel(seasonal_growth, constants, model_data,
+                              inits_season)
   
   # build the MCMC
   mcmcConf_season <- configureMCMC(model_season,
@@ -89,6 +101,6 @@ out <- clusterEvalQ(cl, {
 stopCluster(cl)
 
 # save samples
-saveRDS(out,'data/posterior_samples/savedsamples_growth.rds')
+saveRDS(out, "data/posterior_samples/savedsamples_growth_20250507.rds")
 
 
