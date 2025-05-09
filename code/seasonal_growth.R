@@ -10,7 +10,7 @@ data <- readRDS("data/model_data/growth_data.rds")
 seasonal_growth <- nimbleCode({
   # prior distributions
   k ~ dunif(0, 2) # growth rate
-  A ~ dunif(0, 2) # amplitude of seasonal variation
+  A ~ dunif(0, 4) # amplitude of seasonal variation
   ts ~ dunif(-1, 0) # time between t=0 and start of growth oscillation
   t0 ~ dunif(-1, 1) # age organism has 0 size
   tau_w ~ dunif(0, 100) # process error sd
@@ -21,9 +21,9 @@ seasonal_growth <- nimbleCode({
     W[i] ~ dnorm(W_hat[i], tau_w)
     W_hat[i] <- xinf * (1 - exp(-k * (age[i] - t0) - S_t[i] + S_t0)) + 
       ranef[year[i]]
-    S_t[i] <- (C * k / (2 * pi)) * sin(2 * pi * (age[i] - ts))
+    S_t[i] <- (A * k / (2 * pi)) * sin(2 * pi * (age[i] - ts))
   }
-  S_t0 <- (C * k / (2 * pi)) * sin(2 * pi * (t0 - ts))
+  S_t0 <- (A * k / (2 * pi)) * sin(2 * pi * (t0 - ts))
   
   for(y in 1:nyears){
     ranef[y] ~ dnorm(0, tau_y)
@@ -94,5 +94,3 @@ stopCluster(cl)
 
 # save samples
 saveRDS(out, "data/posterior_samples/savedsamples_growth.rds")
-
-

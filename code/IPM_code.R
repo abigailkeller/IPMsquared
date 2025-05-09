@@ -267,11 +267,11 @@ model_code <- nimbleCode({
   ################
   
   # asymptotic size -- (from seasonal growth posterior)
-  xinf ~ dnorm(98.5, sd = 11.2)
+  xinf ~ dnorm(98.3, sd = 10.9)
   # growth rate -- (from seasonal growth posterior)
-  gk ~ dnorm(0.55, sd = 0.16)
+  gk ~ dnorm(0.55, sd = 0.15)
   # amplitude of growth oscillations -- (from seasonal growth posterior)
-  A ~ dnorm(0.95, sd = 0.48)
+  A ~ dnorm(1.00, sd = 0.53)
   # inflection point of growth oscillations -- (from seasonal growth posterior)
   ts ~ dnorm(-0.72, sd = 0.14)
   
