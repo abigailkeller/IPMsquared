@@ -73,7 +73,7 @@ max_size <- 110
 y_recruit <- seq(min_size, max_size, 1)
 n <- 22
 b <- min_size + c(0:n) * (max_size - min_size) / n
-y <- 0.5 * (b[1:n] + b[2:(n + 1)])
+x <- 0.5 * (b[1:n] + b[2:(n + 1)])
 
 dist_summaries_recruit <- data.frame(
   param = c("n_recruit_1_dist", "n_recruit_2_dist", "n_recruit_3_dist",
@@ -88,9 +88,9 @@ dist_summaries_recruit <- data.frame(
 dist_summaries_recruit <- cbind(
   dist_summaries_recruit,
   as.data.frame(matrix(NA, nrow = dim(dist_summaries_recruit)[1],
-                       ncol = length(y)))
+                       ncol = length(x)))
 )
-colnames(dist_summaries_recruit)[4:25] <- y
+colnames(dist_summaries_recruit)[4:25] <- x
 dist_summaries_adult <- data.frame(
   param = c("n_adult_1_dist", "n_adult2_dist", "n_adult3_dist", "n_adult4_dist",
             "n_adult_1_dist", "n_adult2_dist", "n_adult3_dist", "n_adult4_dist",
@@ -104,15 +104,15 @@ dist_summaries_adult <- data.frame(
 dist_summaries_adult <- cbind(
   dist_summaries_adult, as.data.frame(matrix(NA,
                                              nrow = dim(dist_summaries_adult),
-                                             ncol = length(y)))
+                                             ncol = length(x)))
 )
-colnames(dist_summaries_adult)[4:25] <- y
+colnames(dist_summaries_adult)[4:25] <- x
 get_dist_log <- function(mean, sd, n) {
-  out <- dlnorm(y, mean, sd) / sum(dlnorm(y, mean, sd)) * n
+  out <- dlnorm(x, mean, sd) / sum(dlnorm(x, mean, sd)) * n
   return(out)
 }
 get_dist <- function(mean, sd, n) {
-  out <- dnorm(y, mean, sd) / sum(dnorm(y, mean, sd)) * n
+  out <- dnorm(x, mean, sd) / sum(dnorm(x, mean, sd)) * n
   return(out)
 }
 get_hdi_low <- function(input, ci) {
@@ -237,7 +237,7 @@ adult_sizeplot <- ggplot(data = dist_summaries_adult_long) +
   scale_x_continuous(limits = c(2.5, 107.5)) +
   scale_color_manual(values = viridis_pal()(4)) +
   scale_fill_manual(values = viridis_pal()(4)) +
-  labs(x = "size (mm)", y = "N(y)", color = "year") +
+  labs(x = "size (mm)", y = "N(x)", color = "year") +
   theme_minimal() +
   theme(legend.position = "None")
 
@@ -251,7 +251,7 @@ recruit_sizeplot <- ggplot(data = dist_summaries_recruit_long) +
   scale_x_continuous(limits = c(2.5, 30)) +
   scale_color_manual(values = viridis_pal()(4)) +
   scale_fill_manual(values = viridis_pal()(4)) +
-  labs(x = "size (mm)", y = "N(y)", color = "year") +
+  labs(x = "size (mm)", y = "N(x)", color = "year") +
   theme_minimal() +
   theme(legend.position = "None")
 

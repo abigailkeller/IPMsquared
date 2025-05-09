@@ -90,10 +90,11 @@ Below we provide additional information about the size-at-age data (D2), the mod
 
 ### Appendix 1.2.1
 
-Size-at-age data (D2) are collected from two sources: 1) records from crab removal observations in northeastern Pacific estuaries from Yamada et al. 2005, when the somatic growth of a strong recruitment class was tracked over time [@yamada2005growth], and 2) crabs with an assigned year class from Drayton Harbor that were easily identifiable based on size and carapace color. While data from these Drayton Harbor recruits enter the integrated population model likelihood twice (D1 and D2), extensive simulation-based research has revealed that IPMs are robust to dependent data [@abadi2010assessment]. Ages are assigned assuming recruitment settlement in March.
+Size-at-age data (D2) are collected from records of crab removal observations in northeastern Pacific estuaries from Yamada et al. 2005, when the somatic growth of a strong recruitment class was tracked over time [@yamada2005growth]. Ages are assigned assuming recruitment settlement in March.
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 growth_data <- read.csv("../data/growthdata.csv")
+growth_data <- growth_data[!growth_data$Waterbody == "Drayton Harbor", ]
 growth_summary <- growth_data %>%
   group_by(Year, Waterbody) %>%
   summarize(n = n())
@@ -111,27 +112,28 @@ knitr::kable(
 ### Appendix 1.2.2
 
 The integrated population model (IPM) is fitted sequentially, such that the seasonal growth parameters are fit with the size-at-age records, and the summarized posteriors are used to develop prior distributions in the overall IPM. Below, we detail the model used to fit the seasonal growth parameters with the size-at-age data.
-The size-at-age data, $W_{a,i}$, indicating carapace width at age $a$ in year $i$ are fit to the same seasonal growth model as in the main text [@somers1988seasonally]. Except here, we account for non-independence among data collected in the same year, since growth rate is likely affected by water temperature, which varies from year-to-year.
-The expected carapace width, $\widetilde{W}_{a}$, of a crab at age $a$ is:
+The size-at-age data, $W(a)_{y}$, indicating carapace width at age $a$ in year $y$ are fit to the same seasonal growth model as in the main text [@somers1988seasonally]. These data are fit to a similar seasonal growth model as in Equations 3-5 in the main text, except instead of describing incremental growth from size $x$ to $x'$, the below growth equation describes growth from the age of the crab when it is of size 0, $t_0$, to the expected size of a crab at age $a$, $\widetilde{W(a)}$. Additionally here, we account for non-independence among data collected in the same year, since growth rate is likely affected by water temperature, which varies from year-to-year.
+The expected carapace width, $\widetilde{W(a)}$, of a crab at age $a$ is:
 
 $$
-\widetilde{W}_{a,i} = y_{\infty}(1-exp(-k(a-t_0) - s(a) + s(t0))) + \epsilon_i
+\widetilde{W(a)}_{i} = x_{\infty}(1-exp(-k(a-t_0) - s(a) + s(t0))) + \epsilon_i
 $$
 $$
-s(a) = \frac{Ck}{2\pi}sin(2\pi(a-t_s))
+s(a) = \frac{Ak}{2\pi}sin(2\pi(a-t_s))
 $$
+
 $$
-s(t_0) = \frac{Ck}{2\pi}sin(2\pi(t_0-t_s))
+s(t_0) = \frac{Ak}{2\pi}sin(2\pi(t_0-t_s))
 $$
 To account for non-independence among data collected within the same year, we add a normally distributed error term with standard deviation, $\tau_y$.
 
 $$
 \epsilon_i \sim Normal(0, \tau_y)
 $$
-To account for variation in growth rate, the observed size-at-age data, $W_{a,i}$, follows a normal distribution, with the expected carapace width $\widetilde{W}_{a,i}$, and standard deviation, $\tau_{w}$.
+To account for variation in growth rate, the observed size-at-age data, $W(a)_{i}$, follows a normal distribution, with the expected carapace width $\widetilde{W(a)}_{i}$, and standard deviation, $\tau_{w}$.
 
 $$
-W_{a,i} \sim Normal(\widetilde{W}_{a,i}, \tau_{w})
+W(a)_{i} \sim Normal(\widetilde{W(a)}_{i}, \tau_{w})
 $$
 We use uninformative priors for the parameters:
 
@@ -154,7 +156,7 @@ $$
 \tau_{w} \sim Uniform(0,100)
 $$
 $$
-y_{\infty} \sim Uniform(80,140)
+x_{\infty} \sim Uniform(80,140)
 $$
 \newpage
 
@@ -165,32 +167,30 @@ First, we will write the model code with the R package, *nimble* [@de2017program
 
 ```{r, eval = FALSE}
 library(nimble)
-# model code
+
+# nimble code
 seasonal_growth <- nimbleCode({
   # prior distributions
-  size_inf ~ dunif(70, 140) # asymptotic size
-  k ~ dunif(0, 2) # exponential rate of approach to asymptotic size
-  C ~ dunif(0, 2) # size of seasonal variation
+  k ~ dunif(0, 2) # growth rate
+  A ~ dunif(0, 2) # amplitude of seasonal variation
   ts ~ dunif(-1, 0) # time between t=0 and start of growth oscillation
   t0 ~ dunif(-1, 1) # age organism has 0 size
-  tau_y ~ dunif(0, 100) # process error standard deviation
-  tau_ranef ~ dunif(0, 100) # year random effect standard deviation
-  for (i in 1:nsizes) {
-    # process error
-    size[i] ~ dnorm(y_hat[i], tau_y)
-    # deterministic portion
-    y_hat[i] <- (
-      size_inf * (1 - exp(-k * (t[i] - t0) - s_t[i] + s_t0)) + ranef[year[i]]
-    )
-    # sinusoidal growth after inflection point
-    s_t[i] <- (C * k / (2 * pi)) * sin(2 * pi * (t[i] - ts))
+  tau_w ~ dunif(0, 100) # process error sd
+  tau_y ~ dunif(0, 100) # year random effect sd
+  xinf ~ dunif(70, 140) # asymptotic size
+  
+  for(i in 1:nsizes){
+    W[i] ~ dnorm(W_hat[i], tau_w)
+    W_hat[i] <- xinf * (1 - exp(-k * (age[i] - t0) - S_t[i] + S_t0)) + 
+      ranef[year[i]]
+    S_t[i] <- (C * k / (2 * pi)) * sin(2 * pi * (age[i] - ts))
   }
-  # seasonal growth before inflection point
-  s_t0 <- (C * k / (2 * pi)) * sin(2 * pi * (t0 - ts))
-  # year random effect
-  for (y in 1:nyears) {
-    ranef[y] ~ dnorm(0, tau_ranef)
+  S_t0 <- (C * k / (2 * pi)) * sin(2 * pi * (t0 - ts))
+  
+  for(y in 1:nyears){
+    ranef[y] ~ dnorm(0, tau_y)
   }
+  
 })
 ```
 
@@ -198,60 +198,67 @@ Next we will bundle up the data, constants, and initial values for the MCMC.
 
 ```{r, eval = FALSE}
 # bundle up data and constants
-constants <- list(
-  nsizes = length(data$CW), # number of crabs
-  year = data$year_index, # year index
-  nyears = length(unique(data$year_index)), # number of years
-  pi = pi # pi
+constants <- list(nsizes = length(data$CW), # number of crabs
+                  year = data$year_index, # year index
+                  nyears = length(unique(data$year_index)), # number of years
+                  pi = pi # pi
 )
-model_data <- list(
-  size = data$CW, # size captured
-  t = data$age # ages
+
+model_data <- list(W = data$CW, # size captured
+                   age = data$age # ages
 )
+
 # set initial values
-inits_season <- list(
-  size_inf = 100,
-  k = 0.6,
-  C = 0.7,
-  ts = -0.6,
-  t0 = 0,
-  tau_y = 0.05,
-  tau_ranef = 0.05,
-  ranef = rep(0, length(unique(data$year_index)))
-)
+inits_season <- list (xinf = 100,
+                      k = 0.6,
+                      A = 0.7,
+                      ts = -0.6,
+                      t0 = 0,
+                      tau_w = 0.05,
+                      tau_y = 0.05,
+                      ranef = rep(0, length(unique(data$year_index)))
+                      )
 ```
 
 Finally, we will run the MCMC in parallel:
 
 ```{r, eval = FALSE}
-# run MCMC chains in parallel
+## run MCMC chains in parallel
 cl <- makeCluster(4)
+
 set.seed(10120)
+
 clusterExport(cl, c("seasonal_growth", "inits_season", 
                     "model_data", "constants"))
+
 # Create a function with all the needed code
 out <- clusterEvalQ(cl, {
   library(nimble)
   library(coda)
+  
   # build the model
-  model_season <- nimbleModel(seasonal_growth, constants, 
-                              model_data, inits_season)
+  model_season <- nimbleModel(seasonal_growth, constants, model_data,
+                              inits_season)
+  
   # build the MCMC
-  mcmcConf_season <- configureMCMC(
-    model_season,
-    monitors = c("size_inf", "k", "C", "ts", "t0", "tau_y", "tau_ranef")
-  )
+  mcmcConf_season <- configureMCMC(model_season,
+                                   monitors = c("xinf", "k", "A", "ts",
+                                                "t0", "tau_w", "tau_y"
+                                   ))
   model_mcmc_season <- buildMCMC(mcmcConf_season)
+  
   # compile the model and MCMC
   # model
   cmodel_season <- compileNimble(model_season)
   # MCMC
   cmodel_mcmc_season <- compileNimble(model_mcmc_season, project = model_season)
-  # run
+  
   cmodel_mcmc_season$run(100000, thin = 10,
                          reset = FALSE)
+  
   return(as.mcmc(as.matrix(cmodel_mcmc_season$mvSamples)))
 })
+
 stopCluster(cl)
 ```
 
@@ -274,9 +281,9 @@ upper <- 10001
 
 ```{r, echo = FALSE}
 # create df with param names
-short_names <- c("C", "k", "size_inf", "t0", "tau.ranef", "tau.y", "ts")
-real_names <- c("C", "k", "y[infinity]", "t[0]", "tau[w]", "tau[y]", "t[s]")
-latex_names <- c("C", "k", "y_{\\infty}", "t_0", "\\tau_w", "\\tau_y", "t_s")
+short_names <- c("A", "k", "xinf", "t0", "tau_w", "tau_y", "ts")
+real_names <- c("A", "k", "x[infinity]", "t[0]", "tau[w]", "tau[y]", "t[s]")
+latex_names <- c("A", "k", "x_{\\infty}", "t_0", "\\tau_w", "\\tau_y", "t_s")
 names_df <- as.data.frame(cbind(short_names, real_names, latex_names))
 colnames(names_df) <- c("short_names", "real_names", "latex_names")
 ```
@@ -306,7 +313,7 @@ for (i in seq_len(nrow(posterior))) {
 
 # round
 for (i in seq_len(nrow(posterior))) {
-  if (posterior[i, "short_names"] == "size_inf") {
+  if (posterior[i, "short_names"] == "xinf") {
     posterior[i, "mean"] <- round(posterior[i, "mean"], digits = 2)
     posterior[i, "sd"] <- round(posterior[i, "sd"], digits = 2)
     posterior[i, "lower_ci"] <- round(posterior[i, "lower_ci"], digits = 2)

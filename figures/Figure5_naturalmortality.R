@@ -18,7 +18,7 @@ min_size <- 0
 max_size <- 110
 n <- 22
 b <- min_size + c(0:n) * (max_size - min_size) / n
-y <- 0.5 * (b[1:n] + b[2:(n + 1)])
+x <- 0.5 * (b[1:n] + b[2:(n + 1)])
 
 # function for getting samples
 get_samples <- function(samples, param) {
@@ -27,11 +27,11 @@ get_samples <- function(samples, param) {
   return(samples)
 }
 get_survival <- function(size_ind, size_dep, deltat) {
-  surv <- exp(-deltat * (size_ind + size_dep / y ^ 2))
+  surv <- exp(-deltat * (size_ind + size_dep / x ^ 2))
   return(surv)
 }
 get_o_survival <- function(size_dep, n) {
-  surv <- exp(-(n * size_dep / y ^ 2))
+  surv <- exp(-(n * size_dep / x ^ 2))
   return(surv)
 }
 get_hdi_low <- function(input, ci) {
@@ -68,8 +68,8 @@ nsurv_summaries <- data.frame(
 nsurv_summaries <- cbind(nsurv_summaries,
                          as.data.frame(matrix(NA,
                                               nrow = dim(nsurv_summaries)[1],
-                                              ncol = length(y))))
-colnames(nsurv_summaries)[3:24] <- y
+                                              ncol = length(x))))
+colnames(nsurv_summaries)[3:24] <- x
 
 for (i in seq_len(3)) {
   nsurv_summaries[i, 3:24] <- apply(survival[[i]], 1, median)
@@ -89,8 +89,8 @@ wsurv_summaries <- data.frame(
 wsurv_summaries <- cbind(wsurv_summaries,
                          as.data.frame(matrix(NA,
                                               nrow = dim(wsurv_summaries)[1],
-                                              ncol = length(y))))
-colnames(wsurv_summaries)[3:24] <- y
+                                              ncol = length(x))))
+colnames(wsurv_summaries)[3:24] <- x
 
 for (i in seq_len(3)) {
   wsurv_summaries[i, 3:24] <- apply(o_survival[[i]], 1, median)

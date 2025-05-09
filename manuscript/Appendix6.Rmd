@@ -15,33 +15,33 @@ We fit four separate models that are identical, apart from the functional form o
 **Model 1:** interactive density- and size-dependence, steeper mortality decrease with size
 
 $$
-S_o(y,N^T_{t_{max},i}) = exp(-\frac{\alpha_i^o \times N^T_{t_{max},i}}{y^2})
+S_o(x,N^T_{t_{max},y}) = exp(-\frac{\alpha_y^o \times N^T_{t_{max},y}}{x^2})
 $$
 
 $$
-\alpha^o_i \sim Gamma(\alpha^o_{\alpha}, \alpha^o_{\theta})
+\alpha^o_y \sim Gamma(\alpha^o_{\alpha}, \alpha^o_{\theta})
 $$
 
 **Model 2:** interactive density- and size-dependence, less steep mortality decrease with size
 
 $$
-S_o(y,N^T_{t_{max},i}) = exp(-\frac{\alpha_i^o \times N^T_{t_{max},i}}{y})
+S_o(x,N^T_{t_{max},y}) = exp(-\frac{\alpha_y^o \times N^T_{t_{max},y}}{x})
 $$
 
 $$
-\alpha^o_i \sim Gamma(\alpha^o_{\alpha}, \alpha^o_{\theta})
+\alpha^o_y \sim Gamma(\alpha^o_{\alpha}, \alpha^o_{\theta})
 $$
 
 **Model 3:** additive density- and size-dependence, steeper mortality decrease with size
 
 $$
-S_o(y,N^T_{t_{max},i}) = exp(-(\frac{\alpha^o}{N^T_{t_{max},i}} + \frac{\psi}{y^2}))
+S_o(x,N^T_{t_{max},y}) = exp(-(\frac{\alpha^o}{N^T_{t_{max},y}} + \frac{\psi}{x^2}))
 $$
 
 **Model 4:** additive density- and size-dependence, less steep mortality decrease with size
 
 $$
-S_o(y,N^T_{t_{max},i}) = exp(-(\frac{\alpha^o}{N^T_{t_{max},i}} + \frac{\psi}{y}))
+S_o(x,N^T_{t_{max},i}) = exp(-(\frac{\alpha^o}{N^T_{t_{max},y}} + \frac{\psi}{x}))
 $$
 
 WAIC was calculated using the combined posterior samples from four chains, after discarding 2000 burn-in samples (32000 total samples). Model 1, with a size- and density-dependent overwinter mortality interaction and a steeper mortality decrease with size had the lowest WAIC and was used in subsequent analyses.
@@ -71,16 +71,16 @@ knitr::kable(
 
 ## Appendix 6.2
 
-Bayesian model checking was used to determine if the model is an adequate representation of the observed data. Fit was checked with an omnibus discrepancy function, deviance. Here, $y$ refers to the the count of removed crabs, $n^C_{t,j,i,y}$, the total number of removed crabs, $n^R_{t,i,y}$, and the number of recaptured marked crabs, $mc_y^{mc}$:
+Bayesian model checking was used to determine if the model is an adequate representation of the observed data. Fit was checked with an omnibus discrepancy function, deviance. Here, $D$ refers to the the count of removed crabs, $C(x)_{t,j,y}$, the total number of removed crabs, $C^T(x)_{t,i}$, and the number of recaptured marked crabs, $mc(x)^{mc}$:
 
 $$
-T(y, \theta) = -2log(y|\theta)
+T(D, \theta) = -2log(D|\theta)
 $$
 
-as well as a targeted discrepancy function to check zero inflation in the count data. Here, $y$ refers to the the count of removed crabs, $n^C_{t,j,i,y}$:
+as well as a targeted discrepancy function to check zero inflation in the count data. Here, $D$ refers to the the count of removed crabs, $C(x)_{t,j,y}$:
 
 $$
-T(y) = \sum_iI(y_i = 0)
+T(D) = \sum_iI(D_i = 0)
 $$
 
 **Generating posterior predictive samples and calculating deviance**
@@ -176,7 +176,7 @@ saveRDS(deviance, "data/posterior_predictive_check/deviance_yrep.rds")
 Bayesian p-values are calculated by comparing the deviance of the posterior predictive samples and the deviance of the observed data. Deviance of the data was calculated using the following nimble function:
 
 ```{r, eval = FALSE}
-calc_deviance_y <- nimbleFunction(
+calc_deviance_D <- nimbleFunction(
   setup = function(model, samples) {
     
     # theta = top nodes and latent states

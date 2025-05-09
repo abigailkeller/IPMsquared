@@ -56,7 +56,7 @@ min_size <- 0
 max_size <- 110
 n <- 22 # number of cells in the discretized kernel
 b <- min_size + c(0:n) * (max_size - min_size) / n # boundary points
-y <- 0.5 * (b[1:n] + b[2:(n + 1)])
+x <- 0.5 * (b[1:n] + b[2:(n + 1)])
 
 plot_28 <- ggplot() +
   geom_ribbon(data = effort_summary[effort_summary$nobs == 28, ],
@@ -73,10 +73,10 @@ plot_28 <- ggplot() +
   scale_color_manual(values = c("violet", "darkviolet", "goldenrod")) +
   scale_x_continuous(breaks = c(0, 5.5, 10.5, 15.5, 20.5),
                      labels = c(0, 25, 50, 75, 100)) +
-  scale_y_continuous(limits = c(0, 5.2)) +
+  scale_y_continuous(limits = c(0, 9)) +
   labs(x = "size (mm)", 
-       y = expression(N(y)[paste("effort=0")]^E ~ ":" 
-                      ~ N(y)[paste("effort=28")]^E),
+       y = expression(N(x)[paste("effort=0")]^E ~ ":" 
+                      ~ N(x)[paste("effort=28")]^E),
        color = "trap type") +
   theme_minimal() +
   theme(legend.position = "None")
@@ -96,10 +96,10 @@ plot_112 <- ggplot() +
   scale_color_manual(values = c("violet", "darkviolet", "goldenrod")) +
   scale_x_continuous(breaks = c(0, 5.5, 10.5, 15.5, 20.5),
                      labels = c(0, 25, 50, 75, 100)) +
-  scale_y_continuous(limits = c(0, 5.2)) +
+  scale_y_continuous(limits = c(0, 9)) +
   labs(x = "size (mm)", 
-       y = expression(N(y)[paste("effort=0")]^E ~ ":" 
-                      ~ N(y)[paste("effort=112")]^E),
+       y = expression(N(x)[paste("effort=0")]^E ~ ":" 
+                      ~ N(x)[paste("effort=112")]^E),
        color = "trap type") +
   theme_minimal() +
   theme(legend.position = "None",
@@ -121,10 +121,10 @@ plot_560 <- ggplot() +
   scale_color_manual(values = c("violet", "darkviolet", "goldenrod")) +
   scale_x_continuous(breaks = c(0, 5.5, 10.5, 15.5, 20.5),
                      labels = c(0, 25, 50, 75, 100)) +
-  scale_y_continuous(limits = c(0, 5.2)) +
+  scale_y_continuous(limits = c(0, 9)) +
   labs(x = "size (mm)", 
-       y = expression(N(y)[paste("effort=0")]^E ~ ":" 
-                      ~ N(y)[paste("effort=560")]^E),
+       y = expression(N(x)[paste("effort=0")]^E ~ ":" 
+                      ~ N(x)[paste("effort=560")]^E),
        color = "trap type") +
   theme_minimal() +
   theme(legend.position = "None",
@@ -146,10 +146,10 @@ plot_840 <- ggplot() +
   scale_color_manual(values = c("violet", "darkviolet", "goldenrod")) +
   scale_x_continuous(breaks = c(0, 5.5, 10.5, 15.5, 20.5),
                      labels = c(0, 25, 50, 75, 100)) +
-  scale_y_continuous(limits = c(0, 5.2)) +
+  scale_y_continuous(limits = c(0, 9)) +
   labs(x = "size (mm)", 
-       y = expression(N(y)[paste("effort=0")]^E ~ ":" 
-                      ~ N(y)[paste("effort=840")]^E),
+       y = expression(N(x)[paste("effort=0")]^E ~ ":" 
+                      ~ N(x)[paste("effort=840")]^E),
        color = "trap type") +
   theme_minimal() +
   theme(legend.position = "None")
@@ -169,10 +169,10 @@ plot_1400 <- ggplot() +
   scale_color_manual(values = c("violet", "darkviolet", "goldenrod")) +
   scale_x_continuous(breaks = c(0, 5.5, 10.5, 15.5, 20.5),
                      labels = c(0, 25, 50, 75, 100)) +
-  scale_y_continuous(limits = c(0, 5.2)) +
+  scale_y_continuous(limits = c(0, 9)) +
   labs(x = "size (mm)", 
-       y = expression(N(y)[paste("effort=0")]^E ~ ":" 
-                      ~ N(y)[paste("effort=1400")]^E),
+       y = expression(N(x)[paste("effort=0")]^E ~ ":" 
+                      ~ N(x)[paste("effort=1400")]^E),
        color = "trap type") +
   theme_minimal() +
   theme(legend.position = "None",
@@ -194,10 +194,10 @@ plot_2800 <- ggplot() +
   scale_color_manual(values = c("violet", "darkviolet", "goldenrod")) +
   scale_x_continuous(breaks = c(0, 5.5, 10.5, 15.5, 20.5),
                      labels = c(0, 25, 50, 75, 100)) +
-  scale_y_continuous(limits = c(0, 5.2)) +
+  scale_y_continuous(limits = c(0, 9)) +
   labs(x = "size (mm)", 
-       y = expression(N(y)[paste("effort=0")]^E ~ ":" 
-                      ~ N(y)[paste("effort=2800")]^E),
+       y = expression(N(x)[paste("effort=0")]^E ~ ":" 
+                      ~ N(x)[paste("effort=2800")]^E),
        color = "trap type") +
   theme_minimal() +
   theme(legend.position = "None",

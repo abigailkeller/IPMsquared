@@ -22,59 +22,59 @@ model_code <- NimbleCode({
   #############################
   
   # intra-annual change
-  for (i in 1:n_year) {
+  for (y in 1:n_year) {
     for (t in 1:(Tmax-1)) {
       
       # Equation 1
       ## project
-      N[t + 1, i, 1:n_size] <- kernel[1:n_size, 1:n_size, t] %*%
-        (N[t, i, 1:n_size] - n_R[t, i, 1:n_size]) +
-        recruit_intro[t, i] * R[i, 1:n_size] # introduce recruits, t = 6
+      N[t + 1, y, 1:n_size] <- kernel[1:n_size, 1:n_size, t] %*%
+        (N[t, y, 1:n_size] - C_T[t, y, 1:n_size]) +
+        recruit_intro[t, y] * R[y, 1:n_size] # introduce recruits, t = 6
 
       # Equation 2
       ## kernel
       kernel[1:n_size, 1:n_size, t] <- seasonal_growth(
-        yinf, gk, sigma_G, C, ts, D[t, 1:2], n_size, pi, y[1:n_size], 
-        lower[1:n_size], upper[1:n_size]) * S[t, i, 1:n_size]
+        xinf, gk, sigma_G, A, ts, D[t, 1:2], n_size, pi, x[1:n_size], 
+        lower[1:n_size], upper[1:n_size]) * S[t, y, 1:n_size]
       # Equation 7
       ## natural survival
-      S[t, i, 1:n_size] <- survival(alpha, beta[i], D[t, 1:2], y[1:n_size])
+      S[t, y, 1:n_size] <- survival(alpha, beta[y], D[t, 1:2], x[1:n_size])
     }
   }
   
   # Equation 8
   ## year-specific natural mortality (process error, includes mark-recapture)
-  for (i in 1:(n_year + 1)) {
-    beta[i] ~ dgamma(beta_alpha, beta_theta)
+  for (y in 1:(n_year + 1)) {
+    beta[y] ~ dgamma(beta_alpha, beta_theta)
   }
   
   ## inter-annual change
-  for (i in 1:(n_year - 1)) {
+  for (y in 1:(n_year - 1)) {
     for (k in 1:n_size) {
       
       # Equation 9-10
       ## overwinter survival and seasonal growth
       ## (use stochastic N node)
-      N_stoch[i, k] ~ dbinom(size = seasonal_growth(yinf, gk, sigma_G, C, ts, 
+      N_stoch[y, k] ~ dbinom(size = seasonal_growth(xinf, gk, sigma_G, A, ts, 
                                                     D[Tmax, 1:2], k, pi, y[k], 
                                                     lower[k], upper[k]) %*% 
-                               (N[Tmax, i, k] - n_R[Tmax, i, k]),
-                             prob = S_o[i, k)
+                               (N[Tmax, y, k] - C_T[Tmax, y, k]),
+                             prob = S_o[y, k)
       
     }
     
     # fill deterministic N node with stochastic N node
-    N[1, i + 1, 1:n_size] <- N_stoch[i, 1:n_size]
+    N[1, y + 1, 1:n_size] <- N_stoch[y, 1:n_size]
     
     # Equation 11
     ## size- and density-dependent overwinter survival
-    S_o[i, 1:n_size] <- overwinter_survival(alpha_o[i], 
-                                            sum(N[Tmax, i, 1:n_size]), 
-                                            y[1:n_size])
+    S_o[y, 1:n_size] <- overwinter_survival(alpha_o[y], 
+                                            sum(N[Tmax, y, 1:n_size]), 
+                                            x[1:n_size])
     
     # Equation 12
     ## year-specific intensity of overwinter mortality
-    alpha_o[i] ~ dgamma(alpha_o_alpha, alpha_o_theta)
+    alpha_o[y] ~ dgamma(alpha_o_alpha, alpha_o_theta)
   }
   
   #####################################################
@@ -105,38 +105,38 @@ model_code <- NimbleCode({
   #####################
   #####################
   
-  for (i in 1:n_year) {
+  for (y in 1:n_year) {
     for (t in 1:Tmax) {
       for (k in 1:n_size) {
         
         # Equation 16
         ## binomial distribution with total crabs removed, n_R
-        n_R[t, i, k] ~ dbinom(size = round(N[t, i, k]), prob = p[t, i, k])
+        C_T[t, y, k] ~ dbinom(size = round(N[t, y, k]), prob = p[t, y, k])
 
         # Equation 17
         ## dirichlet-multinomial mixture, conditional probability of capture
-        alpha_D[t, 1:totalo, i, k] <- p_C[t, 1:totalo, i, k] * n_p_dir
-        n_C[t, 1:totalo, i, k] ~ ddirchmulti(alpha = alpha_D[t, 1:totalo, i, k],
-                                             size = n_R[t, i, k])
+        alpha_D[t, 1:totalo, y, k] <- p_C[t, 1:totalo, y, k] * n_p_dir
+        C[t, 1:totalo, y, k] ~ ddirchmulti(alpha = alpha_D[t, 1:totalo, y, k],
+                                             size = C_T[t, y, k])
       }
       
       # Equations 18 - 20
       ## calculate hazard rate
-      hazard[t, 1:totalo, i, 1:n_size] <- calc_hazard(
+      hazard[t, 1:totalo, y, 1:n_size] <- calc_hazard(
         totalo, n_size, h_F_max, h_F_k, h_F_0, h_S_max, h_S_k, h_S_0, h_M_max,
-        h_M_A, h_M_sigma, f_index[t, 1:totalo, i], s_index[t, 1:totalo, i],
-        m_index[t, 1:totalo, i], soak_days[t, 1:totalo, i], y[1:n_size]
+        h_M_A, h_M_sigma, f_index[t, 1:totalo, y], s_index[t, 1:totalo, y],
+        m_index[t, 1:totalo, y], soak_days[t, 1:totalo, y], x[1:n_size]
         )
 
       # Equation 21
       ## total capture probability
-      p[t, i, 1:n_size] <- calc_prob(totalo, n_size,
-                                     hazard[t, 1:totalo, i, 1:n_size])
+      p[t, y, 1:n_size] <- calc_prob(totalo, n_size,
+                                     hazard[t, 1:totalo, y, 1:n_size])
       
       # mean conditional probability of capture
-      p_C[t, 1:totalo, i, 1:n_size] <- calc_cond_prob(totalo, n_size,
+      p_C[t, 1:totalo, y, 1:n_size] <- calc_cond_prob(totalo, n_size,
                                                       hazard[t, 1:totalo,
-                                                             i, 1:n_size])
+                                                             y, 1:n_size])
       
     }
   }
@@ -167,19 +167,18 @@ model_code <- NimbleCode({
   hazard_mc[1:totalo_mc, 1:n_size] <- calc_hazard(
     totalo_mc, n_size, h_F_max, h_F_k, h_F_0, h_S_max, h_S_k, h_S_0, h_M_max,
         h_M_A, h_M_sigma, f_index_mc[1:totalo_mc], s_index_mc[1:totalo_mc,],
-        m_index_mc[1:totalo_mc], soak_days[1:totalo_mc], y[1:n_size]
+        m_index_mc[1:totalo_mc], soak_days[1:totalo_mc], x[1:n_size]
   )
   
   # Equation 26
   ## apply kernel from time of marking to time of recapture
-  n1_project[1:n_size] <- kernel_mc[1:n_size, 1:n_size] %*%
-    n1[1:n_size]
+  n1_project[1:n_size] <- kernel_mc[1:n_size, 1:n_size] %*% n1[1:n_size]
   
-  kernel_mc[1:n_size, 1:n_size] <- seasonal_growth(yinf, gk, sigma_G, C, ts, 
+  kernel_mc[1:n_size, 1:n_size] <- seasonal_growth(xinf, gk, sigma_G, A, ts, 
                                                    D_mc[1:2], n_size,  pi, 
-                                                   y[1:n_size], lower[1:n_size], 
+                                                   x[1:n_size], lower[1:n_size], 
                                                    upper[1:n_size]) * 
-    survival(alpha, beta[5], D_mc[1:2], y[1:n_size])
+    survival(alpha, beta[5], D_mc[1:2], x[1:n_size])
   
   ################
   # Growth model #
@@ -187,11 +186,11 @@ model_code <- NimbleCode({
   
   # incorporated hierarchically as informative priors in the unified model
   # asymptotic size
-  yinf ~ dnorm(inf_prior[1, 1], sd = inf_prior[1, 2])
+  xinf ~ dnorm(inf_prior[1, 1], sd = inf_prior[1, 2])
   # growth rate
   gk ~ dnorm(inf_prior[2, 1], sd = inf_prior[2, 2])
   # amplitude of growth oscillations
-  C ~ dnorm(inf_prior[3, 1], sd = inf_prior[3, 2])
+  A ~ dnorm(inf_prior[3, 1], sd = inf_prior[3, 2])
   # inflection point of growth oscillations
   ts ~ dnorm(inf_prior[4, 1], sd = inf_prior[4, 2])
   
@@ -353,10 +352,10 @@ This function corresponds to equations 3-5 in main text.
 ```{r, eval = FALSE}
 # function for seasonal growth kernel
 seasonal_growth <- nimbleFunction (
-  run = function(yinf = double(0), k = double(0),
-                 sigma_G = double(0), C = double(0),
+  run = function(xinf = double(0), k = double(0),
+                 sigma_G = double(0), A = double(0),
                  ts = double(0), D = double(1),
-                 n_size = double(0), pi = double(0), y = double(1),
+                 n_size = double(0), pi = double(0), x = double(1),
                  lower = double(1), upper = double(1))
   {
     returnType(double(2))
@@ -365,14 +364,14 @@ seasonal_growth <- nimbleFunction (
     array <- matrix(NA, ncol = n_size, nrow = n_size)
 
     # season adjusted params
-    S_t <- (C * k / (2 * pi)) * sin(2 * pi * (D[2] - (1 + ts)))
-    S_t0 <- (C * k / (2 * pi)) * sin(2 * pi * (D[1] - (1 + ts)))
+    S_t <- (A * k / (2 * pi)) * sin(2 * pi * (D[2] - (1 + ts)))
+    S_t0 <- (A * k / (2 * pi)) * sin(2 * pi * (D[1] - (1 + ts)))
 
     # p(y"|y)
     for (i in 1:n_size) {
-      increment <- (yinf - y[i]) *
+      increment <- (xinf - x[i]) *
         (1 - exp(-k * (D[2] - D[1]) - S_t + S_t0))
-      mean <- y[i] + increment
+      mean <- x[i] + increment
       array[1:n_size, i] <- (pnorm(upper, mean, sd = sigma_G) -
                                pnorm(lower, mean, sd = sigma_G))
     }
@@ -395,12 +394,12 @@ This function corresponds to equation 7 in main text.
 survival <- nimbleFunction (
   
   run = function(alpha = double(0), beta = double(0), D = double(1),
-                 y = double(1))
+                 x = double(1))
   {
     returnType(double(1))
     
     # get survival rate
-    out <- exp(-(D[2] - D[1]) * (beta + alpha / y ^ 2))
+    out <- exp(-(D[2] - D[1]) * (beta + alpha / x ^ 2))
 
     return(out)
   }
@@ -416,12 +415,12 @@ This function corresponds to equation 9-10 in main text.
 overwinter_survival <- nimbleFunction (
   
   run = function(alpha_o = double(0), N = double(1),
-                 y = double(1))
+                 x = double(1))
   {
     returnType(double(1))
     
     # get probability of survival
-    out <- exp(-(alpha_o * sum(N) / y ^ 2))
+    out <- exp(-(alpha_o * sum(N) / x ^ 2))
 
     return(out)
   }
@@ -443,7 +442,7 @@ calc_hazard <- nimbleFunction (
                  h_S_k = double(0), h_S_0 = double(0), h_M_max = double(0),
                  h_M_A = double(0), h_M_sigma = double(0), f_index = double(1), 
                  s_index = double(1), m_index = double(1), 
-                 soak_days = double(1), y = double(1))
+                 soak_days = double(1), x = double(1))
   {
     returnType(double(2))
 
@@ -454,11 +453,11 @@ calc_hazard <- nimbleFunction (
     for (j in 1:nobs) {
       # P(capture)
       array[j, 1:n_size] <- size_sel_log(pmax = h_F_max, k = h_F_k,
-                                         midpoint = h_F_0, y = y) *
+                                         midpoint = h_F_0, x = x) *
         f_index[j] * soak_days[j] +
-        size_sel_log(pmax = h_S_max, k = h_S_k, midpoint = h_S_0, y = y) *
+        size_sel_log(pmax = h_S_max, k = h_S_k, midpoint = h_S_0, x = x) *
         s_index[j] * soak_days[j] +
-        size_sel_norm(pmax = h_M_max, xmax = h_M_A, sigma = h_M_sigma, y = y) *
+        size_sel_norm(pmax = h_M_max, xmax = h_M_A, sigma = h_M_sigma, x = x) *
         m_index[j] * soak_days[j]
     }
       return(array)
@@ -516,10 +515,10 @@ These functions correspond to equations 18-20 in main text.
 size_sel_norm <- nimbleFunction (
   # input and output types
   run = function(pmax = double(0), xmax = double(0), sigma = double(0),
-                 y = double(1))
+                 x = double(1))
   {
     returnType(double(1))
-      vector <- pmax * exp(-(y - xmax) ^ 2 / (2 * sigma ^ 2))
+      vector <- pmax * exp(-(x - xmax) ^ 2 / (2 * sigma ^ 2))
 
     return(vector)
   }
@@ -528,11 +527,11 @@ size_sel_norm <- nimbleFunction (
 # logistic size selective hazard rate
 size_sel_log <- nimbleFunction (
   run = function(pmax = double(0), k = double(0), midpoint = double(0),
-                 y = double(1))
+                 x = double(1))
   {
     returnType(double(1))
     
-    vector <- pmax / (1 + exp(-k * (y - midpoint)))
+    vector <- pmax / (1 + exp(-k * (x - midpoint)))
 
     return(vector)
   }

@@ -12,10 +12,10 @@ out_sub <- list(out[[1]][100:10001, ], out[[2]][100:10001, ],
 t <- seq(from = 0.3, to = 3.59, by = 0.01)
 
 # function to get length
-get_length <- function(c, k, ts, t0, size_inf) {
+get_length <- function(c, k, ts, t0, xinf) {
   s_t <- (c * k / (2 * pi)) * sin(2 * pi * (t - ts))
   s_t0 <- (c * k / (2 * pi)) * sin(2 * pi * (t0 - ts))
-  length <- size_inf * (1 - exp(-k * (t - t0) - s_t + s_t0))
+  length <- xinf * (1 - exp(-k * (t - t0) - s_t + s_t0))
   return(length)
 }
 
@@ -40,10 +40,10 @@ c <- get_samples(out_sub, "C")
 k <- get_samples(out_sub, "k")
 ts <- get_samples(out_sub, "ts")
 t0 <- get_samples(out_sub, "t0")
-size_inf <- get_samples(out_sub, "size_inf")
+xinf <- get_samples(out_sub, "xinf")
 
 # get size for each posterior sample
-growth_len <- mapply(get_length, c, k, ts, t0, size_inf)
+growth_len <- mapply(get_length, c, k, ts, t0, xinf)
 
 # get summaries
 growth_summary <- as.data.frame(matrix(NA, nrow = 3, ncol = length(t)))

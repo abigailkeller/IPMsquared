@@ -35,7 +35,7 @@ traps_pmax <- get_samples(out_sub, "h_S_max")
 # make plot of size selectivity
 min_size <- 0
 max_size <- 110
-y <- seq(min_size, max_size, 1)
+x <- seq(min_size, max_size, 1)
 selective_summaries <- data.frame(
   type = c("minnow", "fukui", "shrimp",
            "minnow", "fukui", "shrimp",
@@ -44,15 +44,15 @@ selective_summaries <- data.frame(
 )
 selective_summaries <- cbind(
   selective_summaries,
-  as.data.frame(matrix(NA, nrow = dim(selective_summaries), ncol = length(y)))
+  as.data.frame(matrix(NA, nrow = dim(selective_summaries), ncol = length(x)))
 )
-colnames(selective_summaries)[3:113] <- y
+colnames(selective_summaries)[3:113] <- x
 size_sel_norm <- function(pmax, xmax, sigma) {
-  vector <- pmax * exp(-(y - xmax) ^ 2 / (2 * sigma ^ 2))
+  vector <- pmax * exp(-(x - xmax) ^ 2 / (2 * sigma ^ 2))
   return(1 - exp(-vector))
 }
 size_sel_log <- function(pmax, k, midpoint) {
-  vector <- pmax / (1 + exp(-k * (y - midpoint)))
+  vector <- pmax / (1 + exp(-k * (x - midpoint)))
   return(1 - exp(-vector))
 }
 get_hdi_low <- function(input, ci) {
