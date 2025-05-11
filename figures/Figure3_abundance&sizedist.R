@@ -265,5 +265,5 @@ BBDD#
 final_plot <- adult_nplot + recruit_nplot + adult_sizeplot + 
   recruit_sizeplot + legend + plot_layout(design = layout)
 
-ggsave("figures/Figure3_abundance_sizedist.png",
+ggsave("figures/Figure3_abundance_sizedist.png", 
        dpi = 400, width = 6, height = 5)

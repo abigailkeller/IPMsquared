@@ -147,5 +147,5 @@ legend <- get_legend(plot_w_legend)
 
 final_plot <- plot_0 + plot_112 + plot_560 + plot_2800 + legend +
   plot_layout(nrow = 1)
-ggsave("figures/Figure6_IPM_simulations2.png", dpi = 400,
+ggsave("figures/Figure6_IPM_simulations.png", dpi = 400,
        width = 9, height = 3)

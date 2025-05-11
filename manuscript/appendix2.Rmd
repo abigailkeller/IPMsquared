@@ -1,5 +1,5 @@
 ---
-title: "Appendix 2: Prior distributions and multinomial-dirichlet mixture"
+title: "Appendix 2: Prior distributions and multinomial-Dirichlet mixture"
 output: pdf_document
 ---
 

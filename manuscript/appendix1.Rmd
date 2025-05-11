@@ -141,7 +141,7 @@ $$
 k \sim Uniform(0,2)
 $$
 $$
-A \sim Uniform(0,2)
+A \sim Uniform(0,4)
 $$
 $$
 t_s \sim Uniform(-1,0)
