@@ -134,33 +134,19 @@ for (i in seq_len(nrow(posterior))) {
 
 # round
 for (i in seq_len(nrow(posterior))) {
-  if (posterior[i, "short_names"] %in% c("lambda_A", "lambda_R[1]",
-                                         "lambda_R[2]", "lambda_R[3]",
-                                         "lambda_R[4]")) {
-    posterior[i, "mean"] <- round(posterior[i, "mean"], digits = 0)
-    posterior[i, "sd"] <- round(posterior[i, "sd"], digits = 0)
-    posterior[i, "lower_ci"] <- round(posterior[i, "lower_ci"], digits = 0)
-    posterior[i, "upper_ci"] <- round(posterior[i, "upper_ci"], digits = 0)
-  } else if (posterior[i, "short_names"] %in% c("nmortality_s[1]",
-                                                "betabeta[2]",
-                                                "beta[3]",
-                                                "beta[4]",
-                                                "beta[5]",
-                                                "h_M_max", "h_K_max",
-                                                "h_S_max")) {
-    posterior[i, "mean"] <- round(posterior[i, "mean"], digits = 6)
-    posterior[i, "sd"] <- round(posterior[i, "sd"], digits = 6)
-    posterior[i, "lower_ci"] <- round(posterior[i, "lower_ci"], digits = 6)
-    posterior[i, "upper_ci"] <- round(posterior[i, "upper_ci"], digits = 6)
-  } else {
-    posterior[i, "mean"] <- round(posterior[i, "mean"], digits = 6)
-    posterior[i, "sd"] <- round(posterior[i, "sd"], digits = 6)
-    posterior[i, "lower_ci"] <- round(posterior[i, "lower_ci"], digits = 6)
-    posterior[i, "upper_ci"] <- round(posterior[i, "upper_ci"], digits = 6)
-  }
+  
+  dig <- 3 - floor(log10(abs(posterior[i, "mean"])))
+  
+  posterior[i, "mean"] <- round(posterior[i, "mean"], digits = dig)
+  posterior[i, "sd"] <- round(posterior[i, "sd"], digits = dig)
+  posterior[i, "lower_ci"] <- round(posterior[i, "lower_ci"], digits = dig)
+  posterior[i, "upper_ci"] <- round(posterior[i, "upper_ci"], digits = dig)
 }
+
 posterior$mean <- as.character(posterior$mean)
 posterior$sd <- as.character(posterior$sd)
+posterior$lower_ci <- as.character(posterior$lower_ci)
+posterior$upper_ci <- as.character(posterior$upper_ci)
 
 # add real names
 posterior <- left_join(names_df, posterior, by = "short_names")

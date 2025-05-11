@@ -777,6 +777,6 @@ out <- clusterEvalQ(cl, {
 })
 
 # save samples
-saveRDS(out, "data/posterior_samples/savedsamples_IPM.rds")
+saveRDS(out, "data/posterior_samples/savedsamples_IPM_20250509.rds")
 
 stopCluster(cl)

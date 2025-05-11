@@ -17,7 +17,7 @@ knitr::include_graphics(
          "pop_dynamics_model/IPMsquared/figures/supplemental_map.png")
 )
 ```
-Below we describe the total removal effort and catch of European green crab (EGC, *C. maenas*) in Drayton Harbor (D1). While the removal count data is collected at many time points throughout the trapping season (~ April - October), we discretize the time intervals into biweekly periods in the model.
+Below we describe the total removal effort and catch of European green crab (EGC, *C. maenas*) in Drayton Harbor (D1). While the removal count data is collected at many time points throughout the trapping season (April - October), we discretize the time intervals into biweekly periods in the model.
 
 Drayton Harbor data were subset to only include recruits (age < 1) that appear in a single cohort in the fall of each year (Figure 1B). This subset only removed three recruit individuals in 2022 from the dataset, which  were from an off-cycle recruitment cohort.
 
@@ -141,7 +141,7 @@ $$
 k \sim Uniform(0,2)
 $$
 $$
-C \sim Uniform(0,2)
+A \sim Uniform(0,2)
 $$
 $$
 t_s \sim Uniform(-1,0)
