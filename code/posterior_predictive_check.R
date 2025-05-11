@@ -799,6 +799,7 @@ samples_in <- readRDS("data/posterior_samples/savedsamples_IPM.rds")
 lower <- 2000
 upper <- 10001
 sub <- seq(lower, upper, 5)
+#sub <- seq(lower, upper, 50)
 samples <- rbind(samples_in[[1]][sub, ],
                  samples_in[[2]][sub, ],
                  samples_in[[3]][sub, ],
@@ -823,8 +824,8 @@ ppSamples_via_nf <- cppSampler$run(samples)
 dataNodes <- myModel$getNodeNames(dataOnly = TRUE)
 n <- length(CmyModel$expandNodeNames(dataNodes, returnScalarComponents = TRUE))
 node_names <- myModel$expandNodeNames(dataNodes, returnScalarComponents = TRUE)
-ppSamples <- ppSamples_via_nf[, 1:n]
 deviance <- ppSamples_via_nf[, n + 1]
+ppSamples_via_nf <- ppSamples_via_nf[, 1:n]
 
 # save PPS (break up into smaller dfs)
 for (i in 1:14) {

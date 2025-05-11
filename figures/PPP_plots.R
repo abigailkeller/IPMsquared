@@ -17,17 +17,17 @@ m2_mc <- readRDS("data/model_data/m2_mc.rds")
 #################
 
 # read in data
-deviance_yrep <- readRDS("data/posterior_predictive_check/deviance_yrep.rds")
-deviance_y <- readRDS("data/posterior_predictive_check/deviance_y.rds")
+deviance_Drep <- readRDS("data/posterior_predictive_check/deviance_Drep.rds")
+deviance_D <- readRDS("data/posterior_predictive_check/deviance_D.rds")
 
 # join data
-joined_data <- as.data.frame(cbind(deviance_yrep, deviance_y)) %>% 
-  pivot_longer(cols = c("deviance_yrep", "deviance_y"),
+joined_data <- as.data.frame(cbind(deviance_Drep, deviance_D)) %>% 
+  pivot_longer(cols = c("deviance_Drep", "deviance_D"),
                names_to = "type", values_to = "deviance")
 
 ppp_plot <- ggplot(data = joined_data) +
   geom_histogram(aes(x = deviance, fill = type), alpha = 0.3) +
-  scale_fill_manual(labels = c("y", bquote(y^rep)), 
+  scale_fill_manual(labels = c("D", bquote(D^rep)), 
                     values = c("red", "blue")) +
   labs(x = "deviance", y = "count", fill = "") +
   theme_minimal()
