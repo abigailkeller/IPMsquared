@@ -49,7 +49,7 @@ plot_0 <- ggplot(data = out_no_effort_summary) +
             linewidth = 1) +
   scale_x_continuous(breaks = c(0, 5.5, 10.5, 15.5, 20.5),
                      labels = c(0, 25, 50, 75, 100)) +
-  scale_y_continuous(limits = c(0, 70)) +
+  scale_y_continuous(limits = c(0, 50)) +
   labs(x = "size (mm)", y = expression(N(x)^E)) +
   theme_minimal() +
   theme(plot.title = element_text(size = 12)) +
@@ -70,7 +70,7 @@ plot_112 <- ggplot() +
   scale_color_manual(values = c("violet", "darkviolet", "goldenrod")) +
   scale_x_continuous(breaks = c(0, 5.5, 10.5, 15.5, 20.5),
                      labels = c(0, 25, 50, 75, 100)) +
-  scale_y_continuous(limits = c(0, 70)) +
+  scale_y_continuous(limits = c(0, 50)) +
   labs(x = "size (mm)", y = NULL,
        color = "trap type") +
   theme_minimal() +
@@ -93,7 +93,7 @@ plot_560 <- ggplot() +
   scale_color_manual(values = c("violet", "darkviolet", "goldenrod")) +
   scale_x_continuous(breaks = c(0, 5.5, 10.5, 15.5, 20.5),
                      labels = c(0, 25, 50, 75, 100)) +
-  scale_y_continuous(limits = c(0, 70)) +
+  scale_y_continuous(limits = c(0, 50)) +
   labs(x = "size (mm)", y = NULL,
        color = "trap type") +
   theme_minimal() +
@@ -116,7 +116,7 @@ plot_2800 <- ggplot() +
   scale_color_manual(values = c("violet", "darkviolet", "goldenrod")) +
   scale_x_continuous(breaks = c(0, 5.5, 10.5, 15.5, 20.5),
                      labels = c(0, 25, 50, 75, 100)) +
-  scale_y_continuous(limits = c(0, 70)) +
+  scale_y_continuous(limits = c(0, 50)) +
   labs(x = "size (mm)", y = NULL,
        color = "trap type") +
   theme_minimal() +
@@ -147,5 +147,5 @@ legend <- get_legend(plot_w_legend)
 
 final_plot <- plot_0 + plot_112 + plot_560 + plot_2800 + legend +
   plot_layout(nrow = 1)
-ggsave("figures/Figure6_IPM_simulations.png", dpi = 400,
+ggsave("figures/Figure6_IPM_simulations2.png", dpi = 400,
        width = 9, height = 3)

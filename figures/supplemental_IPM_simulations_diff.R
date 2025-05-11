@@ -73,7 +73,7 @@ plot_28 <- ggplot() +
   scale_color_manual(values = c("violet", "darkviolet", "goldenrod")) +
   scale_x_continuous(breaks = c(0, 5.5, 10.5, 15.5, 20.5),
                      labels = c(0, 25, 50, 75, 100)) +
-  scale_y_continuous(limits = c(0, 9)) +
+  scale_y_continuous(limits = c(0, 7.5)) +
   labs(x = "size (mm)", 
        y = expression(N(x)[paste("effort=0")]^E ~ ":" 
                       ~ N(x)[paste("effort=28")]^E),
@@ -96,7 +96,7 @@ plot_112 <- ggplot() +
   scale_color_manual(values = c("violet", "darkviolet", "goldenrod")) +
   scale_x_continuous(breaks = c(0, 5.5, 10.5, 15.5, 20.5),
                      labels = c(0, 25, 50, 75, 100)) +
-  scale_y_continuous(limits = c(0, 9)) +
+  scale_y_continuous(limits = c(0, 7.5)) +
   labs(x = "size (mm)", 
        y = expression(N(x)[paste("effort=0")]^E ~ ":" 
                       ~ N(x)[paste("effort=112")]^E),
@@ -121,7 +121,7 @@ plot_560 <- ggplot() +
   scale_color_manual(values = c("violet", "darkviolet", "goldenrod")) +
   scale_x_continuous(breaks = c(0, 5.5, 10.5, 15.5, 20.5),
                      labels = c(0, 25, 50, 75, 100)) +
-  scale_y_continuous(limits = c(0, 9)) +
+  scale_y_continuous(limits = c(0, 7.5)) +
   labs(x = "size (mm)", 
        y = expression(N(x)[paste("effort=0")]^E ~ ":" 
                       ~ N(x)[paste("effort=560")]^E),
@@ -146,7 +146,7 @@ plot_840 <- ggplot() +
   scale_color_manual(values = c("violet", "darkviolet", "goldenrod")) +
   scale_x_continuous(breaks = c(0, 5.5, 10.5, 15.5, 20.5),
                      labels = c(0, 25, 50, 75, 100)) +
-  scale_y_continuous(limits = c(0, 9)) +
+  scale_y_continuous(limits = c(0, 7.5)) +
   labs(x = "size (mm)", 
        y = expression(N(x)[paste("effort=0")]^E ~ ":" 
                       ~ N(x)[paste("effort=840")]^E),
@@ -169,7 +169,7 @@ plot_1400 <- ggplot() +
   scale_color_manual(values = c("violet", "darkviolet", "goldenrod")) +
   scale_x_continuous(breaks = c(0, 5.5, 10.5, 15.5, 20.5),
                      labels = c(0, 25, 50, 75, 100)) +
-  scale_y_continuous(limits = c(0, 9)) +
+  scale_y_continuous(limits = c(0, 7.5)) +
   labs(x = "size (mm)", 
        y = expression(N(x)[paste("effort=0")]^E ~ ":" 
                       ~ N(x)[paste("effort=1400")]^E),
@@ -194,7 +194,7 @@ plot_2800 <- ggplot() +
   scale_color_manual(values = c("violet", "darkviolet", "goldenrod")) +
   scale_x_continuous(breaks = c(0, 5.5, 10.5, 15.5, 20.5),
                      labels = c(0, 25, 50, 75, 100)) +
-  scale_y_continuous(limits = c(0, 9)) +
+  scale_y_continuous(limits = c(0, 7.5)) +
   labs(x = "size (mm)", 
        y = expression(N(x)[paste("effort=0")]^E ~ ":" 
                       ~ N(x)[paste("effort=2800")]^E),
