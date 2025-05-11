@@ -34,7 +34,7 @@ ppp_plot <- ggplot(data = joined_data) +
 ggsave("figures/ppp_deviance_plot.png", dpi = 440,
        width = 5, height = 4)
 
-pvalue_deviance <- mean(deviance_y > deviance_yrep)
+pvalue_deviance <- mean(deviance_D > deviance_Drep)
 
 #######################
 # zero inflation plot #
