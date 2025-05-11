@@ -137,13 +137,9 @@ model_code <- nimbleCode({
 
     # Equation 11
     ## size- and density-dependent overwinter survival
-    S_o[y, 1:n_size] <- overwinter_survival(alpha_o[y],
-                                            wgrowth_N_sum[y],
+    S_o[y, 1:n_size] <- overwinter_survival(alpha_o,
+                                            wgrowth_N_sum[y], phi,
                                             x[1:n_size])
-
-    # Equation 12
-    ## year-specific intensity of overwinter mortality
-    alpha_o[y] ~ dgamma(alpha_o_alpha, alpha_o_theta)
   }
 
   #####################################################
@@ -319,10 +315,10 @@ model_code <- nimbleCode({
   beta_theta ~ dunif(0, 150)
   # size-dependent natural mortality, shared across all sites
   alpha ~ dunif(0, 10000)
-  # gamma distribution shape - instantaneous probability of overwinter mortality
-  alpha_o_alpha ~ dunif(0, 50)
-  # gamma distribution rate - instantaneous probability of overwinter mortality
-  alpha_o_theta ~ dunif(0, 150)
+  # density-dependent probability of overwinter mortality
+  alpha_o ~ dunif(0, 50)
+  # size-dependent overwinter natural mortality, shared across all sites
+  phi ~ dunif(0, 10000)
   
   ##
   # IPM - growth
@@ -445,12 +441,12 @@ inits <- function() {
     h_F_max = runif(1, 0.0001, 0.0008), h_F_k = 0.2, h_F_0 = 45,
     h_S_max = runif(1, 0.001, 0.005), h_S_k = 0.2, h_S_0 = 45,
     ro_dir = 0.01, beta_alpha = 2, beta_theta = 1, alpha = 0.1,
-    alpha_o_alpha = 2, alpha_o_theta = 1, gk = 1, xinf = 85,
+    gk = 1, xinf = 85,
     A = 0.79, ts = -0.64, sigma_G = 2.5, sigma_R = 1,
     mu_R = 20, mu_A = 4, sigma_A = 0.2,
     lambda_A = 1800, lambda_R = c(1000, 100, 1000, 100), mu_lambda = 500,
     sigma_lambda = 100, beta = rep(0.001, 5),
-    alpha_o = c(0.0308, 0.00669, 0.0346), N_overwinter = N_overwinter
+    alpha_o = 1, N_overwinter = N_overwinter, phi = 500
   )
 }
 
@@ -714,13 +710,13 @@ out <- clusterEvalQ(cl, {
   # density- and size-dependent overwinter survival
   overwinter_survival <- nimbleFunction (
     
-    run = function(alpha_o = double(0), N_sum = double(0),
+    run = function(alpha_o = double(0), N_sum = double(0), phi = double(0),
                    x = double(1))
     {
       returnType(double(1))
       
       # get probability of survival
-      out <- exp(-(alpha_o * N_sum / x ^ 2))
+      out <- exp(-(alpha_o / N_sum + phi / x ^ 2))
       
       return(out)
     }
@@ -746,7 +742,7 @@ out <- clusterEvalQ(cl, {
                  "sigma_A", "mu_lambda", "sigma_lambda",
                  "lambda_R", "lambda_A", "beta", "alpha_o",
                  "alpha", "beta_alpha", "beta_theta",
-                 "alpha_o_alpha", "alpha_o_theta", "N_overwinter",
+                 "N_overwinter", "phi",
                  "wgrowth_N_sum", "ro_dir"),
     useConjugacy = FALSE, enableWAIC = TRUE)
 
@@ -754,9 +750,6 @@ out <- clusterEvalQ(cl, {
   mcmcConf_myModel$removeSamplers(c("beta_alpha", "beta_theta"))	
   mcmcConf_myModel$addSampler(c("beta_alpha", "beta_theta"),
                                 type = "RW_block")
-  mcmcConf_myModel$removeSamplers(c("alpha_o_alpha", "alpha_o_theta"))	
-  mcmcConf_myModel$addSampler(c("alpha_o_alpha", "alpha_o_theta"),
-                              type = "RW_block")
 
   # build MCMC
   myMCMC <- buildMCMC(mcmcConf_myModel)
@@ -777,6 +770,6 @@ out <- clusterEvalQ(cl, {
 })
 
 # save samples
-saveRDS(out, "data/posterior_samples/savedsamples_IPM_20250509.rds")
+saveRDS(out, "code/model_selection/savedsamples_model3.rds")
 
 stopCluster(cl)

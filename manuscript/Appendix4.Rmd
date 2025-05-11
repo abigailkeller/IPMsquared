@@ -234,7 +234,7 @@ model_code <- NimbleCode({
   beta_alpha ~ dunif(priors[10, 1], priors[10, 2])
   # gamma distributions rate for instantaneous intensity of mortality
   beta_theta ~ dunif(priors[11, 1], priors[11, 2])
-  # size-dependent overwinter natural mortality, shared across all sites
+  # size-dependent natural mortality, shared across all sites
   alpha ~ dunif(priors[12, 1], priors[12, 2])
   # gamma distribution shape - instantaneous intensity of overwinter mortality
   alpha_o_alpha ~ dunif(priors[13, 1], priors[13, 2])

@@ -720,7 +720,7 @@ out <- clusterEvalQ(cl, {
       returnType(double(1))
       
       # get probability of survival
-      out <- exp(-(alpha_o * N_sum / x ^ 2))
+      out <- exp(-(alpha_o * N_sum / x))
       
       return(out)
     }
@@ -777,6 +777,6 @@ out <- clusterEvalQ(cl, {
 })
 
 # save samples
-saveRDS(out, "data/posterior_samples/savedsamples_IPM_20250509.rds")
+saveRDS(out, "code/model_selection/savedsamples_model2.rds")
 
 stopCluster(cl)
