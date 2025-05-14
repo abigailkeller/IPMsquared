@@ -52,9 +52,9 @@ library(kableExtra)
 library(knitr)
 df <- data.frame(
   Model = c("Model 1", "Model 2", "Model 3", "Model 4"),
-  WAIC = c(6441.55, 6448.93, 6481.68, 6506.52),
-  lppd = c(-3169.32, -3171.91, -3187.81, -3198.85),
-  pWAIC = c(51.46, 52.56, 53.03, 54.41)
+  WAIC = c(6413.61, 6423.18, 6431.60, 6447.18),
+  lppd = c(-3154.74, -3175.10, -3158.70, -3174.23),
+  pWAIC = c(52.07, 54.49, 57.10, 49.36)
 ) %>% 
   mutate(delta_AIC = WAIC - min(WAIC))
 colnames(df) <- c("Model", "WAIC", "lppd", "pWAIC", "$\\Delta$WAIC")

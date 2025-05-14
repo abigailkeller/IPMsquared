@@ -747,7 +747,7 @@ out <- clusterEvalQ(cl, {
                  "lambda_R", "lambda_A", "beta", "alpha_o",
                  "alpha", "beta_alpha", "beta_theta",
                  "alpha_o_alpha", "alpha_o_theta", "N_overwinter",
-                 "wgrowth_N_sum", "ro_dir"),
+                 "wgrowth_N_sum", "ro_dir", "C_T"),
     useConjugacy = FALSE, enableWAIC = TRUE)
 
   # add block sampler for nmort params
@@ -780,3 +780,24 @@ out <- clusterEvalQ(cl, {
 saveRDS(out, "code/model_selection/savedsamples_model2.rds")
 
 stopCluster(cl)
+
+
+##################
+# calculate WAIC #
+##################
+
+# read in samples
+samples <- readRDS("code/model_selection/savedsamples_model2.rds")
+
+lower <- 2000
+upper <- 10001
+sequence <- seq(lower, upper, 10)
+samples_mat <- rbind(samples[[1]][sequence, ], samples[[2]][sequence, ],
+                     samples[[3]][sequence, ], samples[[4]][sequence, ])
+
+# calculate WAIC
+calculateWAIC(samples_mat, CmyModel)
+# WAIC: 6423.18
+# lppd: -3157.10
+# pWAIC: 54.49
+
