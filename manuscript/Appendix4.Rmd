@@ -34,7 +34,7 @@ model_code <- NimbleCode({
       # Equation 2
       ## kernel
       kernel[1:n_size, 1:n_size, t] <- seasonal_growth(
-        xinf, gk, sigma_G, A, ts, D[t, 1:2], n_size, pi, x[1:n_size], 
+        xinf, gk, sigma_G, A, ds, D[t, 1:2], n_size, pi, x[1:n_size], 
         lower[1:n_size], upper[1:n_size]) * S[t, y, 1:n_size]
       # Equation 7
       ## natural survival
@@ -52,10 +52,10 @@ model_code <- NimbleCode({
   for (y in 1:(n_year - 1)) {
     for (k in 1:n_size) {
       
-      # Equation 9-10
+      # Equation 9, 12
       ## overwinter survival and seasonal growth
       ## (use stochastic N node)
-      N_stoch[y, k] ~ dbinom(size = seasonal_growth(xinf, gk, sigma_G, A, ts, 
+      N_stoch[y, k] ~ dbinom(size = seasonal_growth(xinf, gk, sigma_G, A, ds, 
                                                     D[Tmax, 1:2], k, pi, y[k], 
                                                     lower[k], upper[k]) %*% 
                                (N[Tmax, y, k] - C_T[Tmax, y, k]),
@@ -66,13 +66,13 @@ model_code <- NimbleCode({
     # fill deterministic N node with stochastic N node
     N[1, y + 1, 1:n_size] <- N_stoch[y, 1:n_size]
     
-    # Equation 11
+    # Equation 10
     ## size- and density-dependent overwinter survival
     S_o[y, 1:n_size] <- overwinter_survival(alpha_o[y], 
                                             sum(N[Tmax, y, 1:n_size]), 
                                             x[1:n_size])
     
-    # Equation 12
+    # Equation 11
     ## year-specific intensity of overwinter mortality
     alpha_o[y] ~ dgamma(alpha_o_alpha, alpha_o_theta)
   }
@@ -81,7 +81,7 @@ model_code <- NimbleCode({
   # Initial population density and annual recruitment #
   #####################################################
   
-  # Equation 12
+  # Equation 13
   ## get initial size-structured abundance of adults - year 1
   N[1, 1, 1:n_size] <- get_init_adult(mu_A, sigma_A, lower[1:n_size], 
                                       upper[1:n_size], lambda_A)
@@ -174,7 +174,7 @@ model_code <- NimbleCode({
   ## apply kernel from time of marking to time of recapture
   n1_project[1:n_size] <- kernel_mc[1:n_size, 1:n_size] %*% n1[1:n_size]
   
-  kernel_mc[1:n_size, 1:n_size] <- seasonal_growth(xinf, gk, sigma_G, A, ts, 
+  kernel_mc[1:n_size, 1:n_size] <- seasonal_growth(xinf, gk, sigma_G, A, ds, 
                                                    D_mc[1:2], n_size,  pi, 
                                                    x[1:n_size], lower[1:n_size], 
                                                    upper[1:n_size]) * 
@@ -192,7 +192,7 @@ model_code <- NimbleCode({
   # amplitude of growth oscillations
   A ~ dnorm(inf_prior[3, 1], sd = inf_prior[3, 2])
   # inflection point of growth oscillations
-  ts ~ dnorm(inf_prior[4, 1], sd = inf_prior[4, 2])
+  ds ~ dnorm(inf_prior[4, 1], sd = inf_prior[4, 2])
   
   
   
@@ -347,14 +347,14 @@ get_init_recruits <- nimbleFunction (
 
 ### Seasonal growth
 
-This function corresponds to equations 3-5 in main text.
+This function corresponds to equations 4-5 in main text.
 
 ```{r, eval = FALSE}
 # function for seasonal growth kernel
 seasonal_growth <- nimbleFunction (
   run = function(xinf = double(0), k = double(0),
                  sigma_G = double(0), A = double(0),
-                 ts = double(0), D = double(1),
+                 ds = double(0), D = double(1),
                  n_size = double(0), pi = double(0), x = double(1),
                  lower = double(1), upper = double(1))
   {
@@ -364,8 +364,8 @@ seasonal_growth <- nimbleFunction (
     array <- matrix(NA, ncol = n_size, nrow = n_size)
 
     # season adjusted params
-    S_t <- (A * k / (2 * pi)) * sin(2 * pi * (D[2] - (1 + ts)))
-    S_t0 <- (A * k / (2 * pi)) * sin(2 * pi * (D[1] - (1 + ts)))
+    S_t <- (A * k / (2 * pi)) * sin(2 * pi * (D[2] - (1 + ds)))
+    S_t0 <- (A * k / (2 * pi)) * sin(2 * pi * (D[1] - (1 + ds)))
 
     # p(y"|y)
     for (i in 1:n_size) {
@@ -408,7 +408,7 @@ survival <- nimbleFunction (
 
 ### Density-dependent overwinter survival
 
-This function corresponds to equation 9-10 in main text.
+This function corresponds to equation 10-11 in main text.
 
 ```{r, eval = FALSE}
 # density- and size-dependent overwinter survival

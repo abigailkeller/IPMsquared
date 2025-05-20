@@ -120,18 +120,18 @@ $$
 
 
 
-Since the model was estimated hierarchically, with the seasonal growth model was estimated first with the size-at-age data (D2), and the marginal posterior distributions from this first model were used in the second model with the time series data (D1) and mark-recapture data (D3). Informative priors used in the second model for parameters $A$, $k$, $x_[\infty]$, and $t_s$ can be found in Table A1.2 in Appendix 1.2.4.
+Since the model was estimated hierarchically, with the seasonal growth model was estimated first with the size-at-age data (D2), and the marginal posterior distributions from this first model were used in the second model with the time series data (D1) and mark-recapture data (D3). Informative priors used in the second model for parameters $A$, $k$, $x_\infty$, and $d_s$ can be found in Table A1.2 in Appendix 1.2.4.
 
 ## Appendix 2.2
 
 Similarly to how a beta-binomial replaces a single probability with a Beta distribution of probabilities among binomial draws to account for overdispersion, the Dirichlet-multinomial mixture replaces a single vector of probabilities (that sum to one) with a Dirichlet distribution of such vectors to account for overdispersion in counts among traps.
 
-The parameter $\alpha^D$ described in the main text governs the amount of overdispersion in the Dirichlet-multinomial mixture distribution and generates the conditional probability of capture, $p^C(x)_{t,j,y}$, across individual traps.
+The parameter $\alpha^D$ amount of overdispersion in the Dirichlet-multinomial mixture distribution and generates the conditional probability of capture, $p^C_{t,j,y}(x)$, across individual traps.
 
 The parameter $\alpha^D$ is linked to the sampled parameter, $\rho$:
 
 $$
-\alpha^D = p^C(x)_{t,j,y} \times p^D
+\alpha^D = p^C_{t,j,y}(x) \times p^D
 $$
 
 $$

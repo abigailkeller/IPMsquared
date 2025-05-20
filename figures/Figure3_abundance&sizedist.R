@@ -185,7 +185,7 @@ adult_nplot <- ggplot(data = n_summaries[n_summaries$type == "adult", ]) +
   scale_x_discrete(labels = c("2020", "2021", "2022", "2023")) +
   scale_color_manual(values = viridis_pal()(4)) +
   scale_y_continuous(breaks = c(200, 300, 400)) +
-  labs(x = "year", y = expression(N[total]), color = "year") +
+  labs(x = "year", y = "N", color = "year") +
   ggtitle("A. adult abundance and size distribution") +
   theme_minimal() +
   theme(legend.position = "None")
@@ -203,7 +203,7 @@ recruit_nplot <- ggplot(data = n_summaries[n_summaries$type == "recruit", ]) +
   scale_y_continuous(breaks = c(log(10), log(100), log(1000)),
                      labels = c("10", "100", "1000")) +
   scale_color_manual(values = viridis_pal()(4)) +
-  labs(x = "year", y = expression(N[total]), color = "year") +
+  labs(x = "year", y = "N", color = "year") +
   ggtitle("B. recruit abundance and size distribution") +
   theme_minimal() +
   theme(legend.position = "None")
@@ -237,7 +237,7 @@ adult_sizeplot <- ggplot(data = dist_summaries_adult_long) +
   scale_x_continuous(limits = c(2.5, 107.5)) +
   scale_color_manual(values = viridis_pal()(4)) +
   scale_fill_manual(values = viridis_pal()(4)) +
-  labs(x = "size (mm)", y = "N(x)", color = "year") +
+  labs(x = "size (mm)", y = expression(N(x)), color = "year") +
   theme_minimal() +
   theme(legend.position = "None")
 
@@ -251,7 +251,7 @@ recruit_sizeplot <- ggplot(data = dist_summaries_recruit_long) +
   scale_x_continuous(limits = c(2.5, 30)) +
   scale_color_manual(values = viridis_pal()(4)) +
   scale_fill_manual(values = viridis_pal()(4)) +
-  labs(x = "size (mm)", y = "N(x)", color = "year") +
+  labs(x = "size (mm)", y = expression(N(x)), color = "year") +
   theme_minimal() +
   theme(legend.position = "None")
 

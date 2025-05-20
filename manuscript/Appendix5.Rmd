@@ -47,7 +47,7 @@ upper <- 10001
 ```{r, echo = FALSE, results = "hide"}
 # create df with param names
 short_names <- c("mu_A", "sigma_A", "mu_R", "sigma_R", "xinf", "gk", 
-                 "A", "ts", "sigma_G", "beta[1]", "beta[2]", "beta[3]", 
+                 "A", "ds", "sigma_G", "beta[1]", "beta[2]", "beta[3]", 
                  "beta[4]", "beta[5]", "alpha", "beta_alpha", "beta_theta", 
                  "alpha_o[1]", "alpha_o[2]", "alpha_o[3]", "alpha_o_alpha", 
                  "alpha_o_theta", "h_F_max", "h_M_max", "h_S_max", "h_F_k", 
@@ -56,7 +56,7 @@ short_names <- c("mu_A", "sigma_A", "mu_R", "sigma_R", "xinf", "gk",
                  "lambda_R[4]", "mu_lambda", "sigma_lambda")
 
 real_names <- c("log(mu^A)", "sigma^A", "mu^R", "sigma^R",
-                "x[infinity]", "k", "A", "t[s]", "sigma^G", "beta[1]",
+                "x[infinity]", "k", "A", "d[s]", "sigma^G", "beta[1]",
                 "beta[2]", "beta[3]", "beta[4]", "beta[5]", "alpha",
                 "beta[alpha]", "beta[theta]", "alpha[1]^o", "alpha[2]^o",
                 "alpha[3]^o", "alpha[alpha]^o", "alpha[theta]^o",
@@ -66,7 +66,7 @@ real_names <- c("log(mu^A)", "sigma^A", "mu^R", "sigma^R",
                 "lambda[4]^R", "mu^lambda", "sigma^lambda")
 
 latex_names <- c("log(\\mu^A)", "\\sigma^A", "\\mu^R", "\\sigma^R",
-                 "x_{\\infty}", "k", "A", "t_s", "\\sigma^G", "\\beta_1",
+                 "x_{\\infty}", "k", "A", "d_s", "\\sigma^G", "\\beta_1",
                  "\\beta_2", "\\beta_3", "\\beta_4", "\\beta_5", "\\alpha",
                  "\\beta_{\\alpha}", "\\beta_{\\theta}", "\\alpha_1^o",
                  "\\alpha_2^o", "\\alpha_3^o", "\\alpha_{\\alpha}^o",

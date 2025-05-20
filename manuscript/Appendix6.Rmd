@@ -8,9 +8,9 @@ To assess model performance and robustness, we conducted both a model selection 
 
 ## Appendix 6.1
 
-The inter-annual population transitions (i.e., transition from year $i$ to year $i+1$) are largely described by density-dependent overwinter mortality. Since density dependence only enters the model during this process and is therefore likely influential for forecasting the stable size distribution, we compared multiple functional forms for size- and density-dependent overwinter mortality (Equations 11-12 in main text).
+The inter-annual population transitions (i.e., transition from year $y$ to year $y+1$) are largely described by density-dependent overwinter mortality. Since density dependence only enters the model during this process and is therefore likely influential for forecasting the stable size distribution, we compared multiple functional forms for size- and density-dependent overwinter mortality (Equations 10-11 in main text).
 
-We fit four separate models that are identical, apart from the functional form of overwinter survival (Equations 11-12). These models varied by whether the relationship between size- and density-dependence is additive or interactive, as well as how rapidly mortality decreases with size.
+We fit four separate models that are identical, apart from the functional form of overwinter survival (Equations 10-11). These models varied by whether the relationship between size- and density-dependence is additive or interactive, as well as how rapidly mortality decreases with size.
 
 **Model 1:** interactive density- and size-dependence, steeper mortality decrease with size
 
@@ -71,7 +71,7 @@ knitr::kable(
 
 ## Appendix 6.2
 
-Bayesian model checking was used to determine if the model is an adequate representation of the observed data. Fit was checked with an omnibus discrepancy function, deviance. Here, $D$ refers to the the count of removed crabs, $C(x)_{t,j,y}$, the total number of removed crabs, $C^T(x)_{t,i}$, and the number of recaptured marked crabs, $mc(x)^{mc}$:
+Bayesian model checking was used to determine if the model is an adequate representation of the observed data. Fit was checked with an omnibus discrepancy function, deviance. Here, $D$ refers to the the count of removed crabs, $C_{t,j,y}(x_i)$, the total number of removed crabs, $C^T_{t,i}(x_i)$, and the number of recaptured marked crabs, $mc^{mc}(x_i)$:
 
 $$
 T(D, \theta) = -2log(D|\theta)

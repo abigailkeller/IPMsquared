@@ -52,7 +52,7 @@ model_code <- nimbleCode({
   # project to first observed time period - year 2-4
   for (y in 2:n_year) {
     N[1, y, 1:n_size] <- get_kernel(xinf, gk, sigma_G, A,
-                                    ts, 0, D[1, y], n_size, pi,
+                                    ds, 0, D[1, y], n_size, pi,
                                     x[1:n_size], lower[1:n_size],
                                     upper[1:n_size], S[1, y, 1:n_size]) %*%
       N_overwinter[y - 1, 1:n_size]
@@ -68,7 +68,7 @@ model_code <- nimbleCode({
       # Equations 1 - 2
       ## project
       N[t + 1, y, 1:n_size] <- get_kernel(xinf, gk, sigma_G,
-                                          A, ts, D[t, y],
+                                          A, ds, D[t, y],
                                           D[t + 1, y], n_size, pi,
                                           x[1:n_size], lower[1:n_size],
                                           upper[1:n_size],
@@ -98,7 +98,7 @@ model_code <- nimbleCode({
       # Equations 1 - 2
       ## project
       N[t + 1, year_short[y], 1:n_size] <- get_kernel(xinf, gk, sigma_G,
-                                                      A, ts,
+                                                      A, ds,
                                                       D[t, year_short[y]],
                                                       D[t + 1, year_short[y]],
                                                       n_size, pi,
@@ -119,7 +119,7 @@ model_code <- nimbleCode({
   ## inter-annual change
   # project to new year with seasonal growth
   for (y in 1:(n_year - 1)) {
-    wgrowth_N[y, 1:n_size] <- get_kernel(xinf, gk, sigma_G, A, ts,
+    wgrowth_N[y, 1:n_size] <- get_kernel(xinf, gk, sigma_G, A, ds,
                                          max_D, 1,
                                          n_size, pi, x[1:n_size],
                                          lower[1:n_size], upper[1:n_size],
@@ -135,13 +135,13 @@ model_code <- nimbleCode({
                                   prob = S_o[y, k])
     }
 
-    # Equation 11
+    # Equation 10
     ## size- and density-dependent overwinter survival
     S_o[y, 1:n_size] <- overwinter_survival(alpha_o[y],
                                             wgrowth_N_sum[y],
                                             x[1:n_size])
 
-    # Equation 12
+    # Equation 11
     ## year-specific intensity of overwinter mortality
     alpha_o[y] ~ dgamma(alpha_o_alpha, alpha_o_theta)
   }
@@ -157,7 +157,7 @@ model_code <- nimbleCode({
 
   # project to first observed time period - year 1
   N[1, 1, 1:n_size] <- get_kernel(xinf, gk, sigma_G, A,
-                                  ts, 0, D[1, 1], n_size, pi,
+                                  ds, 0, D[1, 1], n_size, pi,
                                   x[1:n_size], lower[1:n_size],
                                   upper[1:n_size], S[1, 1, 1:n_size]) %*%
     N_init[1:n_size]
@@ -255,7 +255,7 @@ model_code <- nimbleCode({
 
   # Equation 26
   ## apply kernel from time of marking to time of recapture
-  n1_project[1:n_size] <- get_kernel(xinf, gk, sigma_G, A, ts, D_mc[1], D_mc[2],
+  n1_project[1:n_size] <- get_kernel(xinf, gk, sigma_G, A, ds, D_mc[1], D_mc[2],
                                      n_size, pi, x[1:n_size], lower[1:n_size],
                                      upper[1:n_size], S_mc[1:n_size]) %*%
     n1[1:n_size]
@@ -273,7 +273,7 @@ model_code <- nimbleCode({
   # amplitude of growth oscillations -- (from seasonal growth posterior)
   A ~ dnorm(1.00, sd = 0.53)
   # inflection point of growth oscillations -- (from seasonal growth posterior)
-  ts ~ dnorm(-0.72, sd = 0.14)
+  ds ~ dnorm(-0.72, sd = 0.14)
   
   
   ################
@@ -446,7 +446,7 @@ inits <- function() {
     h_S_max = runif(1, 0.001, 0.005), h_S_k = 0.2, h_S_0 = 45,
     ro_dir = 0.01, beta_alpha = 2, beta_theta = 1, alpha = 0.1,
     alpha_o_alpha = 2, alpha_o_theta = 1, gk = 1, xinf = 85,
-    A = 0.79, ts = -0.64, sigma_G = 2.5, sigma_R = 1,
+    A = 0.79, ds = -0.64, sigma_G = 2.5, sigma_R = 1,
     mu_R = 20, mu_A = 4, sigma_A = 0.2,
     lambda_A = 1800, lambda_R = c(1000, 100, 1000, 100), mu_lambda = 500,
     sigma_lambda = 100, beta = rep(0.001, 5),
@@ -607,7 +607,7 @@ out <- clusterEvalQ(cl, {
     # input and output types
     run = function(xinf = double(0), k = double(0),
                    sigma_G = double(0), A = double(0),
-                   ts = double(0), t1 = double(0), t2 = double(0),
+                   ds = double(0), t1 = double(0), t2 = double(0),
                    n_size = double(0), pi = double(0), x = double(1),
                    lower = double(1), upper = double(1), S = double(1))
     {
@@ -620,8 +620,8 @@ out <- clusterEvalQ(cl, {
         array <- diag(n_size)
       } else {
         # season adjusted params
-        S_t <- (A * k / (2 * pi)) * sin(2 * pi * (t2 - (1 + ts)))
-        S_t0 <- (A * k / (2 * pi)) * sin(2 * pi * (t1 - (1 + ts)))
+        S_t <- (A * k / (2 * pi)) * sin(2 * pi * (t2 - (1 + ds)))
+        S_t0 <- (A * k / (2 * pi)) * sin(2 * pi * (t1 - (1 + ds)))
         
         # p(y"|y)
         for (i in 1:n_size) {
@@ -741,7 +741,7 @@ out <- clusterEvalQ(cl, {
     monitors = c("h_M_max", "h_M_A", "h_M_sigma", "h_F_max",
                  "h_F_k", "h_F_0", "h_S_max", "h_S_k",
                  "h_S_0", "beta_alpha", "beta_theta", "gk",
-                 "xinf", "A", "ts", "sigma_G",
+                 "xinf", "A", "ds", "sigma_G",
                  "sigma_R", "mu_R", "mu_A",
                  "sigma_A", "mu_lambda", "sigma_lambda",
                  "lambda_R", "lambda_A", "beta", "alpha_o",

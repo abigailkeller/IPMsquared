@@ -43,7 +43,7 @@ get_params <- function(out_sub, index) {
     gk = as.numeric(samples[index, "gk"]),
     xinf = as.numeric(samples[index, "xinf"]),
     A = as.numeric(samples[index, "A"]),
-    ts = as.numeric(samples[index, "ts"]),
+    ds = as.numeric(samples[index, "ds"]),
     sigma_G = as.numeric(samples[index, "sigma_G"]),
     sigma_R_y = as.numeric(samples[index, "sigma_R"]),
     mu_R_y = as.numeric(samples[index, "mu_R"]),
@@ -164,9 +164,9 @@ get_kernel <- function(params, t1, t2,
 
   # season adjusted params
   S_t <- (params$A * params$gk / (2 * pi)) *
-    sin(2 * pi * (t2 - (1 + params$ts)))
+    sin(2 * pi * (t2 - (1 + params$ds)))
   S_t0 <- (params$A * params$gk / (2 * pi)) *
-    sin(2 * pi * (t1 - (1 + params$ts)))
+    sin(2 * pi * (t1 - (1 + params$ds)))
 
   #p(y"|y)
   for (i in 1:n_size) {

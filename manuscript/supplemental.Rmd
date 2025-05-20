@@ -3,7 +3,7 @@ output: pdf_document
 ---
 # Supplemental Information
 
-**Figure S1:** Population forecasts in response to varying removal efforts. Size distributions show the equilibrium crab abundance in each size class, $N(y)^E$, at the end of the year after overwinter mortality when *A.* 0 traps, *B.* 28 traps, *C.* 112 traps, *D.* 560 traps, *E.* 840 traps, *F.* 1400 traps, and *G.* 2800 traps were applied evenly over a trapping season of 14 biweeks. Solid line indicates the median size-structured abundance across simulation replicates, and the shaded area indicates $\pm1$ standard deviation across simulation replicates. Colors indicate trap type used (i.e., in panel B, the purple line shows the resulting size distribution after a trapping effort of 28 Minnow traps).
+**Figure S1:** Population forecasts in response to varying removal efforts. Size distributions show the equilibrium crab abundance in each size class, $N^E(x)$, at the end of the year after overwinter mortality when *A.* 0 traps, *B.* 28 traps, *C.* 112 traps, *D.* 560 traps, *E.* 840 traps, *F.* 1400 traps, and *G.* 2800 traps were applied evenly over a trapping season of 14 biweeks. Solid line indicates the median size-structured abundance across simulation replicates, and the shaded area indicates $\pm1$ standard deviation across simulation replicates. Colors indicate trap type used (i.e., in panel B, the purple line shows the resulting size distribution after a trapping effort of 28 Minnow traps).
 ```{r, echo=FALSE, out.width = "100%"}
 knitr::include_graphics(
   paste0("C:/Users/abiga/Documents/Berkeley/Structured_Decision_Making/",
@@ -13,7 +13,7 @@ knitr::include_graphics(
 
 \newpage
 
-**Figure S2:** Population forecasts in response to varying removal efforts, relative to no removal. Size distributions show the ratio of the equilibrium crab abundance in each size class, $N(y)^E$, when no removal occurred ($N(y)^E_{effort=0}$) relative to a removal effort greater than zero ($N(y)^E_{effort>0}$). Ratios are calculated based on size-structured abundance at the end of the year after overwinter mortality when *A.* 112 traps, *B.* 560 traps, and *C.* 2800 traps were applied evenly over a trapping season of 14 biweeks. A ratio of one means that the size-structured abundance after no removal equals the size-structured abundance after application of X traps. A ratio less than one means that the application of X traps removes decreases the size-structured abundance, relative to no removal. A ratio greater than one means that the application of X traps increases the size-structured abundance, relative to no removal. Solid line indicates the median size-structured abundance across simulation replicates, and the shaded area indicates $\pm1$ standard deviation across simulation replicates. Colors indicate trap type used (i.e., in panel B, the purple line shows the resulting size distribution ratio after a trapping effort of 0 traps, relative to 560 Minnow traps).
+**Figure S2:** Population forecasts in response to varying removal efforts, relative to no removal. Size distributions show the ratio of the equilibrium crab abundance in each size class, $N^E(x)$, when no removal occurred ($N^E(x)_{effort=0}$) relative to a removal effort greater than zero ($N^E(x)_{effort>0}$). Ratios are calculated based on size-structured abundance at the end of the year after overwinter mortality when *A.* 112 traps, *B.* 560 traps, and *C.* 2800 traps were applied evenly over a trapping season of 14 biweeks. A ratio of one means that the size-structured abundance after no removal equals the size-structured abundance after application of X traps. A ratio less than one means that the application of X traps removes decreases the size-structured abundance, relative to no removal. A ratio greater than one means that the application of X traps increases the size-structured abundance, relative to no removal. Solid line indicates the median size-structured abundance across simulation replicates, and the shaded area indicates $\pm1$ standard deviation across simulation replicates. Colors indicate trap type used (i.e., in panel B, the purple line shows the resulting size distribution ratio after a trapping effort of 0 traps, relative to 560 Minnow traps).
 ```{r, echo=FALSE}
 knitr::include_graphics(
   paste0("C:/Users/abiga/Documents/Berkeley/Structured_Decision_Making/",
@@ -23,7 +23,7 @@ knitr::include_graphics(
 
 \newpage
 
-**Table S1**: Total equilibrium abundance across all size classes, $N_{total}^E$ for population forecasts in response to varying removal efforts. Mean refers to the mean $N_{total}^E$ across all simulation replicates, and sd refers to the standard deviation of $N_{total}^E$ across all simulation replicates.
+**Table S1**: Total equilibrium abundance across all size classes, $N^E$ for population forecasts in response to varying removal efforts. Mean refers to the mean $N^E$ across all simulation replicates, and sd refers to the standard deviation of $N^E$ across all simulation replicates.
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 library(tidyverse)
@@ -35,7 +35,7 @@ out_noeffort <- readRDS("C:/Users/abiga/Documents/Berkeley/Structured_Decision_M
 
 # summarize
 summary <- as.data.frame(matrix(NA, nrow = 19, ncol = 4))
-colnames(summary) <- c("type", "effort", "$N_{total}^E$ (mean)", "$N_{total}^E$ (sd)")
+colnames(summary) <- c("type", "effort", "$N^E$ (mean)", "$N^E$ (sd)")
 
 # no effort
 summary[1, ] <- c("NA", 0, round(mean(rowSums(out_noeffort)), 1), 

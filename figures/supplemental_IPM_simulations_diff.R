@@ -75,8 +75,8 @@ plot_28 <- ggplot() +
                      labels = c(0, 25, 50, 75, 100)) +
   scale_y_continuous(limits = c(0, 7.5)) +
   labs(x = "size (mm)", 
-       y = expression(N(x)[paste("effort=0")]^E ~ ":" 
-                      ~ N(x)[paste("effort=28")]^E),
+       y = expression(N^E *(x)[paste("effort=0")] ~ ":" 
+                      ~ N^E * (x)[paste("effort=28")]),
        color = "trap type") +
   theme_minimal() +
   theme(legend.position = "None")
@@ -98,8 +98,8 @@ plot_112 <- ggplot() +
                      labels = c(0, 25, 50, 75, 100)) +
   scale_y_continuous(limits = c(0, 7.5)) +
   labs(x = "size (mm)", 
-       y = expression(N(x)[paste("effort=0")]^E ~ ":" 
-                      ~ N(x)[paste("effort=112")]^E),
+       y = expression(N^E * (x)[paste("effort=0")] ~ ":" 
+                      ~ N^E * (x)[paste("effort=112")]),
        color = "trap type") +
   theme_minimal() +
   theme(legend.position = "None",
@@ -123,8 +123,8 @@ plot_560 <- ggplot() +
                      labels = c(0, 25, 50, 75, 100)) +
   scale_y_continuous(limits = c(0, 7.5)) +
   labs(x = "size (mm)", 
-       y = expression(N(x)[paste("effort=0")]^E ~ ":" 
-                      ~ N(x)[paste("effort=560")]^E),
+       y = expression(N^E * (x)[paste("effort=0")] ~ ":" 
+                      ~ N^E * (x)[paste("effort=560")]),
        color = "trap type") +
   theme_minimal() +
   theme(legend.position = "None",
@@ -148,8 +148,8 @@ plot_840 <- ggplot() +
                      labels = c(0, 25, 50, 75, 100)) +
   scale_y_continuous(limits = c(0, 7.5)) +
   labs(x = "size (mm)", 
-       y = expression(N(x)[paste("effort=0")]^E ~ ":" 
-                      ~ N(x)[paste("effort=840")]^E),
+       y = expression(N^E * (x)[paste("effort=0")] ~ ":" 
+                      ~ N^E * (x)[paste("effort=840")]),
        color = "trap type") +
   theme_minimal() +
   theme(legend.position = "None")
@@ -171,8 +171,8 @@ plot_1400 <- ggplot() +
                      labels = c(0, 25, 50, 75, 100)) +
   scale_y_continuous(limits = c(0, 7.5)) +
   labs(x = "size (mm)", 
-       y = expression(N(x)[paste("effort=0")]^E ~ ":" 
-                      ~ N(x)[paste("effort=1400")]^E),
+       y = expression(N^E * (x)[paste("effort=0")] ~ ":" 
+                      ~ N^E * (x)[paste("effort=1400")]),
        color = "trap type") +
   theme_minimal() +
   theme(legend.position = "None",
@@ -196,8 +196,8 @@ plot_2800 <- ggplot() +
                      labels = c(0, 25, 50, 75, 100)) +
   scale_y_continuous(limits = c(0, 7.5)) +
   labs(x = "size (mm)", 
-       y = expression(N(x)[paste("effort=0")]^E ~ ":" 
-                      ~ N(x)[paste("effort=2800")]^E),
+       y = expression(N^E * (x)[paste("effort=0")] ~ ":" 
+                      ~ N^E * (x)[paste("effort=2800")]),
        color = "trap type") +
   theme_minimal() +
   theme(legend.position = "None",

@@ -112,28 +112,28 @@ knitr::kable(
 ### Appendix 1.2.2
 
 The integrated population model (IPM) is fitted sequentially, such that the seasonal growth parameters are fit with the size-at-age records, and the summarized posteriors are used to develop prior distributions in the overall IPM. Below, we detail the model used to fit the seasonal growth parameters with the size-at-age data.
-The size-at-age data, $W(a)_{y}$, indicating carapace width at age $a$ in year $y$ are fit to the same seasonal growth model as in the main text [@somers1988seasonally]. These data are fit to a similar seasonal growth model as in Equations 3-5 in the main text, except instead of describing incremental growth from size $x$ to $x'$, the below growth equation describes growth from the age of the crab when it is of size 0, $t_0$, to the expected size of a crab at age $a$, $\widetilde{W(a)}$. Additionally here, we account for non-independence among data collected in the same year, since growth rate is likely affected by water temperature, which varies from year-to-year.
+The size-at-age data, $W_y(a)_i$, indicating carapace width of individual $i$ at age $a$ in year $y$ are fit to the seasonal growth model as in the main text (Equation 3) [@somers1988seasonally]. Except here, we account for non-independence among data collected in the same year, since growth rate is likely affected by water temperature, which varies from year-to-year.
 The expected carapace width, $\widetilde{W(a)}$, of a crab at age $a$ is:
 
 $$
-\widetilde{W(a)}_{i} = x_{\infty}(1-exp(-k(a-t_0) - s(a) + s(t0))) + \epsilon_i
+\widetilde{W_y(a)} = x_{\infty}(1-\text{exp}(-k(a-t_0) - s(a) + s(t0))) + \epsilon_y
 $$
 $$
-s(a) = \frac{Ak}{2\pi}sin(2\pi(a-t_s))
+s(a) = \frac{Ak}{2\pi}\text{sin}(2\pi(a-d_s))
 $$
 
 $$
-s(t_0) = \frac{Ak}{2\pi}sin(2\pi(t_0-t_s))
+s(t_0) = \frac{Ak}{2\pi}\text{sin}(2\pi(t_0-d_s))
 $$
 To account for non-independence among data collected within the same year, we add a normally distributed error term with standard deviation, $\tau_y$.
 
 $$
-\epsilon_i \sim Normal(0, \tau_y)
+\epsilon_y \sim Normal(0, \tau_y)
 $$
-To account for variation in growth rate, the observed size-at-age data, $W(a)_{i}$, follows a normal distribution, with the expected carapace width $\widetilde{W(a)}_{i}$, and standard deviation, $\tau_{w}$.
+To account for variation in growth rate, the observed size-at-age data, $W_y(a)_i$, follows a normal distribution, with the expected carapace width $\widetilde{W_y(a)}$, and standard deviation, $\tau_{w}$.
 
 $$
-W(a)_{i} \sim Normal(\widetilde{W(a)}_{i}, \tau_{w})
+W_y(a)_i \sim Normal(\widetilde{W_y(a)}, \tau_{w})
 $$
 We use uninformative priors for the parameters:
 
@@ -144,7 +144,7 @@ $$
 A \sim Uniform(0,4)
 $$
 $$
-t_s \sim Uniform(-1,0)
+d_s \sim Uniform(-1,0)
 $$
 $$
 t_0 \sim Uniform(-1,1)
@@ -173,7 +173,7 @@ seasonal_growth <- nimbleCode({
   # prior distributions
   k ~ dunif(0, 2) # growth rate
   A ~ dunif(0, 4) # amplitude of seasonal variation
-  ts ~ dunif(-1, 0) # time between t=0 and start of growth oscillation
+  ds ~ dunif(-1, 0) # time between t=0 and start of growth oscillation
   t0 ~ dunif(-1, 1) # age organism has 0 size
   tau_w ~ dunif(0, 100) # process error sd
   tau_y ~ dunif(0, 100) # year random effect sd
@@ -183,9 +183,9 @@ seasonal_growth <- nimbleCode({
     W[i] ~ dnorm(W_hat[i], tau_w)
     W_hat[i] <- xinf * (1 - exp(-k * (age[i] - t0) - S_t[i] + S_t0)) + 
       ranef[year[i]]
-    S_t[i] <- (A * k / (2 * pi)) * sin(2 * pi * (age[i] - ts))
+    S_t[i] <- (A * k / (2 * pi)) * sin(2 * pi * (age[i] - ds))
   }
-  S_t0 <- (A * k / (2 * pi)) * sin(2 * pi * (t0 - ts))
+  S_t0 <- (A * k / (2 * pi)) * sin(2 * pi * (t0 - ds))
   
   for(y in 1:nyears){
     ranef[y] ~ dnorm(0, tau_y)
@@ -212,7 +212,7 @@ model_data <- list(W = data$CW, # size captured
 inits_season <- list (xinf = 100,
                       k = 0.6,
                       A = 0.7,
-                      ts = -0.6,
+                      ds = -0.6,
                       t0 = 0,
                       tau_w = 0.05,
                       tau_y = 0.05,
@@ -242,7 +242,7 @@ out <- clusterEvalQ(cl, {
   
   # build the MCMC
   mcmcConf_season <- configureMCMC(model_season,
-                                   monitors = c("xinf", "k", "A", "ts",
+                                   monitors = c("xinf", "k", "A", "ds",
                                                 "t0", "tau_w", "tau_y"
                                    ))
   model_mcmc_season <- buildMCMC(mcmcConf_season)
@@ -281,9 +281,9 @@ upper <- 10001
 
 ```{r, echo = FALSE}
 # create df with param names
-short_names <- c("A", "k", "xinf", "t0", "tau_w", "tau_y", "ts")
-real_names <- c("A", "k", "x[infinity]", "t[0]", "tau[w]", "tau[y]", "t[s]")
-latex_names <- c("A", "k", "x_{\\infty}", "t_0", "\\tau_w", "\\tau_y", "t_s")
+short_names <- c("A", "k", "xinf", "t0", "tau_w", "tau_y", "ds")
+real_names <- c("A", "k", "x[infinity]", "t[0]", "tau[w]", "tau[y]", "d[s]")
+latex_names <- c("A", "k", "x_{\\infty}", "t_0", "\\tau_w", "\\tau_y", "d_s")
 names_df <- as.data.frame(cbind(short_names, real_names, latex_names))
 colnames(names_df) <- c("short_names", "real_names", "latex_names")
 ```

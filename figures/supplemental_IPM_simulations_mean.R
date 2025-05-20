@@ -50,7 +50,7 @@ plot_0 <- ggplot(data = out_no_effort_summary) +
   scale_x_continuous(breaks = c(0, 5.5, 10.5, 15.5, 20.5),
                      labels = c(0, 25, 50, 75, 100)) +
   scale_y_continuous(limits = c(0, 50)) +
-  labs(x = "size (mm)", y = expression(N(x)^E)) +
+  labs(x = "size (mm)", y = expression(N^E * (x))) +
   theme_minimal() +
   theme(plot.title = element_text(size = 12)) +
   ggtitle("A. effort = 0")
@@ -140,7 +140,7 @@ plot_840 <- ggplot() +
   scale_x_continuous(breaks = c(0, 5.5, 10.5, 15.5, 20.5),
                      labels = c(0, 25, 50, 75, 100)) +
   scale_y_continuous(limits = c(0, 50)) +
-  labs(x = "size (mm)", y = expression(N(x)^E),
+  labs(x = "size (mm)", y = expression(N^E * (x)),
        color = "trap type") +
   theme_minimal() +
   theme(legend.position = "None",
