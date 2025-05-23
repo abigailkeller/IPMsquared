@@ -116,14 +116,14 @@ The size-at-age data, $W_y(a)_i$, indicating carapace width of individual $i$ at
 The expected carapace width, $\widetilde{W(a)}$, of a crab at age $a$ is:
 
 $$
-\widetilde{W_y(a)} = x_{\infty}(1-\text{exp}(-k(a-t_0) - s(a) + s(t0))) + \epsilon_y
+\widetilde{W_y(a)} = x_{\infty}(1-\text{exp}(-k(a-d_0) - s(a) + s(d_0))) + \epsilon_y
 $$
 $$
 s(a) = \frac{Ak}{2\pi}\text{sin}(2\pi(a-d_s))
 $$
 
 $$
-s(t_0) = \frac{Ak}{2\pi}\text{sin}(2\pi(t_0-d_s))
+s(d_0) = \frac{Ak}{2\pi}\text{sin}(2\pi(d_0-d_s))
 $$
 To account for non-independence among data collected within the same year, we add a normally distributed error term with standard deviation, $\tau_y$.
 
@@ -147,7 +147,7 @@ $$
 d_s \sim Uniform(-1,0)
 $$
 $$
-t_0 \sim Uniform(-1,1)
+d_0 \sim Uniform(-1,1)
 $$
 $$
 \tau_y \sim Uniform(0,100)
@@ -281,9 +281,9 @@ upper <- 10001
 
 ```{r, echo = FALSE}
 # create df with param names
-short_names <- c("A", "k", "xinf", "t0", "tau_w", "tau_y", "ds")
-real_names <- c("A", "k", "x[infinity]", "t[0]", "tau[w]", "tau[y]", "d[s]")
-latex_names <- c("A", "k", "x_{\\infty}", "t_0", "\\tau_w", "\\tau_y", "d_s")
+short_names <- c("A", "k", "xinf", "d0", "tau_w", "tau_y", "ds")
+real_names <- c("A", "k", "x[infinity]", "d[0]", "tau[w]", "tau[y]", "d[s]")
+latex_names <- c("A", "k", "x_{\\infty}", "d_0", "\\tau_w", "\\tau_y", "d_s")
 names_df <- as.data.frame(cbind(short_names, real_names, latex_names))
 colnames(names_df) <- c("short_names", "real_names", "latex_names")
 ```
