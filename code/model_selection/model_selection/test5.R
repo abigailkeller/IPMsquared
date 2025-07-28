@@ -807,13 +807,13 @@ stopCluster(cl)
 # samples_sub <- list(samples[[1]][sequence, ], samples[[2]][sequence, ],
 #                      samples[[3]][sequence, ], samples[[4]][sequence, ])
 # 
-# param <- "mu_A"
+# param <- "alpha_o[1]"
 # ggplot() +
-#   geom_line(aes(x = 1:length(sequence), y = samples_sub[[1]][, param]), 
+#   geom_line(aes(x = 1:length(sequence), y = samples_sub[[1]][, param]),
 #             color = "purple") +
-#   geom_line(aes(x = 1:length(sequence), y = samples_sub[[2]][, param]), 
+#   geom_line(aes(x = 1:length(sequence), y = samples_sub[[2]][, param]),
 #             color = "orange") +
-#   geom_line(aes(x = 1:length(sequence), y = samples_sub[[3]][, param]), 
+#   geom_line(aes(x = 1:length(sequence), y = samples_sub[[3]][, param]),
 #             color = "green4") +
 #   geom_line(aes(x = 1:length(sequence), y = samples_sub[[4]][, param]),
 #             color = "blue")
