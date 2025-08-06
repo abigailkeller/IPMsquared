@@ -815,7 +815,7 @@ out <- clusterEvalQ(cl, {
 })
 
 # save samples
-saveRDS(out, "code/model_selection/savedsamples_model1_rc_mc.rds")
+saveRDS(out, "code/model_selection/model_selection/savedsamples_model1_rc_mc.rds")
 
 stopCluster(cl)
 
@@ -824,7 +824,7 @@ stopCluster(cl)
 ##################
 
 # read in samples
-samples <- readRDS("code/model_selection/savedsamples_model1_rc_mc.rds")
+samples <- readRDS("code/model_selection/model_selection/savedsamples_model1_rc_mc.rds")
 
 lower <- 2000
 upper <- 10001
@@ -832,8 +832,8 @@ sequence <- seq(lower, upper, 10)
 samples_mat <- rbind(samples[[1]][sequence, ], samples[[2]][sequence, ],
                      samples[[3]][sequence, ], samples[[4]][sequence, ])
 
-# # calculate WAIC
-# calculateWAIC(samples_mat, CmyModel)
-# WAIC: 6413.61
-# lppd: -3154.74
-# pWAIC: 52.07
+# calculate WAIC
+calculateWAIC(samples_mat, CmyModel)
+# WAIC: 6390.837
+# lppd: -3153.324
+# pWAIC: 42.0952
