@@ -11,14 +11,14 @@ seasonal_growth <- nimbleCode({
   # prior distributions
   k ~ dunif(0, 2) # growth rate
   A ~ dunif(0, 4) # amplitude of seasonal variation
-  ds ~ dunif(-1, 0) # time between t=0 and start of growth oscillation
-  t0 ~ dunif(-1, 1) # age organism has 0 size
+  ds ~ dunif(-10, 10) # time between t=0 and start of growth oscillation
+  t0 ~ dunif(-10, 10) # age organism has 0 size
   tau_w ~ dunif(0, 100) # process error sd
   tau_y ~ dunif(0, 100) # year random effect sd
   xinf ~ dunif(70, 140) # asymptotic size
   
   for(i in 1:nsizes){
-    W[i] ~ dnorm(W_hat[i], tau_w)
+    W[i] ~ dnorm(W_hat[i], sd = tau_w)
     W_hat[i] <- xinf * (1 - exp(-k * (age[i] - t0) - S_t[i] + S_t0)) + 
       ranef[year[i]]
     S_t[i] <- (A * k / (2 * pi)) * sin(2 * pi * (age[i] - ds))
@@ -26,7 +26,7 @@ seasonal_growth <- nimbleCode({
   S_t0 <- (A * k / (2 * pi)) * sin(2 * pi * (t0 - ds))
   
   for(y in 1:nyears){
-    ranef[y] ~ dnorm(0, tau_y)
+    ranef[y] ~ dnorm(0, sd = tau_y)
   }
   
 })
