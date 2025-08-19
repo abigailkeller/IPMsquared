@@ -91,7 +91,7 @@ model_code <- nimbleCode({
   # Equation 8
   ## year-specific natural mortality (process error, includes mark-recapture)
   for (y in 1:(n_year + 1)) {
-    alpha[y] ~ dlnorm(alpha_mu, beta_sd)
+    alpha[y] ~ dlnorm(alpha_mu, alpha_sd)
   }
 
   # project all years to the same intra-annual end point by
@@ -504,7 +504,7 @@ N_overwinter <- matrix(NA, nrow = dim(C)[3] - 1, ncol = length(x))
 adult_mean <- c(log(75), log(80), log(82))
 mean_recruit <- c(log(55), log(52), log(52))
 lambda_A <- c(500, 400, 100)
-lambda_R <- c(300, 75, 400)
+lambda_R <- c(300, 60, 400)
 adult_sd <- 0.08
 recruit_sd <- 0.1
 for (i in 1:(dim(C)[3] - 1)) {
@@ -822,7 +822,7 @@ out <- clusterEvalQ(cl, {
     myModel,
     monitors = c("h_M_max", "h_M_A", "h_M_sigma", "h_F_max",
                  "h_F_k", "h_F_0", "h_S_max", "h_S_k",
-                 "h_S_0", "beta_mu", "beta_sd", "gk",
+                 "h_S_0", "gk",
                  "xinf", "A", "ds", "sigma_G",
                  "sigma_R", "mu_R", "log_mu_A",
                  "sigma_A", "mu_lambda", "sigma_lambda",
@@ -830,13 +830,8 @@ out <- clusterEvalQ(cl, {
                  "alpha", "alpha_mu", "alpha_sd",
                  "alpha_o_mu", "alpha_o_sd", "N_overwinter",
                  "wgrowth_N_sum", "ro_dir", "C_T", 
-                 "t0", "sigma_w", "sigma_y"),
+                 "t0", "sigma_w", "sigma_y", "growth_ranef"),
     useConjugacy = FALSE, enableWAIC = TRUE)
-  
-  # add block sampler for nmort params
-  mcmcConf_myModel$removeSamplers(c("beta_mu", "beta_sd"))	
-  mcmcConf_myModel$addSampler(c("beta_mu", "beta_sd"),
-                              type = "RW_block")
 
   # build MCMC
   myMCMC <- buildMCMC(mcmcConf_myModel)
@@ -866,29 +861,29 @@ stopCluster(cl)
 ##################
 
 # read in samples
-# samples <- readRDS("data/posterior_samples/savedsamples_IPM_20250814.rds")
-# 
-# lower <- 2000
-# upper <- 10001
-# sequence <- seq(lower, upper, 10)
-# samples_mat <- list(samples_old[[1]][sequence, ], samples_old[[2]][sequence, ],
-#                      samples_old[[3]][sequence, ], samples_old[[4]][sequence, ])
-# 
-# param <- "alpha"
-# 
-# ggplot() +
-#   geom_line(aes(x = 1:nrow(samples[[1]][sequence, ]),
-#                 y = exp(samples[[1]][sequence, param])),
-#             color = "blue") +
-#   geom_line(aes(x = 1:nrow(samples[[2]][sequence, ]),
-#                 y = exp(samples[[2]][sequence, param])),
-#             color = "red") +
-#   geom_line(aes(x = 1:nrow(samples[[3]][sequence, ]),
-#                 y = exp(samples[[3]][sequence, param])),
-#             color = "purple") +
-#   geom_line(aes(x = 1:nrow(samples[[4]][sequence, ]),
-#                 y = exp(samples[[4]][sequence, param])),
-#             color = "pink")
+samples <- readRDS("data/posterior_samples/savedsamples_IPM_20250815.rds")
+
+lower <- 2000
+upper <- 10001
+sequence <- seq(lower, upper, 10)
+samples_mat <- list(samples[[1]][sequence, ], samples[[2]][sequence, ],
+                     samples[[3]][sequence, ], samples[[4]][sequence, ])
+
+param <- "alpha[5]"
+
+ggplot() +
+  geom_line(aes(x = 1:nrow(samples[[1]][sequence, ]),
+                y = samples[[1]][sequence, param]),
+            color = "blue") +
+  geom_line(aes(x = 1:nrow(samples[[2]][sequence, ]),
+                y = samples[[2]][sequence, param]),
+            color = "red") +
+  geom_line(aes(x = 1:nrow(samples[[3]][sequence, ]),
+                y = samples[[3]][sequence, param]),
+            color = "purple") +
+  geom_line(aes(x = 1:nrow(samples[[4]][sequence, ]),
+                y = samples[[4]][sequence, param]),
+            color = "pink")
 
 # 
 # # calculate WAIC

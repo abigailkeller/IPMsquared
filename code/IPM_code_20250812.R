@@ -861,15 +861,15 @@ stopCluster(cl)
 ##################
 
 # read in samples
-# samples <- readRDS("code/model_selection/model_selection/savedsamples_model1_rc_mc.rds")
-# 
+samples <- readRDS("data/posterior_samples/savedsamples_IPM_20250812.rds")
+
 lower <- 2000
 upper <- 10001
 sequence <- seq(lower, upper, 10)
 samples_mat <- list(samples[[1]][sequence, ], samples[[2]][sequence, ],
                      samples[[3]][sequence, ], samples[[4]][sequence, ])
 
-param <- "ds"
+param <- "beta_mu"
 
 ggplot() +
   geom_line(aes(x = 1:nrow(samples[[1]][sequence, ]),

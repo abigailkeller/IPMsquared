@@ -866,28 +866,28 @@ stopCluster(cl)
 ##################
 
 # read in samples
-samples <- readRDS("code/model_selection/model_selection/savedsamples_model1_rc_mc.rds")
+samples <- readRDS("data/posterior_samples/savedsamples_IPM_20250813.rds")
 
 lower <- 2000
 upper <- 10001
 sequence <- seq(lower, upper, 10)
-samples_mat <- list(samples[[1]][sequence, ], samples[[2]][sequence, ],
+samples_mat <- rbind(samples[[1]][sequence, ], samples[[2]][sequence, ],
                      samples[[3]][sequence, ], samples[[4]][sequence, ])
 
-param <- "beta[2]"
+param <- "beta_theta"
 
 ggplot() +
   geom_line(aes(x = 1:nrow(samples[[1]][sequence, ]),
-                y = log(samples[[1]][sequence, param])),
+                y = samples[[1]][sequence, param]),
             color = "blue") +
   geom_line(aes(x = 1:nrow(samples[[2]][sequence, ]),
-                y = log(samples[[2]][sequence, param])),
+                y = samples[[2]][sequence, param]),
             color = "red") +
   geom_line(aes(x = 1:nrow(samples[[3]][sequence, ]),
-                y = log(samples[[3]][sequence, param])),
+                y = samples[[3]][sequence, param]),
             color = "purple") +
   geom_line(aes(x = 1:nrow(samples[[4]][sequence, ]),
-                y = log(samples[[4]][sequence, param])),
+                y = samples[[4]][sequence, param]),
             color = "pink")
 
 # 
