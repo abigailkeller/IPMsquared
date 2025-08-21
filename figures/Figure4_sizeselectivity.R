@@ -111,7 +111,7 @@ sizesel_plot <- ggplot(data = selective_summaries_long) +
   scale_y_continuous(breaks = c(0.0001, 0.001, 0.002, 0.003, 0.004)) +
   labs(x = "size (mm)", y = "probability of capture", color = "trap type") +
   theme_minimal() +
-  theme(text = element_text(size = 14))
+  theme(text = element_text(size = 14, family = "Arial"))
 
 ggsave("figures/Figure4_sizesel.png", sizesel_plot,
        dpi = 400, width = 5, height = 4,

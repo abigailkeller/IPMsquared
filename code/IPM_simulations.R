@@ -35,11 +35,10 @@ get_params <- function(out_sub, index) {
     h_S_max = as.numeric(samples[index, "h_S_max"]),
     h_S_k = as.numeric(samples[index, "h_S_k"]),
     h_S_0 = as.numeric(samples[index, "h_S_0"]),
-    beta_alpha = as.numeric(samples[index, "beta_alpha"]),
-    beta_theta = as.numeric(samples[index, "beta_theta"]),
     alpha = as.numeric(samples[index, "alpha"]),
-    alpha_o_alpha = as.numeric(samples[index, "alpha_o_alpha"]),
-    alpha_o_theta = as.numeric(samples[index, "alpha_o_theta"]),
+    beta = as.numeric(samples[index, "beta"]),
+    alpha_o_mu = as.numeric(samples[index, "alpha_o_mu"]),
+    alpha_o_sd = as.numeric(samples[index, "alpha_o_sd"]),
     gk = as.numeric(samples[index, "gk"]),
     xinf = as.numeric(samples[index, "xinf"]),
     A = as.numeric(samples[index, "A"]),
@@ -47,7 +46,7 @@ get_params <- function(out_sub, index) {
     sigma_G = as.numeric(samples[index, "sigma_G"]),
     sigma_R_y = as.numeric(samples[index, "sigma_R"]),
     mu_R_y = as.numeric(samples[index, "mu_R"]),
-    mu_A_y = as.numeric(samples[index, "mu_A"]),
+    mu_A_y = as.numeric(samples[index, "log_mu_A"]),
     sigma_A_y = as.numeric(samples[index, "sigma_A"]),
     lambda_A = as.numeric(samples[index, "lambda_A"]),
     mu_R_lambda = as.numeric(samples[index, "mu_lambda"]),
@@ -188,13 +187,13 @@ get_kernel <- function(params, t1, t2,
 }
 
 # natural (non-winter) survival
-survival <- function(params, beta, x, t1, t2) {
+survival <- function(params, x, t1, t2) {
   
   # number of biweeks
   deltat <- round((t2 - t1) * (52.1429 / 2))
     
   # get survival rate
-  out <- exp(-deltat * (beta + params$alpha / x ^ 2))
+  out <- exp(-deltat * (params$beta + params$alpha / x ^ 2))
     
   return(out)
 }
@@ -266,7 +265,7 @@ simulate_year <- function(params, constant, nobs, N, N_recruit, beta,
     }
 
     # get kernel
-    S <- survival(params, beta, constant$x, 0, 14 / 365)
+    S <- survival(params, constant$x, 0, 14 / 365)
     kernel <- get_kernel(params, constant$t_index[t], constant$t_index[t + 1],
                          constant$n_size, constant$x,
                          constant$lower, constant$upper, S)
@@ -317,7 +316,7 @@ simulate_year <- function(params, constant, nobs, N, N_recruit, beta,
 }
 
 # function to simulate one year - no effort
-simulate_year_noeffort <- function(params, constant, N, N_recruit, beta,
+simulate_year_noeffort <- function(params, constant, N, N_recruit,
                                    alpha_o, year, n_years) {
 
   # check N_recruit
@@ -330,7 +329,7 @@ simulate_year_noeffort <- function(params, constant, N, N_recruit, beta,
   for (t in 1:(length(constant$t_index) - 1)) {
     
     # get kernel
-    S <- survival(params, beta, constant$x, 0, 14 / 365)
+    S <- survival(params, constant$x, 0, 14 / 365)
     kernel <- get_kernel(params, constant$t_index[t], constant$t_index[t + 1],
                          constant$n_size, constant$x,
                          constant$lower, constant$upper, S)
@@ -368,14 +367,14 @@ simulate_year_noeffort <- function(params, constant, N, N_recruit, beta,
 # function to simulate multiple years
 simulate_interannual <- function(params, constant, nobs,
                                  n_years, n_years_burn, N, N_recruit,
-                                 beta, alpha_o,
+                                 alpha_o,
                                  obs_ref_f, obs_ref_s, obs_ref_m) {
 
   out <- as.data.frame(matrix(NA, nrow = n_years, ncol = length(N)))
 
   for (i in 1:n_years) {
     out[i, ] <- simulate_year(params, constant, nobs, N, N_recruit[i],
-                              beta[i], alpha_o[i], i, n_years,
+                              alpha_o[i], i, n_years,
                               obs_ref_f, obs_ref_s, obs_ref_m)
   }
 
@@ -385,13 +384,13 @@ simulate_interannual <- function(params, constant, nobs,
 }
 simulate_interannual_noeffort <- function(params, constant, n_years,
                                           n_years_burn, N, N_recruit,
-                                          beta, alpha_o) {
+                                          alpha_o) {
 
   out <- as.data.frame(matrix(NA, nrow = n_years, ncol = length(N)))
 
   for (i in 1:n_years) {
     out[i, ] <- simulate_year_noeffort(params, constant, N, N_recruit[i],
-                                       beta[i], alpha_o[i], i, n_years)
+                                       alpha_o[i], i, n_years)
   }
   # subset to averaged years
   sub <- out[(n_years_burn + 1):n_years, ]
@@ -432,20 +431,17 @@ for (i in 1:length(index)) {
   params <- get_params(out_sub, i)
   N[i, ] <- init_sizes_lnorm(params, constant$lower,
                              constant$upper) * params$lambda_A
-  N_recruit[i, ] <- rnorm(constant$n_years, params$mu_R_lambda,
-                          params$sigma_R_lambda)
+  N_recruit[i, ] <- rlnorm(constant$n_years, meanlog = params$mu_R_lambda,
+                           sdlog = params$sigma_R_lambda)
 }
 
 # get natural mortality params
-beta <- as.data.frame(matrix(nrow = length(index), ncol = constant$n_years))
 alpha_o <- as.data.frame(matrix(nrow = length(index), ncol = constant$n_years))
 
 for (i in 1:length(index)) {
   params <- get_params(out_sub, i)
-  beta[i, ] <- rgamma(constant$n_years, shape = params$beta_alpha,
-                      rate = params$beta_theta)
-  alpha_o[i, ] <- rgamma(constant$n_years, shape = params$alpha_o_alpha,
-                         rate = params$alpha_o_theta)
+  alpha_o[i, ] <- rlnorm(constant$n_years, meanlog = params$alpha_o_mu,
+                         sdlog = params$alpha_o_sd)
 }
 
 for (e in effort) {
@@ -478,7 +474,6 @@ for (e in effort) {
                                           constant, nobs, constant$n_years,
                                           constant$n_years_burn,
                                           N[k, ], N_recruit[k, ],
-                                          as.numeric(beta[k, ]),
                                           as.numeric(alpha_o[k, ]),
                                           obs_ref_f, obs_ref_s, obs_ref_m),
                      nobs * constant$ntime, prop_s, prop_f, prop_m, k))
@@ -495,7 +490,7 @@ colnames(out_noeffort) <- 1:constant$n_size
 for (i in 1:length(index)) {
   out_noeffort[i, ] <- simulate_interannual_noeffort(
     get_params(out_sub, index[i]), constant, constant$n_years,
-    constant$n_years_burn, N[i, ], N_recruit[i, ], as.numeric(beta[i, ]),
+    constant$n_years_burn, N[i, ], N_recruit[i, ],
     as.numeric(alpha_o[i, ])
   )
 

@@ -15,7 +15,7 @@ We fit four separate models that are identical, apart from the functional form o
 **Model 1:** interactive density- and size-dependence, steeper mortality decrease with size
 
 $$
-S_o(x,N^T_{t_{max},y}) = exp(-\frac{\alpha_y^o \times N^T_{t_{max},y}}{x^2})
+S_o(x,N^T_{t_{max},y}) = \text{exp}(-\frac{\alpha_y^o \times N^T_{t_{max},y}}{x^2})
 $$
 
 $$
@@ -25,7 +25,7 @@ $$
 **Model 2:** interactive density- and size-dependence, less steep mortality decrease with size
 
 $$
-S_o(x,N^T_{t_{max},y}) = exp(-\frac{\alpha_y^o \times N^T_{t_{max},y}}{x})
+S_o(x,N^T_{t_{max},y}) = \text{exp}(-\frac{\alpha_y^o \times N^T_{t_{max},y}}{x})
 $$
 
 $$
@@ -35,13 +35,13 @@ $$
 **Model 3:** additive density- and size-dependence, steeper mortality decrease with size
 
 $$
-S_o(x,N^T_{t_{max},y}) = exp(-(\frac{\alpha^o}{N^T_{t_{max},y}} + \frac{\psi}{x^2}))
+S_o(x,N^T_{t_{max},y}) = \text{exp}(-(\frac{\alpha^o}{N^T_{t_{max},y}} + \frac{\psi}{x^2}))
 $$
 
 **Model 4:** additive density- and size-dependence, less steep mortality decrease with size
 
 $$
-S_o(x,N^T_{t_{max},i}) = exp(-(\frac{\alpha^o}{N^T_{t_{max},y}} + \frac{\psi}{x}))
+S_o(x,N^T_{t_{max},i}) = \text{exp}(-(\frac{\alpha^o}{N^T_{t_{max},y}} + \frac{\psi}{x}))
 $$
 
 WAIC was calculated using the combined posterior samples from four chains, after discarding 2000 burn-in samples (32000 total samples). Model 1, with a size- and density-dependent overwinter mortality interaction and a steeper mortality decrease with size had the lowest WAIC and was used in subsequent analyses.
@@ -68,6 +68,25 @@ knitr::kable(
 )
 ```
 
+## Seadrift Lagoon
+
+The batch mark-recapture data consists of 1) the count of marked and released crabs of discrete size $x_i$ in the first time period, $n^{\text{mc}}(x_i)$, and 2) the count of recaptured and marked crabs of discrete size $x_i$ in the second time period, $m^{\text{mc}}(x_i)$. These data follow a binomial distribution:
+
+$$
+m^{\text{mc}}(x_i) \sim \text{Binomial}(n^{\text{mc}}_{t_2}(x_i), p^{\text{mc}}(x_i)) 
+$$
+
+where $p^{\text{mc}}(x_i)$ is the total probability of capture based on the total number of Fukui traps set, $O^{\text{mc}}$, over the time period $\Delta b^{\text{mc}}$:
+
+$$
+p^{\text{mc}}(x) = 1-\text{exp}\left(-\sum_{j=1}^{O^{\text{mc}}} H_{F,j}(x)\Delta b^{\text{mc}}_j\right)
+$$
+
+These data also informed components of the growth and natural mortality kernel (Table 1; Figure 2). The number of marked and released crabs, $n^{\text{mc}}(x_i)$, at $t_1^{\text{mc}}$ underwent seasonal growth and natural mortality to the next time period, $t_2^{\text{mc}}$.
+
+$$
+n^{\text{mc}}_{t_2}(x') = \int_{x \in \Omega} K^{mc}(x',x) n^{\text{mc}}_{t_1}(x)dx
+$$
 
 ## Appendix 6.2
 

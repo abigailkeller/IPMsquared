@@ -532,7 +532,7 @@ inits <- function() {
 # run MCMC in parallel #
 ########################
 
-cl <- makeCluster(4)
+cl <- makeCluster(6)
 
 set.seed(10120)
 
@@ -857,7 +857,10 @@ lower <- 2000
 upper <- 10001
 sequence <- seq(lower, upper, 1)
 samples_mat <- list(samples[[1]][sequence, ], samples[[2]][sequence, ],
-                     samples[[3]][sequence, ], samples[[4]][sequence, ])
+                     #samples[[3]][sequence, ], 
+                    samples[[4]][sequence, ],
+                    #samples[[5]][sequence, ], 
+                    samples[[6]][sequence, ])
 
 param <- "sigma_lambda"
 
@@ -868,12 +871,18 @@ ggplot() +
   geom_line(aes(x = 1:nrow(samples[[2]][sequence, ]),
                 y = samples[[2]][sequence, param]),
             color = "red") +
-  geom_line(aes(x = 1:nrow(samples[[3]][sequence, ]),
-                y = samples[[3]][sequence, param]),
-            color = "purple") +
+  # geom_line(aes(x = 1:nrow(samples[[3]][sequence, ]),
+  #               y = samples[[3]][sequence, param]),
+  #           color = "purple") +
   geom_line(aes(x = 1:nrow(samples[[4]][sequence, ]),
                 y = samples[[4]][sequence, param]),
-            color = "pink")
+            color = "pink") +
+  # geom_line(aes(x = 1:nrow(samples[[5]][sequence, ]),
+  #               y = samples[[5]][sequence, param]),
+  #           color = "yellow") +
+  geom_line(aes(x = 1:nrow(samples[[6]][sequence, ]),
+                y = samples[[6]][sequence, param]),
+            color = "green")
 
 # 
 # # calculate WAIC

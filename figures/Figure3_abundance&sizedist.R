@@ -31,7 +31,7 @@ for (i in seq_len(4)) {
 init_mean_recruit <- get_samples(out_sub, "mu_R")
 init_sd_r <- get_samples(out_sub, "sigma_R")
 init_lsd_adult <- get_samples(out_sub, "sigma_A")
-init_lmean_adult <- get_samples(out_sub, "mu_A")
+init_lmean_adult <- get_samples(out_sub, "log_mu_A")
 adult_dist <- list()
 for (i in seq_len(3)) {
   adult_dist[[i]] <- as.data.frame(matrix(NA, ncol = 22,
@@ -188,7 +188,8 @@ adult_nplot <- ggplot(data = n_summaries[n_summaries$type == "adult", ]) +
   labs(x = "year", y = "N", color = "year") +
   ggtitle("A. adult abundance and size distribution") +
   theme_minimal() +
-  theme(legend.position = "None")
+  theme(legend.position = "None",
+        text = element_text(family = "Arial"))
 
 recruit_nplot <- ggplot(data = n_summaries[n_summaries$type == "recruit", ]) +
   geom_point(aes(x = param, y = log(median),
@@ -206,7 +207,8 @@ recruit_nplot <- ggplot(data = n_summaries[n_summaries$type == "recruit", ]) +
   labs(x = "year", y = "N", color = "year") +
   ggtitle("B. recruit abundance and size distribution") +
   theme_minimal() +
-  theme(legend.position = "None")
+  theme(legend.position = "None",
+        text = element_text(family = "Arial"))
 
 plot_w_legend <- ggplot(data = n_summaries[n_summaries$type == "recruit", ]) +
   geom_point(aes(x = param, y = log(median),
@@ -222,7 +224,8 @@ plot_w_legend <- ggplot(data = n_summaries[n_summaries$type == "recruit", ]) +
                      labels = c("20", "200")) +
   labs(x = "year", y = expression(N[total]), color = "year") +
   theme_minimal() +
-  theme(axis.text.x = element_blank())
+  theme(axis.text.x = element_blank(),
+        text = element_text(family = "Arial"))
 
 legend <- get_legend(plot_w_legend)
 
@@ -239,7 +242,8 @@ adult_sizeplot <- ggplot(data = dist_summaries_adult_long) +
   scale_fill_manual(values = viridis_pal()(4)) +
   labs(x = "size (mm)", y = expression(N(x)), color = "year") +
   theme_minimal() +
-  theme(legend.position = "None")
+  theme(legend.position = "None",
+        text = element_text(family = "Arial"))
 
 recruit_sizeplot <- ggplot(data = dist_summaries_recruit_long) +
   geom_ribbon(aes(x = as.numeric(size),
@@ -253,7 +257,8 @@ recruit_sizeplot <- ggplot(data = dist_summaries_recruit_long) +
   scale_fill_manual(values = viridis_pal()(4)) +
   labs(x = "size (mm)", y = expression(N(x)), color = "year") +
   theme_minimal() +
-  theme(legend.position = "None")
+  theme(legend.position = "None",
+        text = element_text(family = "Arial"))
 
 layout <- "
 AACC#

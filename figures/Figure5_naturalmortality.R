@@ -44,13 +44,11 @@ get_hdi_high <- function(input, ci) {
 }
 
 # get natural and overwinter survival
-nmort_size <- get_samples(out_sub, "alpha")
-survival <- list()
+survival <- mapply(get_survival,
+                   get_samples(out_sub, "beta"),
+                   get_samples(out_sub, "alpha"), deltat = 14)
 o_survival <- list()
 for (i in seq_len(3)) {
-  survival[[i]] <- mapply(get_survival,
-                          get_samples(out_sub, paste0("beta[", i, "]")),
-                          nmort_size, deltat = 14)
   o_survival[[i]] <- mapply(get_o_survival,
                             get_samples(out_sub,
                                         paste0("alpha_o[", i, "]")),
@@ -60,24 +58,20 @@ for (i in seq_len(3)) {
 
 # get natural survival summaries
 nsurv_summaries <- data.frame(
-  year = c("2020", "2021", "2022",
-           "2020", "2021", "2022",
-           "2020", "2021", "2022"),
-  stat = c(rep("median", 3), rep("lower_ci", 3), rep("upper_ci", 3))
+  stat = c("median", "lower_ci", "upper_ci")
 )
 nsurv_summaries <- cbind(nsurv_summaries,
                          as.data.frame(matrix(NA,
                                               nrow = dim(nsurv_summaries)[1],
                                               ncol = length(x))))
-colnames(nsurv_summaries)[3:24] <- x
+colnames(nsurv_summaries)[2:23] <- x
 
-for (i in seq_len(3)) {
-  nsurv_summaries[i, 3:24] <- apply(survival[[i]], 1, median)
-  nsurv_summaries[i + 3, 3:24] <- apply(survival[[i]], 1,
-                                        function(row) get_hdi_low(row, 0.95))
-  nsurv_summaries[i + 6, 3:24] <- apply(survival[[i]], 1,
-                                        function(row) get_hdi_high(row, 0.95))
-}
+nsurv_summaries[1, 2:23] <- apply(survival, 1, median)
+nsurv_summaries[2, 2:23] <- apply(survival, 1,
+                                  function(row) get_hdi_low(row, 0.95))
+nsurv_summaries[3, 2:23] <- apply(survival, 1,
+                                  function(row) get_hdi_high(row, 0.95))
+
 
 # get overwinter survival summaries
 wsurv_summaries <- data.frame(
@@ -102,7 +96,7 @@ for (i in seq_len(3)) {
 
 # convert from wide to long
 nsurv_summaries_long <- nsurv_summaries %>%
-  pivot_longer(cols = ! c("year", "stat"),
+  pivot_longer(cols = ! "stat",
                values_to = "p",
                names_to = "size") %>%
   pivot_wider(values_from = "p",
@@ -118,22 +112,15 @@ wsurv_summaries_long <- wsurv_summaries %>%
 viridis_colors <- viridis_pal()(4)
 nsurv_plot <- ggplot(data = nsurv_summaries_long) +
   geom_ribbon(aes(x = as.numeric(size),
-                  ymin = lower_ci, ymax = upper_ci,
-                  fill = as.factor(year)), alpha = 0.4,
-              show.legend = c(fill = FALSE)) +
-  geom_line(aes(x = as.numeric(size), y = median,
-                color = as.factor(year)),
-            linewidth = 1, show.legend = c(fill = FALSE)) +
-  labs(x = "", y = "natural survival", color = "year") +
+                  ymin = lower_ci, ymax = upper_ci),
+                  alpha = 0.4) +
+  geom_line(aes(x = as.numeric(size), y = median),
+            linewidth = 1) +
+  labs(x = "size (mm)", y = "natural survival", color = "year") +
   ggtitle("A. natural survival") +
-  scale_color_manual(values = c(viridis_colors[1],
-                                viridis_colors[2],
-                                viridis_colors[3])) +
-  scale_fill_manual(values = c(viridis_colors[1],
-                               viridis_colors[2],
-                               viridis_colors[3])) +
   theme_minimal() +
-  theme(legend.title = element_text(0.5))
+  theme(legend.title = element_text(0.5),
+        text = element_text(family = "Arial"))
 wsurv_plot <- ggplot(data = wsurv_summaries_long) +
   geom_ribbon(aes(x = as.numeric(size),
                   ymin = lower_ci, ymax = upper_ci,
@@ -157,9 +144,10 @@ wsurv_plot <- ggplot(data = wsurv_summaries_long) +
                                viridis_colors[2],
                                viridis_colors[3])) +
   theme_minimal() +
-  theme(legend.title = element_text(0.5))
+  theme(legend.title = element_text(0.5),
+        text = element_text(family = "Arial"))
 
-final_plot <- nsurv_plot + wsurv_plot + plot_layout(ncol = 1)
+final_plot <- nsurv_plot + wsurv_plot + plot_layout(nrow = 1)
 
 ggsave("figures/Figure5_survival.png", final_plot,
-       dpi = 400, width = 4, height = 6)
+       dpi = 400, width = 8, height = 3)
