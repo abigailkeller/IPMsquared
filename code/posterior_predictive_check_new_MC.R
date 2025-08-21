@@ -833,7 +833,7 @@ ppSamplerNF <- nimbleFunction(
   })
 
 # read in samples 
-samples_in <- readRDS("code/model_selection/model_selection/savedsamples_model1_rc_mc.rds")
+samples_in <- readRDS("data/posterior_samples/savedsamples_model1_rc_mc.rds")
 lower <- 2000
 upper <- 10001
 sub <- seq(lower, upper, 10)

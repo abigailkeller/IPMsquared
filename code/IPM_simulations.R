@@ -9,20 +9,12 @@ library(cowplot)
 ##################################
 
 # read in samples
-out <- readRDS("data/posterior_samples/savedsamples_IPM.rds")
-
-# subset samples
-lower <- 2000
-upper <- 10001
-out_sub <- list(
-  out[[1]][lower:upper, ], out[[2]][lower:upper, ],
-  out[[3]][lower:upper, ], out[[4]][lower:upper, ]
-)
+samples <- readRDS("data/posterior_samples/savedsamples_IPM.rds")
 
 # function for getting sample
-get_params <- function(out_sub, index) {
-  samples <- rbind(out_sub[[1]], out_sub[[2]],
-                   out_sub[[3]], out_sub[[4]])
+get_params <- function(samples, index) {
+  samples <- rbind(samples[[1]], samples[[2]],
+                   samples[[3]], samples[[4]])
 
   # set parameters
   params <- list(
@@ -233,7 +225,7 @@ init_sizes_lnorm <- function(params, lower, upper) {
 }
 
 # function to simulate one year
-simulate_year <- function(params, constant, nobs, N, N_recruit, beta,
+simulate_year <- function(params, constant, nobs, N, N_recruit,
                           alpha_o, year, n_years,
                           obs_ref_f, obs_ref_s, obs_ref_m) {
 
@@ -421,25 +413,25 @@ colnames(out) <- c(1:constant$n_size,
 
 # get indices of samples to use
 set.seed(123)
-index <- sample(dim(out_sub[[1]])[1] * length(out_sub), 1000)
+index <- sample(dim(samples[[1]])[1] * length(samples), 1000)
 
 # get starting N and N_recruit
 N <- as.data.frame(matrix(nrow = length(index), ncol = length(constant$x)))
 N_recruit <- as.data.frame(matrix(nrow = length(index),
                                   ncol = constant$n_years))
 for (i in 1:length(index)) {
-  params <- get_params(out_sub, i)
+  params <- get_params(samples, i)
   N[i, ] <- init_sizes_lnorm(params, constant$lower,
                              constant$upper) * params$lambda_A
-  N_recruit[i, ] <- rlnorm(constant$n_years, meanlog = params$mu_R_lambda,
-                           sdlog = params$sigma_R_lambda)
+  N_recruit[i, ] <- pmin(rlnorm(constant$n_years, meanlog = params$mu_R_lambda,
+                                sdlog = params$sigma_R_lambda), 10000)
 }
 
 # get natural mortality params
 alpha_o <- as.data.frame(matrix(nrow = length(index), ncol = constant$n_years))
 
 for (i in 1:length(index)) {
-  params <- get_params(out_sub, i)
+  params <- get_params(samples, i)
   alpha_o[i, ] <- rlnorm(constant$n_years, meanlog = params$alpha_o_mu,
                          sdlog = params$alpha_o_sd)
 }
@@ -470,7 +462,7 @@ for (e in effort) {
 
     for (k in 1:length(index)) {
       out <- rbind(out,
-                   c(simulate_interannual(get_params(out_sub, index[k]),
+                   c(simulate_interannual(get_params(samples, index[k]),
                                           constant, nobs, constant$n_years,
                                           constant$n_years_burn,
                                           N[k, ], N_recruit[k, ],
@@ -489,7 +481,7 @@ out_noeffort <- matrix(NA, nrow = length(index), ncol = constant$n_size)
 colnames(out_noeffort) <- 1:constant$n_size
 for (i in 1:length(index)) {
   out_noeffort[i, ] <- simulate_interannual_noeffort(
-    get_params(out_sub, index[i]), constant, constant$n_years,
+    get_params(samples, index[i]), constant, constant$n_years,
     constant$n_years_burn, N[i, ], N_recruit[i, ],
     as.numeric(alpha_o[i, ])
   )

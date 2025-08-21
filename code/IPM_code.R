@@ -841,17 +841,14 @@ out <- clusterEvalQ(cl, {
   return(samples)
 })
 
+# discard burnin
+lower <- 2000
+upper <- 10001
+sequence <- seq(lower, upper, 1)
+out_sub <- list(out[[1]][sequence, ], out[[2]][sequence, ],
+                out[[3]][sequence, ], out[[4]][sequence, ])
+
 # save samples
-saveRDS(out, "data/posterior_samples/savedsamples_IPM.rds")
+saveRDS(out_sub, "data/posterior_samples/savedsamples_IPM.rds")
 
 stopCluster(cl)
-
-##################
-# calculate WAIC #
-##################
-
-# # calculate WAIC
-# calculateWAIC(samples_mat, CmyModel)
-# WAIC: 6390.837
-# lppd: -3153.324
-# pWAIC: 42.0952

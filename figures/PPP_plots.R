@@ -10,7 +10,8 @@ counts <- readRDS("data/model_data/counts_w_NA.rds")
 ncap <- readRDS("data/model_data/n_cap_w_NA.rds")
 
 # read in mark-recapture data
-m2_mc <- readRDS("data/model_data/m2_mc.rds")
+marked_rc <- readRDS("data/model_data/roche_mc_mark.rds")
+catch_rc <- readRDS("data/model_data/roche_mc_catch.rds")
 
 #################
 # deviance plot #
