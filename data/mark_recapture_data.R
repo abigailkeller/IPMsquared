@@ -14,7 +14,8 @@ for(i in 1:(length(b) - 1)){
   size_colnames[i] <- paste0("s", b[i] , "_", b[i + 1])
 }
 
-biweek <- 59 + 0:18 * 14
+biweek <- c(59, 76, 91, 106, 121, 137, 152, 167, 182, 197, 213,
+            229, 244, 259, 274, 290, 305, 320, 335)
 
 # read in mark-recapture data
 data_mc <- read.csv("data/DFO_markrecapture.csv") %>%
@@ -59,21 +60,25 @@ total_traps <- data_mc %>%
   summarise(count = length(unique(SetNum)) * 6) %>% 
   group_by(biweek) %>% 
   summarise(n = sum(count))
+
+total_traps$marked <- c(rowSums(marked), NA)
+total_traps$recap <- c(NA, rowSums(caught))
+total_traps$julian_day <- biweek[total_traps$biweek]
   
-saveRDS(total_traps, "data/model_data/roche_mc_totalo_new.rds")
-saveRDS(caught, "data/model_data/roche_mc_catch_new.rds")
-saveRDS(marked, "data/model_data/roche_mc_mark_new.rds")
+saveRDS(total_traps, "data/model_data/roche_mc_totalo.rds")
+saveRDS(caught, "data/model_data/roche_mc_catch.rds")
+saveRDS(marked, "data/model_data/roche_mc_mark.rds")
 saveRDS((total_traps$biweek - 3) / 365 * 14, 
-        "data/model_data/mc_index_rc_new.rds")
+        "data/model_data/mc_index_rc.rds")
 saveRDS(matrix(1, nrow = nrow(total_traps),
                ncol = max(total_traps$n)), 
-        "data/model_data/soak_days_mc_rc_new.rds")
+        "data/model_data/soak_days_mc_rc.rds")
 saveRDS(matrix(1, nrow = nrow(total_traps),
                ncol = max(total_traps$n)), 
-        "data/model_data/f_index_mc_rc_new.rds")
+        "data/model_data/f_index_mc_rc.rds")
 saveRDS(matrix(0, nrow = nrow(total_traps),
                ncol = max(total_traps$n)), 
-        "data/model_data/m_index_mc_rc_new.rds")
+        "data/model_data/m_index_mc_rc.rds")
 saveRDS(matrix(0, nrow = nrow(total_traps),
                ncol = max(total_traps$n)), 
-        "data/model_data/s_index_mc_rc_new.rds")
+        "data/model_data/s_index_mc_rc.rds")

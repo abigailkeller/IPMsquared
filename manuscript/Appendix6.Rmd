@@ -70,6 +70,12 @@ knitr::kable(
 
 ## Seadrift Lagoon
 
+Here we describe the batch mark-recapture data (D3). The data was taken from Grosholz et al. 2021, where the co-authors conducted an extensive capture-mark-recapture experiment to estimate population size at Seadrift Lagoon in California, USA (Grosholz et al. 2021).
+
+The authors deployed 15 Fukui traps in June within the lagoon. Over the succeeding three days, they marked all crabs caught by clipping two spines on the carapace, recording their size, and releasing them back to their original location. Within successive weeks as part of an eradication program, crabs were removed, and the number and carapace width of retrieved (marked and unmarked) crabs were recorded.
+
+Data was retrieved from NSF’s Biological and Chemical Oceanography Data Management Office at https://www.bco-dmo.org/person/699768. While the mark-recapture experiment took place from 2011-2018, we only used data from one year, 2011, since the marking data was unambiguous.
+
 The batch mark-recapture data consists of 1) the count of marked and released crabs of discrete size $x_i$ in the first time period, $n^{\text{mc}}(x_i)$, and 2) the count of recaptured and marked crabs of discrete size $x_i$ in the second time period, $m^{\text{mc}}(x_i)$. These data follow a binomial distribution:
 
 $$

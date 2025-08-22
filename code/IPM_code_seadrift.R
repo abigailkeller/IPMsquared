@@ -803,7 +803,7 @@ out <- clusterEvalQ(cl, {
 })
 
 # save samples
-saveRDS(out, "data/posterior_samples/savedsamples_IPM_20250818a_seadrift.rds")
+saveRDS(out, "data/posterior_samples/savedsamples_IPM_seadrift.rds")
 
 stopCluster(cl)
 
@@ -812,16 +812,16 @@ stopCluster(cl)
 ##################
 
 # read in samples
-samples <- readRDS("data/posterior_samples/archive/savedsamples_IPM_20250818a.rds")
-
-lower <- 2000
-upper <- 10001
-sequence <- seq(lower, upper, 1)
-samples_mat <- list(samples[[1]][sequence, ], samples[[2]][sequence, ],
-                    samples[[3]][sequence, ], samples[[4]][sequence, ],
-                    samples[[5]][sequence, ], samples[[6]][sequence, ])
-
-param <- "mu_R"
+# samples <- readRDS("data/posterior_samples/archive/savedsamples_IPM_20250818a.rds")
+# 
+# lower <- 2000
+# upper <- 10001
+# sequence <- seq(lower, upper, 1)
+# samples_mat <- list(samples[[1]][sequence, ], samples[[2]][sequence, ],
+#                     samples[[3]][sequence, ], samples[[4]][sequence, ],
+#                     samples[[5]][sequence, ], samples[[6]][sequence, ])
+# 
+# param <- "mu_R"
 # 
 # ggplot() +
 #   geom_line(aes(x = 1:nrow(samples[[1]][sequence, ]),

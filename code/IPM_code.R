@@ -532,7 +532,7 @@ inits <- function() {
 # run MCMC in parallel #
 ########################
 
-cl <- makeCluster(4)
+cl <- makeCluster(6)
 
 set.seed(10120)
 
@@ -842,13 +842,13 @@ out <- clusterEvalQ(cl, {
 })
 
 # discard burnin
-lower <- 2000
-upper <- 10001
-sequence <- seq(lower, upper, 1)
-out_sub <- list(out[[1]][sequence, ], out[[2]][sequence, ],
-                out[[3]][sequence, ], out[[4]][sequence, ])
+# lower <- 2000
+# upper <- 10001
+# sequence <- seq(lower, upper, 1)
+# out_sub <- list(out[[1]][sequence, ], out[[2]][sequence, ],
+#                 out[[3]][sequence, ], out[[4]][sequence, ])
 
 # save samples
-saveRDS(out_sub, "data/posterior_samples/savedsamples_IPM.rds")
+saveRDS(out, "data/posterior_samples/savedsamples_IPM.rds")
 
 stopCluster(cl)
