@@ -12,11 +12,9 @@ The multi-year time series data (D1) was collected in Drayton Harbor, an enclose
 
 **Figure A1.1:** Bathymetric map of Drayton Harbor. Colors indicate depth and black line indicates coast line.
 
-```{r dh-figure, echo=FALSE}
+```{r dh-figure, echo=FALSE, out.width="80%"}
 knitr::include_graphics(
   "../figures/supplemental_map.png"
-  # paste0("C:/Users/abiga/Documents/Berkeley/Structured_Decision_Making/",
-  #        "pop_dynamics_model/IPMsquared/figures/supplemental_map.png")
 )
 ```
 
@@ -123,11 +121,9 @@ The experiment took place over four time periods, $t \in \{0 ... 3\}$. Marking e
 
 **Figure A1.2:** Conceptual diagram of mark-recapture schema. The number of crabs marked at time $t$ of size $x$ is $m^{\text{mc}}_t(x)$, the number of crabs recaptured at time $t$ of size $x$ is $r^{\text{mc}}_t(x)$, and the total number of crabs marked at time $t$ of size $x$ is $N^{\text{mc}}_t(x)$.
 
-```{r markrecap-figure, echo=FALSE}
+```{r markrecap-figure, echo=FALSE, out.width="100%"}
 knitr::include_graphics(
   "../figures/appendix_mark_recapture_conceptual-01.png"
-  # paste0("C:/Users/abiga/Documents/Berkeley/Structured_Decision_Making/",
-  #        "pop_dynamics_model/IPMsquared/figures/appendix_mark_recapture_conceptual-01.png")
 )
 ```
 
