@@ -1,0 +1,163 @@
+---
+title: "Appendix 2: Prior distributions and multinomial-Dirichlet mixture"
+output: pdf_document
+---
+
+## Appendix 2.1
+
+The following vague prior distributions were used in the model. Parameter descriptions associated with parameter symbols can be found in Table 1 of the main text:
+
+Trap size selectivity parameters:
+
+$$
+h_M^{max} \sim \text{Uniform}(0, 0.1)
+$$
+
+$$
+h_M^A \sim \text{Uniform}(35, 60)
+$$
+
+$$
+h_M^{\sigma} \sim \text{Uniform}(3, 10)
+$$
+
+$$
+h_F^{max} \sim \text{Uniform}(0, 0.1)
+$$
+
+$$
+h_F^k \sim \text{Uniform}(0.1, 1.5)
+$$
+
+$$
+h_F^0 \sim \text{Uniform}(30, 100)
+$$
+
+$$
+h_S^{max} \sim \text{Uniform}(0, 0.1)
+$$
+
+$$
+h_S^k \sim \text{Uniform}(0.1, 1.5)
+$$
+
+$$
+h_S^0 \sim \text{Uniform}(30, 100)
+$$
+
+
+Natural mortality parameters:
+
+$$
+\beta \sim \text{Uniform}(0, 10000)
+$$
+
+$$
+\alpha \sim \text{Uniform}(0, 10000)
+$$
+
+
+Overwinter mortality parameters:
+
+$$
+\alpha^o_{\mu} \sim \text{Uniform}(-50, 50)
+$$
+
+$$
+\alpha^o_{\sigma} \sim \text{Uniform}(0, 150)
+$$
+
+
+Seasonal growth parameters:
+
+$$
+k \sim \text{Uniform}(0, 2)
+$$
+
+$$
+A \sim \text{Uniform}(0, 4)
+$$
+
+$$
+d_s \sim \text{Uniform}(-1, 0)
+$$
+
+$$
+t_0 \sim \text{Uniform}(-10, 10)
+$$
+
+$$
+\sigma_w \sim \text{Uniform}(0, 100)
+$$
+
+$$
+\sigma_y \sim \text{Uniform}(0, 100)
+$$
+
+$$
+x_{\infty} \sim \text{Uniform}(70, 140)
+$$
+
+$$
+\sigma_G \sim \text{Uniform}(0.01, 4)
+$$
+
+
+Overdispersion observation process (see Appendix 2.2):
+
+$$
+\rho \sim \text{Beta}(1, 1)
+$$
+
+
+Initial population density and annual recruitment:
+
+
+$$
+\text{log}(\mu^A) \sim \text{Uniform}(3.25, 4.5)
+$$
+
+$$
+\sigma^A \sim \text{Uniform}(0.1, 1)
+$$
+
+$$
+\mu^R \sim \text{Uniform}(1, 25)
+$$
+
+$$
+\sigma^R \sim \text{Uniform}(0.01, 20)
+$$
+
+$$
+\mu^{\lambda} \sim \text{Uniform}(-50, 50)
+$$
+
+$$
+\sigma^{\lambda} \sim \text{Uniform}(0, 10000)
+$$
+
+$$
+\lambda^A \sim \text{Uniform}(1, 1000000)
+$$
+
+
+
+
+
+## Appendix 2.2
+
+Similarly to how a beta-binomial replaces a single probability with a Beta distribution of probabilities among binomial draws to account for overdispersion, the Dirichlet-multinomial mixture replaces a single vector of probabilities (that sum to one) with a Dirichlet distribution of such vectors to account for overdispersion in counts among traps.
+
+The parameter $\alpha^D$ amount of overdispersion in the Dirichlet-multinomial mixture distribution and generates the conditional probability of capture, $p^C_{t,j,y}(x)$, across individual traps.
+
+The parameter $\alpha^D$ is linked to the sampled parameter, $\rho$:
+
+$$
+\alpha^D = p^C_{t,j,y}(x) \times p^D
+$$
+
+$$
+p^D = \frac{1-\rho}{\rho}
+$$
+
