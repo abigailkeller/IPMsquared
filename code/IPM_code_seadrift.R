@@ -821,27 +821,27 @@ stopCluster(cl)
 #                     samples[[3]][sequence, ], samples[[4]][sequence, ],
 #                     samples[[5]][sequence, ], samples[[6]][sequence, ])
 # 
-# param <- "mu_R"
-# 
-# ggplot() +
-#   geom_line(aes(x = 1:nrow(samples[[1]][sequence, ]),
-#                 y = samples[[1]][sequence, param]),
-#             color = "blue") +
-#   geom_line(aes(x = 1:nrow(samples[[2]][sequence, ]),
-#                 y = samples[[2]][sequence, param]),
-#             color = "red") +
-#   geom_line(aes(x = 1:nrow(samples[[3]][sequence, ]),
-#                 y = samples[[3]][sequence, param]),
-#             color = "purple") +
-#   geom_line(aes(x = 1:nrow(samples[[4]][sequence, ]),
-#                 y = samples[[4]][sequence, param]),
-#             color = "pink") +
-#   geom_line(aes(x = 1:nrow(samples[[5]][sequence, ]),
-#                 y = samples[[5]][sequence, param]),
-#             color = "yellow") +
-#   geom_line(aes(x = 1:nrow(samples[[6]][sequence, ]),
-#                 y = samples[[6]][sequence, param]),
-#             color = "green")
+param <- "alpha"
+
+ggplot() +
+  geom_line(aes(x = 1:nrow(samples[[1]][sequence, ]),
+                y = samples[[1]][sequence, param]),
+            color = "blue") +
+  geom_line(aes(x = 1:nrow(samples[[2]][sequence, ]),
+                y = samples[[2]][sequence, param]),
+            color = "red") +
+  geom_line(aes(x = 1:nrow(samples[[3]][sequence, ]),
+                y = samples[[3]][sequence, param]),
+            color = "purple") +
+  geom_line(aes(x = 1:nrow(samples[[4]][sequence, ]),
+                y = samples[[4]][sequence, param]),
+            color = "pink") 
+  geom_line(aes(x = 1:nrow(samples[[5]][sequence, ]),
+                y = samples[[5]][sequence, param]),
+            color = "yellow") +
+  geom_line(aes(x = 1:nrow(samples[[6]][sequence, ]),
+                y = samples[[6]][sequence, param]),
+            color = "green")
 
 # 
 # # calculate WAIC
