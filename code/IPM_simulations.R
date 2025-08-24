@@ -29,7 +29,7 @@ get_params <- function(samples, index) {
     h_S_0 = as.numeric(samples[index, "h_S_0"]),
     alpha = as.numeric(samples[index, "alpha"]),
     beta = as.numeric(samples[index, "beta"]),
-    alpha_o_mu = as.numeric(samples[index, "alpha_o_mu"]),
+    alpha_o = as.numeric(samples[index, "alpha_o"]),
     alpha_o_sd = as.numeric(samples[index, "alpha_o_sd"]),
     gk = as.numeric(samples[index, "gk"]),
     xinf = as.numeric(samples[index, "xinf"]),
@@ -190,11 +190,10 @@ survival <- function(params, x, t1, t2) {
   return(out)
 }
 
-# density- and size-dependent overwinter survival
-overwinter_survival <- function(alpha_o, N_sum, x) {
+overwinter_survival <- function(alpha_o, N_sum, x, eps_y) {
   
   # get probability of survival
-  out <- exp(-(alpha_o * N_sum / x ^ 2))
+  out <- exp(-(alpha_o * N_sum / x ^ 2 + eps_y))
     
   return(out)
 }
@@ -226,7 +225,7 @@ init_sizes_lnorm <- function(params, lower, upper) {
 
 # function to simulate one year
 simulate_year <- function(params, constant, nobs, N, N_recruit,
-                          alpha_o, year, n_years,
+                          eps_y, year, n_years,
                           obs_ref_f, obs_ref_s, obs_ref_m) {
 
   # check N_recruit
@@ -296,7 +295,7 @@ simulate_year <- function(params, constant, nobs, N, N_recruit,
                           round(sum(wgrowth_N)), 0)
 
   # get overwinter survival
-  S_o <- overwinter_survival(alpha_o, wgrowth_N_sum, constant$x)
+  S_o <- overwinter_survival(params$alpha_o, wgrowth_N_sum, constant$x, eps_y)
   for (k in 1:constant$n_size) {
     new_N <- ifelse(round(wgrowth_N[k]) > 0,
                     round(wgrowth_N[k]), 0)
@@ -309,7 +308,7 @@ simulate_year <- function(params, constant, nobs, N, N_recruit,
 
 # function to simulate one year - no effort
 simulate_year_noeffort <- function(params, constant, N, N_recruit,
-                                   alpha_o, year, n_years) {
+                                   eps_y, year, n_years) {
 
   # check N_recruit
   N_recruit <- ifelse(as.numeric(N_recruit) < 0, 0, as.numeric(N_recruit))
@@ -346,7 +345,7 @@ simulate_year_noeffort <- function(params, constant, N, N_recruit,
                           round(sum(wgrowth_N)), 0)
 
   # get overwinter survival
-  S_o <- overwinter_survival(alpha_o, wgrowth_N_sum, constant$x)
+  S_o <- overwinter_survival(params$alpha_o, wgrowth_N_sum, constant$x, eps_y)
   for (k in 1:constant$n_size) {
     new_N <- ifelse(round(wgrowth_N[k]) > 0,
                     round(wgrowth_N[k]), 0)
@@ -359,14 +358,14 @@ simulate_year_noeffort <- function(params, constant, N, N_recruit,
 # function to simulate multiple years
 simulate_interannual <- function(params, constant, nobs,
                                  n_years, n_years_burn, N, N_recruit,
-                                 alpha_o,
+                                 eps_y,
                                  obs_ref_f, obs_ref_s, obs_ref_m) {
 
   out <- as.data.frame(matrix(NA, nrow = n_years, ncol = length(N)))
 
   for (i in 1:n_years) {
     out[i, ] <- simulate_year(params, constant, nobs, N, N_recruit[i],
-                              alpha_o[i], i, n_years,
+                              eps_y[i], i, n_years,
                               obs_ref_f, obs_ref_s, obs_ref_m)
   }
 
@@ -376,13 +375,13 @@ simulate_interannual <- function(params, constant, nobs,
 }
 simulate_interannual_noeffort <- function(params, constant, n_years,
                                           n_years_burn, N, N_recruit,
-                                          alpha_o) {
+                                          eps_y) {
 
   out <- as.data.frame(matrix(NA, nrow = n_years, ncol = length(N)))
 
   for (i in 1:n_years) {
     out[i, ] <- simulate_year_noeffort(params, constant, N, N_recruit[i],
-                                       alpha_o[i], i, n_years)
+                                       eps_y[i], i, n_years)
   }
   # subset to averaged years
   sub <- out[(n_years_burn + 1):n_years, ]
@@ -427,13 +426,12 @@ for (i in 1:length(index)) {
                                 sdlog = params$sigma_R_lambda), 10000)
 }
 
-# get natural mortality params
-alpha_o <- as.data.frame(matrix(nrow = length(index), ncol = constant$n_years))
+# get overwinter mortality params
+eps_y <- as.data.frame(matrix(nrow = length(index), ncol = constant$n_years))
 
 for (i in 1:length(index)) {
   params <- get_params(samples, i)
-  alpha_o[i, ] <- rlnorm(constant$n_years, meanlog = params$alpha_o_mu,
-                         sdlog = params$alpha_o_sd)
+  eps_y[i, ] <- rnorm(constant$n_years, 0, sd = params$alpha_o_sd)
 }
 
 for (e in effort) {
@@ -466,7 +464,7 @@ for (e in effort) {
                                           constant, nobs, constant$n_years,
                                           constant$n_years_burn,
                                           N[k, ], N_recruit[k, ],
-                                          as.numeric(alpha_o[k, ]),
+                                          as.numeric(eps_y[k, ]),
                                           obs_ref_f, obs_ref_s, obs_ref_m),
                      nobs * constant$ntime, prop_s, prop_f, prop_m, k))
 
@@ -483,7 +481,7 @@ for (i in 1:length(index)) {
   out_noeffort[i, ] <- simulate_interannual_noeffort(
     get_params(samples, index[i]), constant, constant$n_years,
     constant$n_years_burn, N[i, ], N_recruit[i, ],
-    as.numeric(alpha_o[i, ])
+    as.numeric(eps_y[i, ])
   )
 
 }

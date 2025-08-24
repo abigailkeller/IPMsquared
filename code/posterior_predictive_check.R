@@ -136,13 +136,13 @@ model_code <- nimbleCode({
     
     # Equation 10
     ## size- and density-dependent overwinter survival
-    S_o[y, 1:n_size] <- overwinter_survival(alpha_o[y],
+    S_o[y, 1:n_size] <- overwinter_survival(alpha_o,
                                             wgrowth_N_sum[y],
-                                            x[1:n_size])
+                                            x[1:n_size], eps_y[y])
     
     # Equation 11
     ## year-specific intensity of overwinter mortality
-    alpha_o[y] ~ dlnorm(alpha_o_mu, alpha_o_sd)
+    eps_y[y] ~ dnorm(0, sd = alpha_o_sd)
   }
   
   #####################################################
@@ -340,6 +340,8 @@ model_code <- nimbleCode({
   sigma_y ~ dunif(0, 100)
   # asymptotic size
   xinf ~ dunif(70, 140)
+  # growth error
+  sigma_G ~ dunif(0.01, 4)
   
   ##
   # size selectivity parameters
@@ -373,16 +375,9 @@ model_code <- nimbleCode({
   # size-dependent natural mortality, shared across all sites
   alpha ~ dunif(0, 10000)
   # lognormal distribution mu - instantaneous prob of overwinter mortality
-  alpha_o_mu ~ dunif(-50, 50)
+  alpha_o ~ dunif(0, 50)
   # lognormal distribution sd - instantaneous prob of overwinter mortality
-  alpha_o_sd ~ dunif(0, 150)
-  
-  ##
-  # IPM - growth
-  ##
-  
-  # growth error
-  sigma_G ~ dunif(0.01, 4)
+  alpha_o_sd ~ dunif(0, 1000)
   
   ##
   # observation process
@@ -490,43 +485,6 @@ data <- list(
   # growth data: age
   age = growth_data$age
 )
-
-
-# create N_overwinter initial values
-N_overwinter <- matrix(NA, nrow = dim(C)[3] - 1, ncol = length(x))
-adult_mean <- c(log(75), log(80), log(82))
-mean_recruit <- c(log(55), log(52), log(52))
-lambda_A <- c(500, 400, 100)
-lambda_R <- c(300, 75, 400)
-adult_sd <- 0.08
-recruit_sd <- 0.1
-for (i in 1:(dim(C)[3] - 1)) {
-  prob_r <- dlnorm(x, mean_recruit[i], recruit_sd) /
-    sum(dlnorm(x, mean_recruit[i], recruit_sd))
-  prob_a <- dlnorm(x, adult_mean[i], adult_sd) /
-    sum(dlnorm(x, adult_mean[i], adult_sd))
-  N_overwinter[i, ] <- round(prob_a * lambda_A[i] + prob_r * lambda_R[i])
-}
-
-# initial values
-inits <- function() {
-  list(
-    h_M_max = runif(1, 0.0001, 0.0008), h_M_A = runif(1, 35, 60), 
-    h_M_sigma = runif(1, 5, 8), h_F_max = runif(1, 0.0001, 0.0008), 
-    h_F_k = runif(1, 0.1, 0.5), h_F_0 = runif(1, 30, 60),
-    h_S_max = runif(1, 0.001, 0.005), h_S_k = runif(1, 0.1, 0.5), 
-    h_S_0 = runif(1, 30, 60), ro_dir = 0.01, alpha = 0.1,
-    alpha_o_mu = log(0.01), alpha_o_sd = 0.5, gk = 1,
-    xinf = 85, A = 0.79, ds = -0.64, sigma_G = 2.5, 
-    sigma_R = 1, mu_R = 20, log_mu_A = 4, sigma_A = 0.2,
-    lambda_A = 1800, lambda_R = c(1000, 100, 1000, 100), mu_lambda = log(500),
-    sigma_lambda = 0.3, beta = 0.001,
-    alpha_o = c(0.0308, 0.00669, 0.0346), N_overwinter = N_overwinter,
-    t0 = runif(1, -0.5, 0), sigma_w = runif(1, 0.01, 1), 
-    sigma_y = runif(1, 0.01, 1),
-    growth_ranef = runif(length(unique(growth_data$year_index)), 0, 1)
-  )
-}
 
 # define dirichlet multinomial mixture
 # pdf
@@ -771,12 +729,12 @@ assign("survival", survival, envir = .GlobalEnv)
 overwinter_survival <- nimbleFunction (
   
   run = function(alpha_o = double(0), N_sum = double(0),
-                 x = double(1))
+                 x = double(1), eps_y = double(0))
   {
     returnType(double(1))
     
     # get probability of survival
-    out <- exp(-(alpha_o * N_sum / x ^ 2))
+    out <- exp(-(alpha_o * N_sum / x ^ 2 + eps_y))
     
     return(out)
   }
@@ -787,27 +745,7 @@ assign("overwinter_survival", overwinter_survival, envir = .GlobalEnv)
 # build model
 myModel <- nimbleModel(code = model_code,
                        data = data,
-                       constants = constants,
-                       inits = inits())
-
-
-# build the MCMC
-mcmcConf_myModel <- configureMCMC(
-  myModel,
-  monitors = c("h_M_max", "h_M_A", "h_M_sigma", "h_F_max",
-               "h_F_k", "h_F_0", "h_S_max", "h_S_k",
-               "h_S_0", "gk",
-               "xinf", "A", "ds", "sigma_G",
-               "sigma_R", "mu_R", "log_mu_A",
-               "sigma_A", "mu_lambda", "sigma_lambda",
-               "lambda_R", "lambda_A", "beta", "alpha_o",
-               "alpha", "alpha_o_mu", "alpha_o_sd", "N_overwinter",
-               "wgrowth_N_sum", "ro_dir", "C_T", 
-               "t0", "sigma_w", "sigma_y", "growth_ranef"),
-  useConjugacy = FALSE, enableWAIC = TRUE)
-
-# build MCMC
-myMCMC <- buildMCMC(mcmcConf_myModel)
+                       constants = constants)
 
 # compile the model and MCMC
 CmyModel <- compileNimble(myModel)
@@ -871,9 +809,9 @@ upper <- 8002
 sub <- seq(lower, upper, 5)
 # all samples (including data) for data likelihood
 samples_all <- rbind(samples_in[[1]][sub, ],
-                 samples_in[[2]][sub, ],
-                 samples_in[[3]][sub, ],
-                 samples_in[[4]][sub, ])
+                     samples_in[[2]][sub, ],
+                     samples_in[[3]][sub, ],
+                     samples_in[[4]][sub, ])
 # top nodes and latent states for posterior predictive samples likelihood
 samples <- rbind(samples_in[[1]][sub, c(1, 1234:1347, 1351)],
                  samples_in[[2]][sub, c(1, 1234:1347, 1351)],

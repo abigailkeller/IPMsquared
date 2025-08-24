@@ -31,6 +31,7 @@ f_index_mc <- readRDS("data/model_data/f_index_mc.rds")
 s_index_mc <- readRDS("data/model_data/s_index_mc.rds")
 m_index_mc <- readRDS("data/model_data/m_index_mc.rds")
 
+
 # read in IPM constants
 b <- readRDS("data/model_data/b.rds")
 x <- readRDS("data/model_data/x.rds")
@@ -134,13 +135,13 @@ model_code <- nimbleCode({
 
     # Equation 10
     ## size- and density-dependent overwinter survival
-    S_o[y, 1:n_size] <- overwinter_survival(alpha_o[y],
+    S_o[y, 1:n_size] <- overwinter_survival(alpha_o,
                                             wgrowth_N_sum[y],
-                                            x[1:n_size])
+                                            x[1:n_size], eps_y[y])
 
     # Equation 11
     ## year-specific intensity of overwinter mortality
-    alpha_o[y] ~ dlnorm(alpha_o_mu, alpha_o_sd)
+    eps_y[y] ~ dnorm(0, sd = alpha_o_sd)
   }
 
   #####################################################
@@ -304,6 +305,8 @@ model_code <- nimbleCode({
   sigma_y ~ dunif(0, 100)
   # asymptotic size
   xinf ~ dunif(70, 140)
+  # growth error
+  sigma_G ~ dunif(0.01, 4)
   
   ##
   # size selectivity parameters
@@ -337,16 +340,9 @@ model_code <- nimbleCode({
   # size-dependent natural mortality, shared across all sites
   alpha ~ dunif(0, 10000)
   # lognormal distribution mu - instantaneous prob of overwinter mortality
-  alpha_o_mu ~ dunif(-50, 50)
+  alpha_o ~ dunif(0, 50)
   # lognormal distribution sd - instantaneous prob of overwinter mortality
-  alpha_o_sd ~ dunif(0, 150)
-  
-  ##
-  # IPM - growth
-  ##
-  
-  # growth error
-  sigma_G ~ dunif(0.01, 4)
+  alpha_o_sd ~ dunif(0, 1000)
   
   ##
   # observation process
@@ -476,12 +472,12 @@ inits <- function() {
     h_F_k = runif(1, 0.1, 0.5), h_F_0 = runif(1, 30, 60),
     h_S_max = runif(1, 0.001, 0.005), h_S_k = runif(1, 0.1, 0.5), 
     h_S_0 = runif(1, 30, 60), ro_dir = 0.01, alpha = 0.1,
-    alpha_o_mu = log(0.01), alpha_o_sd = 0.5, gk = 1,
+    alpha_o_sd = 0.5, eps_y = c(0, 0, 0), gk = 1,
     xinf = 85, A = 0.79, ds = -0.64, sigma_G = 2.5, 
     sigma_R = 1, mu_R = 20, log_mu_A = 4, sigma_A = 0.2,
     lambda_A = 1800, lambda_R = c(1000, 100, 1000, 100), mu_lambda = log(500),
     sigma_lambda = 0.3, beta = 0.001,
-    alpha_o = c(0.0308, 0.00669, 0.0346), N_overwinter = N_overwinter,
+    alpha_o = 0.0308, N_overwinter = N_overwinter,
     t0 = runif(1, -0.5, 0), sigma_w = runif(1, 0.01, 1), 
     sigma_y = runif(1, 0.01, 1),
     growth_ranef = runif(length(unique(growth_data$year_index)), 0, 1)
@@ -493,7 +489,7 @@ inits <- function() {
 # run MCMC in parallel #
 ########################
 
-cl <- makeCluster(8)
+cl <- makeCluster(4)
 
 set.seed(10120)
 
@@ -749,12 +745,12 @@ out <- clusterEvalQ(cl, {
   overwinter_survival <- nimbleFunction (
     
     run = function(alpha_o = double(0), N_sum = double(0),
-                   x = double(1))
+                   x = double(1), eps_y = double(0))
     {
       returnType(double(1))
       
       # get probability of survival
-      out <- exp(-(alpha_o * N_sum / x ^ 2))
+      out <- exp(-(alpha_o * N_sum / x ^ 2 + eps_y))
       
       return(out)
     }
@@ -779,7 +775,7 @@ out <- clusterEvalQ(cl, {
                  "sigma_R", "mu_R", "log_mu_A",
                  "sigma_A", "mu_lambda", "sigma_lambda",
                  "lambda_R", "lambda_A", "beta", "alpha_o",
-                 "alpha", "alpha_o_mu", "alpha_o_sd", "N_overwinter",
+                 "alpha", "eps_y", "alpha_o_sd", "N_overwinter",
                  "wgrowth_N_sum", "ro_dir", "C_T", 
                  "t0", "sigma_w", "sigma_y", "growth_ranef"),
     useConjugacy = FALSE, enableWAIC = TRUE)
@@ -802,50 +798,15 @@ out <- clusterEvalQ(cl, {
   return(samples)
 })
 
+# discard burnin
+lower <- 2000
+upper <- 10001
+sequence <- seq(lower, upper, 1)
+out_sub <- list(out[[1]][sequence, ], out[[2]][sequence, ],
+                out[[3]][sequence, ], out[[4]][sequence, ])
+
 # save samples
-saveRDS(out, "data/posterior_samples/savedsamples_IPM_seadrift.rds")
+saveRDS(out_sub, "data/posterior_samples/savedsamples_IPM_seadrift.rds")
 
 stopCluster(cl)
 
-##################
-# calculate WAIC #
-##################
-
-# read in samples
-# samples <- readRDS("data/posterior_samples/archive/savedsamples_IPM_20250818a.rds")
-# 
-# lower <- 2000
-# upper <- 10001
-# sequence <- seq(lower, upper, 1)
-# samples_mat <- list(samples[[1]][sequence, ], samples[[2]][sequence, ],
-#                     samples[[3]][sequence, ], samples[[4]][sequence, ],
-#                     samples[[5]][sequence, ], samples[[6]][sequence, ])
-# 
-param <- "alpha"
-
-ggplot() +
-  geom_line(aes(x = 1:nrow(samples[[1]][sequence, ]),
-                y = samples[[1]][sequence, param]),
-            color = "blue") +
-  geom_line(aes(x = 1:nrow(samples[[2]][sequence, ]),
-                y = samples[[2]][sequence, param]),
-            color = "red") +
-  geom_line(aes(x = 1:nrow(samples[[3]][sequence, ]),
-                y = samples[[3]][sequence, param]),
-            color = "purple") +
-  geom_line(aes(x = 1:nrow(samples[[4]][sequence, ]),
-                y = samples[[4]][sequence, param]),
-            color = "pink") 
-  geom_line(aes(x = 1:nrow(samples[[5]][sequence, ]),
-                y = samples[[5]][sequence, param]),
-            color = "yellow") +
-  geom_line(aes(x = 1:nrow(samples[[6]][sequence, ]),
-                y = samples[[6]][sequence, param]),
-            color = "green")
-
-# 
-# # calculate WAIC
-# calculateWAIC(samples_mat, CmyModel)
-# WAIC: 6390.837
-# lppd: -3153.324
-# pWAIC: 42.0952

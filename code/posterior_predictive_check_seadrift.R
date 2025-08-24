@@ -1,9 +1,5 @@
 library(nimble)
 
-###########################
-# build and compile model #
-###########################
-
 # read in time series data
 C <- readRDS("data/model_data/counts.rds")
 C_T <- readRDS("data/model_data/n_cap.rds")
@@ -32,9 +28,13 @@ f_index_mc <- readRDS("data/model_data/f_index_mc.rds")
 s_index_mc <- readRDS("data/model_data/s_index_mc.rds")
 m_index_mc <- readRDS("data/model_data/m_index_mc.rds")
 
+
 # read in IPM constants
 b <- readRDS("data/model_data/b.rds")
 x <- readRDS("data/model_data/x.rds")
+
+# read in growth data
+growth_data <- readRDS("data/model_data/growth_data.rds")
 
 
 # Write model code
@@ -53,13 +53,13 @@ model_code <- nimbleCode({
   # project to first observed time period - year 2-4
   for (y in 2:n_year) {
     N[1, y, 1:n_size] <- get_kernel(xinf, gk, sigma_G, A,
-                                    ts, 0, D[1, y], n_size, pi,
+                                    ds, 0, D[1, y], n_size, pi,
                                     x[1:n_size], lower[1:n_size],
                                     upper[1:n_size], S[1, y, 1:n_size]) %*%
       N_overwinter[y - 1, 1:n_size]
     
     ## natural survival
-    S[1, y, 1:n_size] <- survival(alpha, beta[y], x[1:n_size], 0, D[1, y])
+    S[1, y, 1:n_size] <- survival(alpha, beta, x[1:n_size], 0, D[1, y])
   }
   
   # intra-annual change
@@ -69,7 +69,7 @@ model_code <- nimbleCode({
       # Equations 1 - 2
       ## project
       N[t + 1, y, 1:n_size] <- get_kernel(xinf, gk, sigma_G,
-                                          A, ts, D[t, y],
+                                          A, ds, D[t, y],
                                           D[t + 1, y], n_size, pi,
                                           x[1:n_size], lower[1:n_size],
                                           upper[1:n_size],
@@ -79,16 +79,10 @@ model_code <- nimbleCode({
       
       # Equation 7
       ## natural survival
-      S[t + 1, y, 1:n_size] <- survival(alpha, beta[y], x[1:n_size], D[t, y],
+      S[t + 1, y, 1:n_size] <- survival(alpha, beta, x[1:n_size], D[t, y],
                                         D[t + 1, y])
       
     }
-  }
-  
-  # Equation 8
-  ## year-specific natural mortality (process error, includes mark-recapture)
-  for (y in 1:(n_year + 1)) {
-    beta[y] ~ dgamma(beta_alpha, beta_theta)
   }
   
   # project all years to the same intra-annual end point by
@@ -99,7 +93,7 @@ model_code <- nimbleCode({
       # Equations 1 - 2
       ## project
       N[t + 1, year_short[y], 1:n_size] <- get_kernel(xinf, gk, sigma_G,
-                                                      A, ts,
+                                                      A, ds,
                                                       D[t, year_short[y]],
                                                       D[t + 1, year_short[y]],
                                                       n_size, pi,
@@ -110,7 +104,7 @@ model_code <- nimbleCode({
                                                         1:n_size]) %*%
         N[t, year_short[y], 1:n_size]
       
-      S[t + 1, year_short[y], 1:n_size] <- survival(alpha, beta[y], x[1:n_size],
+      S[t + 1, year_short[y], 1:n_size] <- survival(alpha, beta, x[1:n_size],
                                                     D[t, year_short[y]],
                                                     D[t + 1, year_short[y]])
     }
@@ -120,7 +114,7 @@ model_code <- nimbleCode({
   ## inter-annual change
   # project to new year with seasonal growth
   for (y in 1:(n_year - 1)) {
-    wgrowth_N[y, 1:n_size] <- get_kernel(xinf, gk, sigma_G, A, ts,
+    wgrowth_N[y, 1:n_size] <- get_kernel(xinf, gk, sigma_G, A, ds,
                                          max_D, 1,
                                          n_size, pi, x[1:n_size],
                                          lower[1:n_size], upper[1:n_size],
@@ -136,15 +130,15 @@ model_code <- nimbleCode({
                                   prob = S_o[y, k])
     }
     
-    # Equation 11
+    # Equation 10
     ## size- and density-dependent overwinter survival
-    S_o[y, 1:n_size] <- overwinter_survival(alpha_o[y],
+    S_o[y, 1:n_size] <- overwinter_survival(alpha_o,
                                             wgrowth_N_sum[y],
-                                            x[1:n_size])
+                                            x[1:n_size], eps_y[y])
     
-    # Equation 12
+    # Equation 11
     ## year-specific intensity of overwinter mortality
-    alpha_o[y] ~ dgamma(alpha_o_alpha, alpha_o_theta)
+    eps_y[y] ~ dnorm(0, sd = alpha_o_sd)
   }
   
   #####################################################
@@ -153,23 +147,23 @@ model_code <- nimbleCode({
   
   # Equation 13
   ## get initial size-structured abundance of adults - year 1
-  N_init[1:n_size] <- get_init_adult(mu_A, sigma_A,
+  N_init[1:n_size] <- get_init_adult(log_mu_A, sigma_A,
                                      lower[1:n_size], upper[1:n_size], lambda_A)
   
   # project to first observed time period - year 1
   N[1, 1, 1:n_size] <- get_kernel(xinf, gk, sigma_G, A,
-                                  ts, 0, D[1, 1], n_size, pi,
+                                  ds, 0, D[1, 1], n_size, pi,
                                   x[1:n_size], lower[1:n_size],
                                   upper[1:n_size], S[1, 1, 1:n_size]) %*%
     N_init[1:n_size]
   
   ## natural survival
-  S[1, 1, 1:n_size] <- survival(alpha, beta[1], x[1:n_size], 0, D[1, 1])
+  S[1, 1, 1:n_size] <- survival(alpha, beta, x[1:n_size], 0, D[1, 1])
   
   # Equation 14
   ## annual abundance of recruits
   for (m in 1:n_year) {
-    lambda_R[m] ~ T(dnorm(mu_lambda, sd = sigma_lambda), 0, Inf)
+    lambda_R[m] ~ dlnorm(mu_lambda, sdlog = sigma_lambda)
   }
   
   # Equation 15
@@ -206,8 +200,7 @@ model_code <- nimbleCode({
       # Equations 18 - 20
       ## calculate hazard rate
       hazard[t, 1:totalo[t, y], y, 1:n_size] <- calc_hazard(
-        totalo[t, y], n_size, h_F_max, h_F_max_adj, 
-        h_F_k, h_F_0, h_S_max, h_S_k, h_S_0,
+        totalo[t, y], n_size, h_F_max, h_F_k, h_F_0, h_S_max, h_S_k, h_S_0,
         h_M_max, h_M_A, h_M_sigma, f_index[t, 1:totalo[t, y], y],
         s_index[t, 1:totalo[t, y], y], m_index[t, 1:totalo[t, y], y],
         soak_days[t, 1:totalo[t, y], y], x[1:n_size]
@@ -250,44 +243,67 @@ model_code <- nimbleCode({
   
   # size-dependent hazard rates with mark-recapture data
   hazard_mc[1:totalo_mc, 1:n_size] <- calc_hazard(
-    totalo_mc, n_size, h_F_max, h_F_max_adj, 
-    h_F_k, h_F_0, h_S_max, h_S_k, h_S_0, h_M_max,
+    totalo_mc, n_size, h_F_max, h_F_k, h_F_0, h_S_max, h_S_k, h_S_0, h_M_max,
     h_M_A, h_M_sigma, f_index_mc[1:totalo_mc], s_index_mc[1:totalo_mc],
     m_index_mc[1:totalo_mc], soak_days_mc[1:totalo_mc], x[1:n_size]
   )
   
   # Equation 26
   ## apply kernel from time of marking to time of recapture
-  n1_project[1:n_size] <- get_kernel(xinf, gk, sigma_G, A, ts, D_mc[1], D_mc[2],
+  n1_project[1:n_size] <- get_kernel(xinf, gk, sigma_G, A, ds, D_mc[1], D_mc[2],
                                      n_size, pi, x[1:n_size], lower[1:n_size],
                                      upper[1:n_size], S_mc[1:n_size]) %*%
     n1[1:n_size]
   
-  S_mc[1:n_size] <- survival(alpha, beta[5], x[1:n_size], D_mc[1], D_mc[2])
+  S_mc[1:n_size] <- survival(alpha, beta, x[1:n_size], D_mc[1], D_mc[2])
+  
   
   ################
   # Growth model #
   ################
   
-  # asymptotic size -- (from seasonal growth posterior)
-  xinf ~ dnorm(98.3, sd = 10.9)
-  # growth rate -- (from seasonal growth posterior)
-  gk ~ dnorm(0.55, sd = 0.15)
-  # amplitude of growth oscillations -- (from seasonal growth posterior)
-  A ~ dnorm(1.00, sd = 0.53)
-  # inflection point of growth oscillations -- (from seasonal growth posterior)
-  ts ~ dnorm(-0.72, sd = 0.14)
+  for(i in 1:n_growth_obs){
+    
+    W[i] ~ dnorm(W_hat[i], sd = sigma_w)
+    
+    W_hat[i] <- xinf * (1 - exp(-gk * (age[i] - t0) - S_t[i] + S_t0)) + 
+      growth_ranef[growth_year[i]]
+    
+    S_t[i] <- (A * gk / (2 * pi)) * sin(2 * pi * (age[i] - ds))
+  }
   
+  S_t0 <- (A * gk / (2 * pi)) * sin(2 * pi * (t0 - ds))
   
-  ################
-  ################
-  # Vague priors #
-  ################
-  ################
+  for(y in 1:n_growth_years){
+    
+    growth_ranef[y] ~ dnorm(0, sd = sigma_y)
+    
+  }
   
   #######################
   # Prior distributions #
   #######################
+  
+  ##
+  # growth model
+  ##
+  
+  # growth rate
+  gk ~ dunif(0, 2)
+  # amplitude of growth oscillations
+  A ~ dunif(0, 4)
+  # inflection point of growth oscillations
+  ds ~ dunif(-1, 0)
+  # age organism has 0 size
+  t0 ~ dunif(-10, 10)
+  # process error sd
+  sigma_w ~ dunif(0, 100)
+  # year random effect sd
+  sigma_y ~ dunif(0, 100)
+  # asymptotic size
+  xinf ~ dunif(70, 140)
+  # growth error
+  sigma_G ~ dunif(0.01, 4)
   
   ##
   # size selectivity parameters
@@ -301,7 +317,6 @@ model_code <- nimbleCode({
   h_M_sigma ~ dunif(3, 10)
   # fukui max. hazard rate
   h_F_max ~ dunif(0, 0.1)
-  h_F_max_adj ~ dunif(0, 0.1)
   # fukui k of logistic size selectivity curve
   h_F_k ~ dunif(0.1, 1.5)
   # fukui midpoint of logistic size selectivity curve
@@ -317,27 +332,19 @@ model_code <- nimbleCode({
   # IPM - natural mortality
   ##
   
-  # gamma distributions shape for instantaneous intensity of mortality
-  beta_alpha ~ dunif(0, 50)
-  # gamma distributions rate for instantaneous intensity of mortality
-  beta_theta ~ dunif(0, 150)
+  # size-independent natural mortality, shared across all sites
+  beta ~ dunif(0, 10000)
   # size-dependent natural mortality, shared across all sites
   alpha ~ dunif(0, 10000)
-  # gamma distribution shape - instantaneous probability of overwinter mortality
-  alpha_o_alpha ~ dunif(0, 50)
-  # gamma distribution rate - instantaneous probability of overwinter mortality
-  alpha_o_theta ~ dunif(0, 150)
-  
-  ##
-  # IPM - growth
-  ##
-  
-  # growth error
-  sigma_G ~ dunif(0.01, 4)
+  # lognormal distribution mu - instantaneous prob of overwinter mortality
+  alpha_o ~ dunif(0, 50)
+  # lognormal distribution sd - instantaneous prob of overwinter mortality
+  alpha_o_sd ~ dunif(0, 1000)
   
   ##
   # observation process
   ##
+  
   # dirichlet multinomial (overdispersion in count data)
   ro_dir ~ dbeta(1, 1)
   n_p_dir <- (1 - ro_dir) / ro_dir
@@ -347,15 +354,15 @@ model_code <- nimbleCode({
   ##
   
   # initial adult size (mean and sd)
-  mu_A ~ dunif(3.25, 4.5)
+  log_mu_A ~ dunif(3.25, 4.5)
   sigma_A ~ dunif(0.1, 1)
   
   # initial recruit size (mean and sd)
   mu_R ~ dunif(1, 25)
   sigma_R ~ dunif(0.01, 20)
   
-  # abundance of recruits (mean and sd)
-  mu_lambda ~ dunif(1, 1000000)
+  # abundance of recruits (lognormal mean and sd)
+  mu_lambda ~ dunif(-50, 50)
   sigma_lambda ~ dunif(0, 10000)
   
   # abundance of adults in year 1
@@ -415,49 +422,27 @@ constants <- list(
   # calendar date indices (fraction of year) of mark-recapture dataset
   D_mc = D_mc,
   pi = pi,
-  ones = rep(1, length(x))
+  ones = rep(1, length(x)),
+  # growth data: number of crabs
+  n_growth_obs = length(growth_data$CW),
+  # growth data: year index
+  growth_year = growth_data$year_index,
+  # growth data: number of years
+  n_growth_years = length(unique(growth_data$year_index))
 )
 
 data <- list(
-  C_T = C_T, # total harvested within at time t, year y, size x
-  C = C, # harvest count at time t, trap j, year y, size x
+  # total harvested within at time t, year y, size x
+  C_T = C_T,
+  # harvest count at time t, trap j, year y, size x
+  C = C,
   n1 = n1_mc, # count of marked crabs of size y in mark-recapture dataset
-  m2 = m2_mc # count of recaptured crabs of size x in mark-recapture dataset
+  m2 = m2_mc, # count of recaptured crabs of size x in mark-recapture dataset
+  # growth data: size captured
+  W = growth_data$CW,
+  # growth data: age
+  age = growth_data$age
 )
-
-
-# create N_overwinter initial values
-N_overwinter <- matrix(NA, nrow = dim(C)[3] - 1, ncol = length(x))
-adult_mean <- c(log(75), log(80), log(82))
-mean_recruit <- c(log(55), log(52), log(52))
-lambda_A <- c(500, 400, 100)
-lambda_R <- c(300, 75, 400)
-adult_sd <- 0.08
-recruit_sd <- 0.1
-for (i in 1:(dim(C)[3] - 1)) {
-  prob_r <- dlnorm(x, mean_recruit[i], recruit_sd) /
-    sum(dlnorm(x, mean_recruit[i], recruit_sd))
-  prob_a <- dlnorm(x, adult_mean[i], adult_sd) /
-    sum(dlnorm(x, adult_mean[i], adult_sd))
-  N_overwinter[i, ] <- round(prob_a * lambda_A[i] + prob_r * lambda_R[i])
-}
-
-# initial values
-inits <- function() {
-  list(
-    h_M_max = runif(1, 0.0001, 0.0008), h_M_A = 44, h_M_sigma = 6.67,
-    h_F_max = runif(1, 0.0001, 0.0008), h_F_max_adj = runif(1, 0.0001, 0.0008),
-    h_F_k = 0.2, h_F_0 = 45,
-    h_S_max = runif(1, 0.001, 0.005), h_S_k = 0.2, h_S_0 = 45,
-    ro_dir = 0.01, beta_alpha = 2, beta_theta = 1, alpha = 0.1,
-    alpha_o_alpha = 2, alpha_o_theta = 1, gk = 1, xinf = 85,
-    A = 0.79, ts = -0.64, sigma_G = 2.5, sigma_R = 1,
-    mu_R = 20, mu_A = 4, sigma_A = 0.2,
-    lambda_A = 1800, lambda_R = c(1000, 100, 1000, 100), mu_lambda = 500,
-    sigma_lambda = 100, beta = rep(0.001, 5),
-    alpha_o = c(0.0308, 0.00669, 0.0346), N_overwinter = N_overwinter
-  )
-}
 
 # define dirichlet multinomial mixture
 # pdf
@@ -517,8 +502,7 @@ assign("size_sel_log", size_sel_log, envir = .GlobalEnv)
 # calculate trap hazard rate of obs j, based on trap type and soak days
 calc_hazard <- nimbleFunction (
   #input and output types
-  run = function(nobs = double(0), n_size = double(0), 
-                 h_F_max = double(0), h_F_max_adj = double(0),
+  run = function(nobs = double(0), n_size = double(0), h_F_max = double(0),
                  h_F_k = double(0), h_F_0 = double(0),
                  h_S_max = double(0), h_S_k = double(0),
                  h_S_0 = double(0), h_M_max = double(0),
@@ -531,23 +515,17 @@ calc_hazard <- nimbleFunction (
     
     # create empty array
     array <- array(init = FALSE, dim = c(nobs, n_size))
-    
-    shrimp_y <- as.integer(sum(obs_ref_s) > 1)
-    shrimp_n <- max(1 - shrimp_y, 0)
-    
     # loop through observations
     for (j in 1:nobs) {
       # P(capture)
-      array[j, 1:n_size] <- (
-        size_sel_log(pmax = (h_F_max_adj * shrimp_y + h_F_max * shrimp_n), 
-                     k = h_F_k, midpoint = h_F_0, x = x) *
-          obs_ref_f[j] * soak_days[j] +
-          size_sel_log(pmax = h_S_max, k = h_S_k, midpoint = h_S_0, x = x) *
-          obs_ref_s[j] * soak_days[j] +
-          size_sel_norm(pmax = h_M_max, xmax = h_M_A, 
-                        sigma = h_M_sigma, x = x) *
-          obs_ref_m[j] * soak_days[j]
-      )
+      array[j, 1:n_size] <- size_sel_log(pmax = h_F_max, k = h_F_k,
+                                         midpoint = h_F_0, x = x) *
+        obs_ref_f[j] * soak_days[j] +
+        size_sel_log(pmax = h_S_max, k = h_S_k, midpoint = h_S_0, x = x) *
+        obs_ref_s[j] * soak_days[j] +
+        size_sel_norm(pmax = h_M_max, xmax = h_M_A, 
+                      sigma = h_M_sigma, x = x) *
+        obs_ref_m[j] * soak_days[j]
     }
     
     return(array)
@@ -601,7 +579,7 @@ get_kernel <- nimbleFunction (
   # input and output types
   run = function(xinf = double(0), k = double(0),
                  sigma_G = double(0), A = double(0),
-                 ts = double(0), t1 = double(0), t2 = double(0),
+                 ds = double(0), t1 = double(0), t2 = double(0),
                  n_size = double(0), pi = double(0), x = double(1),
                  lower = double(1), upper = double(1), S = double(1))
   {
@@ -614,8 +592,8 @@ get_kernel <- nimbleFunction (
       array <- diag(n_size)
     } else {
       # season adjusted params
-      S_t <- (A * k / (2 * pi)) * sin(2 * pi * (t2 - (1 + ts)))
-      S_t0 <- (A * k / (2 * pi)) * sin(2 * pi * (t1 - (1 + ts)))
+      S_t <- (A * k / (2 * pi)) * sin(2 * pi * (t2 - (1 + ds)))
+      S_t0 <- (A * k / (2 * pi)) * sin(2 * pi * (t1 - (1 + ds)))
       
       # p(y"|y)
       for (i in 1:n_size) {
@@ -639,14 +617,14 @@ assign("get_kernel", get_kernel, envir = .GlobalEnv)
 # initial size distribution of adults - year 1
 get_init_adult <- nimbleFunction (
   
-  run = function(mu_A = double(0), sigma_A = double(0),
+  run = function(log_mu_A = double(0), sigma_A = double(0),
                  lower = double(1), upper = double(1),
                  lambda_A = double(0))
   {
     returnType(double(1))
     
-    prop_adult <- plnorm(q = upper, meanlog = mu_A, sdlog = sigma_A) -
-      plnorm(q = lower, meanlog = mu_A, sdlog = sigma_A)
+    prop_adult <- plnorm(q = upper, meanlog = log_mu_A, sdlog = sigma_A) -
+      plnorm(q = lower, meanlog = log_mu_A, sdlog = sigma_A)
     
     # get initial size-structured abundance of adults
     out <- prop_adult * lambda_A
@@ -709,12 +687,12 @@ assign("survival", survival, envir = .GlobalEnv)
 overwinter_survival <- nimbleFunction (
   
   run = function(alpha_o = double(0), N_sum = double(0),
-                 x = double(1))
+                 x = double(1), eps_y = double(0))
   {
     returnType(double(1))
     
     # get probability of survival
-    out <- exp(-(alpha_o * N_sum / x ^ 2))
+    out <- exp(-(alpha_o * N_sum / x ^ 2 + eps_y))
     
     return(out)
   }
@@ -725,35 +703,7 @@ assign("overwinter_survival", overwinter_survival, envir = .GlobalEnv)
 # build model
 myModel <- nimbleModel(code = model_code,
                        data = data,
-                       constants = constants,
-                       inits = inits())
-
-
-# build the MCMC
-mcmcConf_myModel <- configureMCMC(
-  myModel,
-  monitors = c("h_M_max", "h_M_A", "h_M_sigma", "h_F_max", "h_F_max_adj", 
-               "h_F_k", "h_F_0", "h_S_max", "h_S_k",
-               "h_S_0", "beta_alpha", "beta_theta", "gk",
-               "xinf", "A", "ts", "sigma_G",
-               "sigma_R", "mu_R", "mu_A",
-               "sigma_A", "mu_lambda", "sigma_lambda",
-               "lambda_R", "lambda_A", "beta", "alpha_o",
-               "alpha", "beta_alpha", "beta_theta",
-               "alpha_o_alpha", "alpha_o_theta", "N_overwinter",
-               "wgrowth_N_sum", "ro_dir", "C_T"),
-  useConjugacy = FALSE, enableWAIC = TRUE)
-
-# add block sampler for nmort params
-mcmcConf_myModel$removeSamplers(c("beta_alpha", "beta_theta"))	
-mcmcConf_myModel$addSampler(c("beta_alpha", "beta_theta"),
-                            type = "RW_block")
-mcmcConf_myModel$removeSamplers(c("alpha_o_alpha", "alpha_o_theta"))	
-mcmcConf_myModel$addSampler(c("alpha_o_alpha", "alpha_o_theta"),
-                            type = "RW_block")
-
-# build MCMC
-myMCMC <- buildMCMC(mcmcConf_myModel)
+                       constants = constants)
 
 # compile the model and MCMC
 CmyModel <- compileNimble(myModel)
@@ -806,15 +756,24 @@ ppSamplerNF <- nimbleFunction(
   })
 
 # read in samples 
-samples_in <- readRDS("code/model_selection/model_selection/savedsamples_test5_2.rds")
-lower <- 2000
-upper <- 10001
+samples_in <- readRDS("data/posterior_samples/savedsamples_IPM_seadrift.rds")
+
+# calculate with a subset of samples
+lower <- 1
+upper <- 8002
 sub <- seq(lower, upper, 5)
-#sub <- seq(lower, upper, 50)
-samples <- rbind(samples_in[[1]][sub, ],
-                 samples_in[[2]][sub, ],
-                 samples_in[[3]][sub, ],
-                 samples_in[[4]][sub, ])
+# all samples (including data) for data likelihood
+samples_all <- rbind(samples_in[[1]][sub, ],
+                     samples_in[[2]][sub, ],
+                     samples_in[[3]][sub, ],
+                     samples_in[[4]][sub, ])
+# top nodes and latent states for posterior predictive samples likelihood
+samples <- rbind(samples_in[[1]][sub, c(1, 1234:1347, 1351)],
+                 samples_in[[2]][sub, c(1, 1234:1347, 1351)],
+                 samples_in[[3]][sub, c(1, 1234:1347, 1351)],
+                 samples_in[[4]][sub, c(1, 1234:1347, 1351)])
+
+rm(samples_in)
 
 # generate posterior predictive sampler
 ppSampler <- ppSamplerNF(
@@ -842,19 +801,23 @@ ppSamples_via_nf <- ppSamples_via_nf[, 1:n]
 for (i in 1:14) {
   temp <- grep(paste0("C\\[", i, ", "), node_names)
   saveRDS(node_names[temp], 
-          paste0("data/posterior_predictive_check/new/node_names_", i, ".rds"))
+          paste0("data/posterior_predictive_check/seadrift/node_names_",
+                 i, ".rds"))
   saveRDS(ppSamples_via_nf[, temp],
-          paste0("data/posterior_predictive_check/new/PPS_", i, ".rds"))
+          paste0("data/posterior_predictive_check/seadrift/PPS_", i, ".rds"))
 }
 
 # save deviance
-saveRDS(deviance, "data/posterior_predictive_check/new/deviance_Drep.rds")
+saveRDS(deviance, "data/posterior_predictive_check/seadrift/deviance_Drep.rds")
 
 calc_deviance_D <- nimbleFunction(
   setup = function(model, samples) {
     
     # theta = top nodes and latent states
+    # theta <- colnames(samples)
+    
     theta <- colnames(samples)
+    # theta <- model$topologicallySortNodes(theta)
     
     # calculate model graph dependencies of theta to update
     deps <- model$getDependencies(theta, self = TRUE)
@@ -886,7 +849,7 @@ calc_deviance_D <- nimbleFunction(
 # generate deviance calculator
 devianceCalculator <- calc_deviance_D(
   myModel, # uncompiled model, contains data (see Appendix 3)
-  samples # posterior samples
+  samples_all # posterior samples
 )
 
 # compile deviance calculator
@@ -896,7 +859,8 @@ CdevianceCalculator <- compileNimble(
 )
 
 # run compiled function
-data_deviance_via_nf <- CdevianceCalculator$run(samples)
+data_deviance_via_nf <- CdevianceCalculator$run(samples_all)
 
 # save
-saveRDS(data_deviance_via_nf, "data/posterior_predictive_check/new/deviance_D.rds")
+saveRDS(data_deviance_via_nf, 
+        "data/posterior_predictive_check/seadrift/deviance_D.rds")
