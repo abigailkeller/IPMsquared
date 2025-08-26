@@ -33,6 +33,10 @@ effort_summary <- as.data.frame(out) %>%
                           prop_f == 1 ~ "Fukui",
                           prop_m == 1 ~ "Minnow"))
 
+# subset to 112, 560, 2800
+effort_summary_sub <- effort_summary[effort_summary$nobs %in% 
+                                       c(112, 560, 2800), ]
+
 # create parameters for IPM mesh
 min_size <- 0
 max_size <- 110
@@ -49,103 +53,86 @@ plot_0 <- ggplot(data = out_no_effort_summary) +
             linewidth = 1) +
   scale_x_continuous(breaks = c(0, 5.5, 10.5, 15.5, 20.5),
                      labels = c(0, 25, 50, 75, 100)) +
-  scale_y_continuous(limits = c(0, 50)) +
+  scale_y_continuous(limits = c(0, max(out_no_effort_summary$upper_sd))) +
   labs(x = "size (mm)", y = expression(N^E * (x))) +
   theme_minimal() +
-  theme(plot.title = element_text(size = 12)) +
-  ggtitle("A. effort = 0")
+  theme(plot.title = element_text(size = 12),
+        text = element_text(family = "Arial")) +
+  ggtitle("A. None")
 
-plot_112 <- ggplot() +
-  geom_ribbon(data = effort_summary[effort_summary$nobs == 112, ],
+plot_fukui <- ggplot() +
+  geom_ribbon(data = effort_summary_sub[effort_summary_sub$type == "Fukui", ],
               aes(x = as.numeric(size),
                   ymin = lower_sd, ymax = upper_sd,
-                  fill = type),
+                  fill = as.factor(nobs)),
               alpha = 0.2) +
-  geom_line(data = effort_summary[effort_summary$nobs == 112, ],
+  geom_line(data = effort_summary_sub[effort_summary_sub$type == "Fukui", ],
             aes(x = as.numeric(size), y = median,
-                color = type),
+                color = as.factor(nobs)),
             linewidth = 1) +
-  scale_fill_manual(values = c("violet", "darkviolet", "goldenrod"),
+  scale_fill_manual(values = c("paleturquoise4", "dodgerblue", "blue4"),
                     guide = "none") +
-  scale_color_manual(values = c("violet", "darkviolet", "goldenrod")) +
+  scale_color_manual(values = c("paleturquoise4", "dodgerblue", "blue4")) +
   scale_x_continuous(breaks = c(0, 5.5, 10.5, 15.5, 20.5),
                      labels = c(0, 25, 50, 75, 100)) +
-  scale_y_continuous(limits = c(0, 50)) +
+  scale_y_continuous(limits = c(0, max(out_no_effort_summary$upper_sd))) +
   labs(x = "size (mm)", y = NULL,
-       color = "trap type") +
+       color = "removal effort\n(traps)") +
   theme_minimal() +
   theme(legend.position = "None",
-        plot.title = element_text(size = 12)) +
-  ggtitle("B. effort = 112")
+        plot.title = element_text(size = 12),
+        text = element_text(family = "Arial")) +
+  ggtitle("B. Fukui traps")
 
-plot_560 <- ggplot() +
-  geom_ribbon(data = effort_summary[effort_summary$nobs == 560, ],
+plot_minnow <- ggplot() +
+  geom_ribbon(data = effort_summary_sub[effort_summary_sub$type == "Minnow", ],
               aes(x = as.numeric(size),
                   ymin = lower_sd, ymax = upper_sd,
-                  fill = type),
+                  fill = as.factor(nobs)),
               alpha = 0.2) +
-  geom_line(data = effort_summary[effort_summary$nobs == 560, ],
+  geom_line(data = effort_summary_sub[effort_summary_sub$type == "Minnow", ],
             aes(x = as.numeric(size), y = median,
-                color = type),
+                color = as.factor(nobs)),
             linewidth = 1) +
-  scale_fill_manual(values = c("violet", "darkviolet", "goldenrod"),
+  scale_fill_manual(values = c("paleturquoise4", "dodgerblue", "blue4"),
                     guide = "none") +
-  scale_color_manual(values = c("violet", "darkviolet", "goldenrod")) +
+  scale_color_manual(values = c("paleturquoise4", "dodgerblue", "blue4")) +
   scale_x_continuous(breaks = c(0, 5.5, 10.5, 15.5, 20.5),
                      labels = c(0, 25, 50, 75, 100)) +
-  scale_y_continuous(limits = c(0, 50)) +
+  scale_y_continuous(limits = c(0, max(out_no_effort_summary$upper_sd))) +
   labs(x = "size (mm)", y = NULL,
-       color = "trap type") +
+       color = "removal effort\n(traps)") +
   theme_minimal() +
   theme(legend.position = "None",
-        plot.title = element_text(size = 12)) +
-  ggtitle("C. effort = 560")
+        plot.title = element_text(size = 12),
+        text = element_text(family = "Arial")) +
+  ggtitle("C. Minnow traps")
 
-plot_2800 <- ggplot() +
-  geom_ribbon(data = effort_summary[effort_summary$nobs == 2800, ],
+plot_shrimp <- ggplot() +
+  geom_ribbon(data = effort_summary_sub[effort_summary_sub$type == "Shrimp", ],
               aes(x = as.numeric(size),
                   ymin = lower_sd, ymax = upper_sd,
-                  fill = type),
+                  fill = as.factor(nobs)),
               alpha = 0.2) +
-  geom_line(data = effort_summary[effort_summary$nobs == 2800, ],
+  geom_line(data = effort_summary_sub[effort_summary_sub$type == "Shrimp", ],
             aes(x = as.numeric(size), y = median,
-                color = type),
+                color = as.factor(nobs)),
             linewidth = 1) +
-  scale_fill_manual(values = c("violet", "darkviolet", "goldenrod"),
+  scale_fill_manual(values = c("paleturquoise4", "dodgerblue", "blue4"),
                     guide = "none") +
-  scale_color_manual(values = c("violet", "darkviolet", "goldenrod")) +
+  scale_color_manual(values = c("paleturquoise4", "dodgerblue", "blue4")) +
   scale_x_continuous(breaks = c(0, 5.5, 10.5, 15.5, 20.5),
                      labels = c(0, 25, 50, 75, 100)) +
-  scale_y_continuous(limits = c(0, 50)) +
+  scale_y_continuous(limits = c(0, max(out_no_effort_summary$upper_sd))) +
   labs(x = "size (mm)", y = NULL,
-       color = "trap type") +
+       color = "removal effort\n(traps)") +
   theme_minimal() +
-  theme(legend.position = "None",
-        plot.title = element_text(size = 12)) +
-  ggtitle("D. effort = 2800")
+  theme(plot.title = element_text(size = 12),
+        legend.title = element_text(hjust = 0.5),
+        text = element_text(family = "Arial")) +
+  ggtitle("D. Shrimp traps")
 
-plot_w_legend <- ggplot() +
-  geom_ribbon(data = effort_summary[effort_summary$nobs == 1400, ],
-              aes(x = as.numeric(size),
-                  ymin = lower_sd, ymax = upper_sd,
-                  fill = type),
-              alpha = 0.2) +
-  geom_line(data = effort_summary[effort_summary$nobs == 1400, ],
-            aes(x = as.numeric(size), y = median,
-                color = type),
-            linewidth = 1) +
-  scale_fill_manual(values = c("violet", "darkviolet", "goldenrod"),
-                    guide = "none") +
-  scale_color_manual(values = c("violet", "darkviolet", "goldenrod")) +
-  scale_x_continuous(breaks = c(0, 5.5, 10.5, 15.5, 20.5),
-                     labels = c(0, 25, 50, 75, 100)) +
-  scale_y_continuous(limits = c(0, 70)) +
-  labs(x = "size (mm)", y = expression(N[size]),
-       color = "trap type") +
-  theme_minimal()
-legend <- get_legend(plot_w_legend)
-
-final_plot <- plot_0 + plot_112 + plot_560 + plot_2800 + legend +
+final_plot <- plot_0 + plot_fukui + plot_minnow + plot_shrimp +
   plot_layout(nrow = 1)
 ggsave("figures/Figure6_IPM_simulations.png", dpi = 400,
        width = 9, height = 3)

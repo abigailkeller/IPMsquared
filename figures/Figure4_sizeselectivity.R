@@ -6,14 +6,6 @@ library(cowplot)
 # read in samples
 out <- readRDS("data/posterior_samples/savedsamples_IPM.rds")
 
-# subset samples
-lower <- 2000
-upper <- 10001
-out_sub <- list(
-  out[[1]][lower:upper, ], out[[2]][lower:upper, ],
-  out[[3]][lower:upper, ], out[[4]][lower:upper, ]
-)
-
 # function for getting samples
 get_samples <- function(samples, param) {
   samples <- c(samples[[1]][, param], samples[[2]][, param],
@@ -22,15 +14,15 @@ get_samples <- function(samples, param) {
 }
 
 # get params
-trapf_k <- get_samples(out_sub, "h_F_k")
-trapf_midpoint <- get_samples(out_sub, "h_F_0")
-trapf_pmax <- get_samples(out_sub, "h_F_max")
-trapm_pmax <- get_samples(out_sub, "h_M_max")
-trapm_sigma <- get_samples(out_sub, "h_M_sigma")
-trapm_xmax <- get_samples(out_sub, "h_M_A")
-traps_k <- get_samples(out_sub, "h_S_k")
-traps_midpoint <- get_samples(out_sub, "h_S_0")
-traps_pmax <- get_samples(out_sub, "h_S_max")
+trapf_k <- get_samples(out, "h_F_k")
+trapf_midpoint <- get_samples(out, "h_F_0")
+trapf_pmax <- get_samples(out, "h_F_max")
+trapm_pmax <- get_samples(out, "h_M_max")
+trapm_sigma <- get_samples(out, "h_M_sigma")
+trapm_xmax <- get_samples(out, "h_M_A")
+traps_k <- get_samples(out, "h_S_k")
+traps_midpoint <- get_samples(out, "h_S_0")
+traps_pmax <- get_samples(out, "h_S_max")
 
 # make plot of size selectivity
 min_size <- 0

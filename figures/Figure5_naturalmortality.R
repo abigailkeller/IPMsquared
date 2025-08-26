@@ -7,13 +7,6 @@ library(viridis)
 # read in samples
 out <- readRDS("data/posterior_samples/savedsamples_IPM.rds")
 
-# subset samples
-lower <- 2000
-upper <- 10001
-out_sub <- list(
-  out[[1]][lower:upper, ], out[[2]][lower:upper, ],
-  out[[3]][lower:upper, ], out[[4]][lower:upper, ]
-)
 min_size <- 0
 max_size <- 110
 n <- 22
@@ -30,8 +23,8 @@ get_survival <- function(size_ind, size_dep, deltat) {
   surv <- exp(-deltat * (size_ind + size_dep / x ^ 2))
   return(surv)
 }
-get_o_survival <- function(size_dep, n) {
-  surv <- exp(-(n * size_dep / x ^ 2))
+get_o_survival <- function(alpha_o, n, eps) {
+  surv <- exp(-(n * alpha_o / x ^ 2 + eps))
   return(surv)
 }
 get_hdi_low <- function(input, ci) {
@@ -45,15 +38,16 @@ get_hdi_high <- function(input, ci) {
 
 # get natural and overwinter survival
 survival <- mapply(get_survival,
-                   get_samples(out_sub, "beta"),
-                   get_samples(out_sub, "alpha"), deltat = 14)
+                   get_samples(out, "beta"),
+                   get_samples(out, "alpha"), deltat = 14)
 o_survival <- list()
 for (i in seq_len(3)) {
   o_survival[[i]] <- mapply(get_o_survival,
-                            get_samples(out_sub,
-                                        paste0("alpha_o[", i, "]")),
-                            get_samples(out_sub,
-                                        paste0("wgrowth_N_sum[", i, "]")))
+                            get_samples(out, "alpha_o"),
+                            get_samples(out,
+                                        paste0("wgrowth_N_sum[", i, "]")),
+                            get_samples(out,
+                                        paste0("eps_y[", i, "]")))
 }
 
 # get natural survival summaries
@@ -117,7 +111,7 @@ nsurv_plot <- ggplot(data = nsurv_summaries_long) +
   geom_line(aes(x = as.numeric(size), y = median),
             linewidth = 1) +
   labs(x = "size (mm)", y = "natural survival", color = "year") +
-  ggtitle("A. natural survival") +
+  ggtitle("A. April - October") +
   theme_minimal() +
   theme(legend.title = element_text(0.5),
         text = element_text(family = "Arial"))
@@ -130,7 +124,7 @@ wsurv_plot <- ggplot(data = wsurv_summaries_long) +
                 color = as.factor(year)),
             linewidth = 1, show.legend = c(fill = FALSE)) +
   labs(x = "size (mm)", y = "overwinter survival", color = "year") +
-  ggtitle("B. overwinter natural survival") +
+  ggtitle("B. November - March") +
   scale_color_manual(labels = c("2020 to 2021",
                                 "2021 to 2022",
                                 "2022 to 2023"),

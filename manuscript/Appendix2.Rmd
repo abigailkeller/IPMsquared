@@ -10,7 +10,7 @@ The following vague prior distributions were used in the model. Parameter descri
 Trap size selectivity parameters:
 
 $$
-h_M^{max} \sim \text{Uniform}(0, 0.1)
+h_M^{\text{max}} \sim \text{Uniform}(0, 0.1)
 $$
 
 $$
@@ -22,7 +22,7 @@ h_M^{\sigma} \sim \text{Uniform}(3, 10)
 $$
 
 $$
-h_F^{max} \sim \text{Uniform}(0, 0.1)
+h_F^{\text{max}} \sim \text{Uniform}(0, 0.1)
 $$
 
 $$
@@ -34,7 +34,7 @@ h_F^0 \sim \text{Uniform}(30, 100)
 $$
 
 $$
-h_S^{max} \sim \text{Uniform}(0, 0.1)
+h_S^{\text{max}} \sim \text{Uniform}(0, 0.1)
 $$
 
 $$
@@ -60,11 +60,11 @@ $$
 Overwinter mortality parameters:
 
 $$
-\alpha^o_{\mu} \sim \text{Uniform}(-50, 50)
+\alpha^o \sim \text{Uniform}(0, 50)
 $$
 
 $$
-\alpha^o_{\sigma} \sim \text{Uniform}(0, 150)
+\sigma_o \sim \text{Uniform}(0, 150)
 $$
 
 
@@ -126,7 +126,7 @@ $$
 $$
 
 $$
-\sigma^R \sim \text{Uniform}(0.01, 20)
+\sigma_R \sim \text{Uniform}(0.01, 20)
 $$
 
 $$

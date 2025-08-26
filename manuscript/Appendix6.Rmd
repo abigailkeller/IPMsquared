@@ -8,43 +8,35 @@ To assess model performance and robustness, we conducted both a model selection 
 
 ## Appendix 6.1
 
-The inter-annual population transitions (i.e., transition from year $y$ to year $y+1$) are largely described by density-dependent overwinter mortality. Since density dependence only enters the model during this process and is therefore likely influential for forecasting the stable size distribution, we compared multiple functional forms for size- and density-dependent overwinter mortality (Equations 10-11 in main text).
+The inter-annual population transitions (i.e., transition from year $y$ to year $y+1$) are largely described by density-dependent overwinter mortality. Since density dependence only enters the model during this process and is therefore likely influential for forecasting the stable size distribution, we compared multiple functional forms for size- and density-dependent overwinter mortality (Equation 9 in main text).
 
-We fit four separate models that are identical, apart from the functional form of overwinter survival (Equations 10-11). These models varied by whether the relationship between size- and density-dependence is additive or interactive, as well as how rapidly mortality decreases with size.
+We fit four separate models that are identical, apart from the functional form of overwinter survival (Equation 9). These models varied by whether the relationship between size- and density-dependence is additive or interactive, as well as how rapidly mortality decreases with size.
 
 **Model 1:** interactive density- and size-dependence, steeper mortality decrease with size
 
 $$
-S_o(x,N^T_{t_{max},y}) = \text{exp}(-\frac{\alpha_y^o \times N^T_{t_{max},y}}{x^2})
-$$
-
-$$
-\alpha^o_y \sim Gamma(\alpha^o_{\alpha}, \alpha^o_{\theta})
+S_o(x,N^T_{t_\text{max},y}) = \text{exp}(-(\frac{\alpha_y^o \times N^T_{t_\text{max},y}}{x^2}) + \epsilon_y)
 $$
 
 **Model 2:** interactive density- and size-dependence, less steep mortality decrease with size
 
 $$
-S_o(x,N^T_{t_{max},y}) = \text{exp}(-\frac{\alpha_y^o \times N^T_{t_{max},y}}{x})
-$$
-
-$$
-\alpha^o_y \sim Gamma(\alpha^o_{\alpha}, \alpha^o_{\theta})
+S_o(x,N^T_{t_\text{max},y}) = \text{exp}(-(\frac{\alpha_y^o \times N^T_{t_\text{max},y}}{x}) + \epsilon_y)
 $$
 
 **Model 3:** additive density- and size-dependence, steeper mortality decrease with size
 
 $$
-S_o(x,N^T_{t_{max},y}) = \text{exp}(-(\frac{\alpha^o}{N^T_{t_{max},y}} + \frac{\psi}{x^2}))
+S_o(x,N^T_{t_\text{max},y}) = \text{exp}(-(\frac{\alpha^o}{N^T_{t_\text{max},y}} + \frac{\psi}{x^2} + \epsilon_y))
 $$
 
 **Model 4:** additive density- and size-dependence, less steep mortality decrease with size
 
 $$
-S_o(x,N^T_{t_{max},i}) = \text{exp}(-(\frac{\alpha^o}{N^T_{t_{max},y}} + \frac{\psi}{x}))
+S_o(x,N^T_{t_\text{max},i}) = \text{exp}(-(\frac{\alpha^o}{N^T_{t_\text{max},y}} + \frac{\psi}{x} + \epsilon_y))
 $$
 
-WAIC was calculated using the combined posterior samples from four chains, after discarding 2000 burn-in samples (32000 total samples). Model 1, with a size- and density-dependent overwinter mortality interaction and a steeper mortality decrease with size had the lowest WAIC and was used in subsequent analyses.
+WAIC was calculated using every 10th sample from the combined posterior samples from four chains (3200 total samples). Model 1, with a size- and density-dependent overwinter mortality interaction and a steeper mortality decrease with size had the lowest WAIC and was used in subsequent analyses.
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 library(tidyverse)
@@ -52,9 +44,9 @@ library(kableExtra)
 library(knitr)
 df <- data.frame(
   Model = c("Model 1", "Model 2", "Model 3", "Model 4"),
-  WAIC = c(6413.61, 6423.18, 6431.60, 6447.18),
-  lppd = c(-3154.74, -3175.10, -3158.70, -3174.23),
-  pWAIC = c(52.07, 54.49, 57.10, 49.36)
+  WAIC = c(6770.58, 6776.48, 6798.78, 7110.42),
+  lppd = c(-3337.77, -3339.54, -3347.65, -3469.85),
+  pWAIC = c(47.52, 48.70, 51.74, 85.36)
 ) %>% 
   mutate(delta_AIC = WAIC - min(WAIC))
 colnames(df) <- c("Model", "WAIC", "lppd", "pWAIC", "$\\Delta$WAIC")
@@ -68,38 +60,12 @@ knitr::kable(
 )
 ```
 
-## Seadrift Lagoon
-
-Here we describe the batch mark-recapture data (D3). The data was taken from Grosholz et al. 2021, where the co-authors conducted an extensive capture-mark-recapture experiment to estimate population size at Seadrift Lagoon in California, USA (Grosholz et al. 2021).
-
-The authors deployed 15 Fukui traps in June within the lagoon. Over the succeeding three days, they marked all crabs caught by clipping two spines on the carapace, recording their size, and releasing them back to their original location. Within successive weeks as part of an eradication program, crabs were removed, and the number and carapace width of retrieved (marked and unmarked) crabs were recorded.
-
-Data was retrieved from NSF’s Biological and Chemical Oceanography Data Management Office at https://www.bco-dmo.org/person/699768. While the mark-recapture experiment took place from 2011-2018, we only used data from one year, 2011, since the marking data was unambiguous.
-
-The batch mark-recapture data consists of 1) the count of marked and released crabs of discrete size $x_i$ in the first time period, $n^{\text{mc}}(x_i)$, and 2) the count of recaptured and marked crabs of discrete size $x_i$ in the second time period, $m^{\text{mc}}(x_i)$. These data follow a binomial distribution:
-
-$$
-m^{\text{mc}}(x_i) \sim \text{Binomial}(n^{\text{mc}}_{t_2}(x_i), p^{\text{mc}}(x_i)) 
-$$
-
-where $p^{\text{mc}}(x_i)$ is the total probability of capture based on the total number of Fukui traps set, $O^{\text{mc}}$, over the time period $\Delta b^{\text{mc}}$:
-
-$$
-p^{\text{mc}}(x) = 1-\text{exp}\left(-\sum_{j=1}^{O^{\text{mc}}} H_{F,j}(x)\Delta b^{\text{mc}}_j\right)
-$$
-
-These data also informed components of the growth and natural mortality kernel (Table 1; Figure 2). The number of marked and released crabs, $n^{\text{mc}}(x_i)$, at $t_1^{\text{mc}}$ underwent seasonal growth and natural mortality to the next time period, $t_2^{\text{mc}}$.
-
-$$
-n^{\text{mc}}_{t_2}(x') = \int_{x \in \Omega} K^{mc}(x',x) n^{\text{mc}}_{t_1}(x)dx
-$$
-
 ## Appendix 6.2
 
-Bayesian model checking was used to determine if the model is an adequate representation of the observed data. Fit was checked with an omnibus discrepancy function, deviance. Here, $D$ refers to the the count of removed crabs, $C_{t,j,y}(x_i)$, the total number of removed crabs, $C^T_{t,i}(x_i)$, and the number of recaptured marked crabs, $mc^{mc}(x_i)$:
+Bayesian model checking was used to determine if the model is an adequate representation of the observed data. Fit was checked with an omnibus discrepancy function, deviance. Here, $D$ refers to the the count of removed crabs, $C_{t,j,y}(x_i)$ in the multi-year time-series data set (D1), the total number of removed crabs, $C^T_{t,i}(x_i)$ in the multi-year time-series data set (D1), the number of recaptured marked crabs, $r_t^{\text{mc}}(x_i)$ in the mark-recapture data set (D3), and the size of crabs in the size-at-age dataset (D2):
 
 $$
-T(D, \theta) = -2log(D|\theta)
+T(D, \theta) = -2\text{log}(D|\theta)
 $$
 
 as well as a targeted discrepancy function to check zero inflation in the count data. Here, $D$ refers to the the count of removed crabs, $C(x)_{t,j,y}$:
@@ -286,5 +252,33 @@ knitr::include_graphics(
          "pop_dynamics_model/IPMsquared/figures/ppp_zeros.png")
 )
 ```
+
+## Seadrift Lagoon
+
+Here we describe the batch mark-recapture data (D3). The data was taken from Grosholz et al. 2021, where the co-authors conducted an extensive capture-mark-recapture experiment to estimate population size at Seadrift Lagoon in California, USA (Grosholz et al. 2021).
+
+The authors deployed 15 Fukui traps in June within the lagoon. Over the succeeding three days, they marked all crabs caught by clipping two spines on the carapace, recording their size, and releasing them back to their original location. Within successive weeks as part of an eradication program, crabs were removed, and the number and carapace width of retrieved (marked and unmarked) crabs were recorded.
+
+Data was retrieved from NSF’s Biological and Chemical Oceanography Data Management Office at https://www.bco-dmo.org/person/699768. While the mark-recapture experiment took place from 2011-2018, we only used data from one year, 2011, since the marking data was unambiguous.
+
+The batch mark-recapture data consists of 1) the count of marked and released crabs of discrete size $x_i$ in the first time period, $n^{\text{mc}}(x_i)$, and 2) the count of recaptured and marked crabs of discrete size $x_i$ in the second time period, $m^{\text{mc}}(x_i)$. These data follow a binomial distribution:
+
+$$
+m^{\text{mc}}(x_i) \sim \text{Binomial}(n^{\text{mc}}_{t_2}(x_i), p^{\text{mc}}(x_i)) 
+$$
+
+where $p^{\text{mc}}(x_i)$ is the total probability of capture based on the total number of Fukui traps set, $O^{\text{mc}}$, over the time period $\Delta b^{\text{mc}}$:
+
+$$
+p^{\text{mc}}(x) = 1-\text{exp}\left(-\sum_{j=1}^{O^{\text{mc}}} H_{F,j}(x)\Delta b^{\text{mc}}_j\right)
+$$
+
+These data also informed components of the growth and natural mortality kernel (Table 1; Figure 2). The number of marked and released crabs, $n^{\text{mc}}(x_i)$, at $t_1^{\text{mc}}$ underwent seasonal growth and natural mortality to the next time period, $t_2^{\text{mc}}$.
+
+$$
+n^{\text{mc}}_{t_2}(x') = \int_{x \in \Omega} K^{mc}(x',x) n^{\text{mc}}_{t_1}(x)dx
+$$
+
+
 
 

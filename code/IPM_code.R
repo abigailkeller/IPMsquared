@@ -141,7 +141,7 @@ model_code <- nimbleCode({
 
     # Equation 11
     ## year-specific intensity of overwinter mortality
-    eps_y[y] ~ dnorm(0, sd = alpha_o_sd)
+    eps_y[y] ~ dnorm(0, sd = sigma_o)
   }
 
   #####################################################
@@ -369,14 +369,14 @@ model_code <- nimbleCode({
   # IPM - natural mortality
   ##
   
-  # size-independent natural mortality, shared across all sites
+  # size-independent natural mortality, shared across all years
   beta ~ dunif(0, 10000)
-  # size-dependent natural mortality, shared across all sites
+  # size-dependent natural mortality, shared across all years
   alpha ~ dunif(0, 10000)
-  # lognormal distribution mu - instantaneous prob of overwinter mortality
+  # size-dependent instantaneous prob of overwinter mortality, shared all years
   alpha_o ~ dunif(0, 50)
-  # lognormal distribution sd - instantaneous prob of overwinter mortality
-  alpha_o_sd ~ dunif(0, 1000)
+  # sd of instantaneous prob of overwinter mortality year-specific random effect
+  sigma_o ~ dunif(0, 1000)
   
   ##
   # observation process
@@ -510,7 +510,7 @@ inits <- function() {
     h_F_k = runif(1, 0.1, 0.5), h_F_0 = runif(1, 30, 60),
     h_S_max = runif(1, 0.001, 0.005), h_S_k = runif(1, 0.1, 0.5), 
     h_S_0 = runif(1, 30, 60), ro_dir = 0.01, alpha = 0.1,
-    alpha_o_sd = 0.5, eps_y = c(0, 0, 0), gk = 1,
+    sigma_o = 0.5, eps_y = c(0, 0, 0), gk = 1,
     xinf = 85, A = 0.79, ds = -0.64, sigma_G = 2.5, 
     sigma_R = 1, mu_R = 20, log_mu_A = 4, sigma_A = 0.2,
     lambda_A = 1800, lambda_R = c(1000, 100, 1000, 100), mu_lambda = log(500),
@@ -813,7 +813,7 @@ out <- clusterEvalQ(cl, {
                  "sigma_R", "mu_R", "log_mu_A",
                  "sigma_A", "mu_lambda", "sigma_lambda",
                  "lambda_R", "lambda_A", "beta", "alpha_o",
-                 "alpha", "eps_y", "alpha_o_sd", "N_overwinter",
+                 "alpha", "eps_y", "sigma_o", "N_overwinter",
                  "wgrowth_N_sum", "ro_dir", "C_T", 
                  "t0", "sigma_w", "sigma_y", "growth_ranef"),
     useConjugacy = FALSE, enableWAIC = TRUE)
@@ -844,6 +844,6 @@ out_sub <- list(out[[1]][sequence, ], out[[2]][sequence, ],
                 out[[3]][sequence, ], out[[4]][sequence, ])
 
 # save samples
-saveRDS(out_sub, "data/posterior_samples/savedsamples_IPM_20250823b.rds")
+saveRDS(out_sub, "data/posterior_samples/savedsamples_IPM.rds")
 
 stopCluster(cl)

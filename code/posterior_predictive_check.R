@@ -142,7 +142,7 @@ model_code <- nimbleCode({
     
     # Equation 11
     ## year-specific intensity of overwinter mortality
-    eps_y[y] ~ dnorm(0, sd = alpha_o_sd)
+    eps_y[y] ~ dnorm(0, sd = sigma_o)
   }
   
   #####################################################
@@ -377,7 +377,7 @@ model_code <- nimbleCode({
   # lognormal distribution mu - instantaneous prob of overwinter mortality
   alpha_o ~ dunif(0, 50)
   # lognormal distribution sd - instantaneous prob of overwinter mortality
-  alpha_o_sd ~ dunif(0, 1000)
+  sigma_o ~ dunif(0, 1000)
   
   ##
   # observation process

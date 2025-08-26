@@ -135,13 +135,13 @@ model_code <- nimbleCode({
 
     # Equation 10
     ## size- and density-dependent overwinter survival
-    S_o[y, 1:n_size] <- overwinter_survival(alpha_o[y],
+    S_o[y, 1:n_size] <- overwinter_survival(alpha_o,
                                             wgrowth_N_sum[y], phi,
-                                            x[1:n_size])
+                                            x[1:n_size], eps_y[y])
 
     # Equation 11
     ## year-specific intensity of overwinter mortality
-    alpha_o[y] ~ dlnorm(alpha_o_mu, alpha_o_sd)
+    eps_y[y] ~ dnorm(0, sd = sigma_o)
   }
 
   #####################################################
@@ -339,6 +339,8 @@ model_code <- nimbleCode({
   sigma_y ~ dunif(0, 100)
   # asymptotic size
   xinf ~ dunif(70, 140)
+  # growth error
+  sigma_G ~ dunif(0.01, 4)
   
   ##
   # size selectivity parameters
@@ -372,16 +374,9 @@ model_code <- nimbleCode({
   # size-dependent natural mortality, shared across all sites
   alpha ~ dunif(0, 10000)
   # lognormal distribution mu - instantaneous prob of overwinter mortality
-  alpha_o_mu ~ dunif(-50, 50)
+  alpha_o ~ dunif(0, 50)
   # lognormal distribution sd - instantaneous prob of overwinter mortality
-  alpha_o_sd ~ dunif(0, 150)
-  
-  ##
-  # IPM - growth
-  ##
-  
-  # growth error
-  sigma_G ~ dunif(0.01, 4)
+  sigma_o ~ dunif(0, 1000)
   
   ##
   # observation process
@@ -515,12 +510,12 @@ inits <- function() {
     h_F_k = runif(1, 0.1, 0.5), h_F_0 = runif(1, 30, 60),
     h_S_max = runif(1, 0.001, 0.005), h_S_k = runif(1, 0.1, 0.5), 
     h_S_0 = runif(1, 30, 60), ro_dir = 0.01, alpha = 0.1,
-    alpha_o_mu = log(0.01), alpha_o_sd = 0.5, gk = 1,
+    sigma_o = 0.5, eps_y = c(0, 0, 0), gk = 1,
     xinf = 85, A = 0.79, ds = -0.64, sigma_G = 2.5, 
     sigma_R = 1, mu_R = 20, log_mu_A = 4, sigma_A = 0.2,
     lambda_A = 1800, lambda_R = c(1000, 100, 1000, 100), mu_lambda = log(500),
     sigma_lambda = 0.3, beta = 0.001, phi = 500,
-    alpha_o = c(0.0308, 0.00669, 0.0346), N_overwinter = N_overwinter,
+    alpha_o = 0.0308, N_overwinter = N_overwinter,
     t0 = runif(1, -0.5, 0), sigma_w = runif(1, 0.01, 1), 
     sigma_y = runif(1, 0.01, 1),
     growth_ranef = runif(length(unique(growth_data$year_index)), 0, 1)
@@ -784,15 +779,16 @@ out <- clusterEvalQ(cl, {
   )
   assign("survival", survival, envir = .GlobalEnv)
   
+  # density- and size-dependent overwinter survival
   overwinter_survival <- nimbleFunction (
     
     run = function(alpha_o = double(0), N_sum = double(0), phi = double(0),
-                   x = double(1))
+                   x = double(1), eps_y = double(0))
     {
       returnType(double(1))
       
       # get probability of survival
-      out <- exp(-(alpha_o / N_sum + phi / x ^ 2))
+      out <- exp(-(alpha_o / N_sum + phi / x ^ 2 + eps_y))
       
       return(out)
     }
@@ -817,7 +813,7 @@ out <- clusterEvalQ(cl, {
                  "sigma_R", "mu_R", "log_mu_A",
                  "sigma_A", "mu_lambda", "sigma_lambda",
                  "lambda_R", "lambda_A", "beta", "alpha_o",
-                 "alpha", "alpha_o_mu", "alpha_o_sd", "N_overwinter",
+                 "alpha", "eps_y", "sigma_o", "N_overwinter",
                  "wgrowth_N_sum", "ro_dir", "C_T", "phi",
                  "t0", "sigma_w", "sigma_y", "growth_ranef"),
     useConjugacy = FALSE, enableWAIC = TRUE)
@@ -845,22 +841,21 @@ saveRDS(out, "code/model_selection/savedsamples_model3.rds")
 
 stopCluster(cl)
 
-
 ##################
 # calculate WAIC #
 ##################
 
 # read in samples
-# samples <- readRDS("code/model_selection/savedsamples_model3.rds")
-# 
-# lower <- 2000
-# upper <- 10001
-# sequence <- seq(lower, upper, 10)
-# samples_mat <- rbind(samples[[1]][sequence, ], samples[[2]][sequence, ],
-#                      samples[[3]][sequence, ], samples[[4]][sequence, ])
-# 
-# # calculate WAIC
-# calculateWAIC(samples_mat, CmyModel)
-# WAIC: 6423.18
-# lppd: -3157.10
-# pWAIC: 54.49
+samples <- readRDS("code/model_selection/savedsamples_model3.rds")
+
+lower <- 2000
+upper <- 10001
+sequence <- seq(lower, upper, 10)
+samples_mat <- rbind(samples[[1]][sequence, ], samples[[2]][sequence, ],
+                     samples[[3]][sequence, ], samples[[4]][sequence, ])
+
+# calculate WAIC
+calculateWAIC(samples_mat, CmyModel)
+# WAIC: 6798.783
+# lppd: -3347.65
+# pWAIC: 51.7416

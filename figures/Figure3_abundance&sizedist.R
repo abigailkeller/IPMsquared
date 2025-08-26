@@ -7,14 +7,6 @@ library(viridis)
 # read in samples
 out <- readRDS("data/posterior_samples/savedsamples_IPM.rds")
 
-# subset samples
-lower <- 2000
-upper <- 10001
-out_sub <- list(
-  out[[1]][lower:upper, ], out[[2]][lower:upper, ],
-  out[[3]][lower:upper, ], out[[4]][lower:upper, ]
-)
-
 # function for getting samples
 get_samples <- function(samples, param) {
   samples <- c(samples[[1]][, param], samples[[2]][, param],
@@ -23,21 +15,21 @@ get_samples <- function(samples, param) {
 }
 
 # get params
-n_adult_1 <- get_samples(out_sub, "lambda_A")
+n_adult_1 <- get_samples(out, "lambda_A")
 n_recruit <- list()
 for (i in seq_len(4)) {
-  n_recruit[[i]] <- get_samples(out_sub, paste0("lambda_R[", i, "]"))
+  n_recruit[[i]] <- get_samples(out, paste0("lambda_R[", i, "]"))
 }
-init_mean_recruit <- get_samples(out_sub, "mu_R")
-init_sd_r <- get_samples(out_sub, "sigma_R")
-init_lsd_adult <- get_samples(out_sub, "sigma_A")
-init_lmean_adult <- get_samples(out_sub, "log_mu_A")
+init_mean_recruit <- get_samples(out, "mu_R")
+init_sd_r <- get_samples(out, "sigma_R")
+init_lsd_adult <- get_samples(out, "sigma_A")
+init_lmean_adult <- get_samples(out, "log_mu_A")
 adult_dist <- list()
 for (i in seq_len(3)) {
   adult_dist[[i]] <- as.data.frame(matrix(NA, ncol = 22,
-                                          nrow = dim(out_sub[[1]])[1] * 4))
+                                          nrow = dim(out[[1]])[1] * 4))
   for (k in seq_len(22)) {
-    adult_dist[[i]][, k] <- get_samples(out_sub,
+    adult_dist[[i]][, k] <- get_samples(out,
                                         paste0("N_overwinter[", i, ", ",
                                                k, "]"))
   }

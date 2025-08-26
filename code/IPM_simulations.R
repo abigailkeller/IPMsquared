@@ -30,7 +30,7 @@ get_params <- function(samples, index) {
     alpha = as.numeric(samples[index, "alpha"]),
     beta = as.numeric(samples[index, "beta"]),
     alpha_o = as.numeric(samples[index, "alpha_o"]),
-    alpha_o_sd = as.numeric(samples[index, "alpha_o_sd"]),
+    sigma_o = as.numeric(samples[index, "sigma_o"]),
     gk = as.numeric(samples[index, "gk"]),
     xinf = as.numeric(samples[index, "xinf"]),
     A = as.numeric(samples[index, "A"]),
@@ -193,7 +193,7 @@ survival <- function(params, x, t1, t2) {
 overwinter_survival <- function(alpha_o, N_sum, x, eps_y) {
   
   # get probability of survival
-  out <- exp(-(alpha_o * N_sum / x ^ 2 + eps_y))
+  out <- pmin(1, exp(-(alpha_o * N_sum / x ^ 2 + eps_y)))
     
   return(out)
 }
@@ -423,7 +423,7 @@ for (i in 1:length(index)) {
   N[i, ] <- init_sizes_lnorm(params, constant$lower,
                              constant$upper) * params$lambda_A
   N_recruit[i, ] <- pmin(rlnorm(constant$n_years, meanlog = params$mu_R_lambda,
-                                sdlog = params$sigma_R_lambda), 10000)
+                                sdlog = params$sigma_R_lambda), 20000)
 }
 
 # get overwinter mortality params
@@ -431,7 +431,7 @@ eps_y <- as.data.frame(matrix(nrow = length(index), ncol = constant$n_years))
 
 for (i in 1:length(index)) {
   params <- get_params(samples, i)
-  eps_y[i, ] <- rnorm(constant$n_years, 0, sd = params$alpha_o_sd)
+  eps_y[i, ] <- rnorm(constant$n_years, 0, sd = params$sigma_o)
 }
 
 for (e in effort) {
