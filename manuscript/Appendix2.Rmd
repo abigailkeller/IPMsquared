@@ -64,7 +64,7 @@ $$
 $$
 
 $$
-\sigma_o \sim \text{Uniform}(0, 150)
+\sigma_o \sim \text{Uniform}(0, 1000)
 $$
 
 

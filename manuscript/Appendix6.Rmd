@@ -1,7 +1,9 @@
 ---
 title: "Appendix 6: Robustness Assessments"
 output: pdf_document
-bibliography: appendix1.bib
+header-includes:
+  - \usepackage{amsmath}
+bibliography: appendix6.bib
 ---
 # Appendix 6
 
@@ -63,22 +65,22 @@ knitr::kable(
 
 ## Appendix 6.2
 
-Posterior predictive checks (PPCs) were used to determine if the model is an adequate representation of the observed data. The PPCs are based on the intuition that data simulated under a fitted model should be similar to the observed data the model was fitted to [@conn2018guide]. Calculating PPCs involves 1) cyclically drawing parameter values from the posterior distribution ($\mathbf{\theta}_i \sim [\mathbf{\theta}|\mathbf{D}]$), 2) generating a replicate data set for each $i$, $\mathbf{D}_i^\text{rep} \sim [\mathbf{D}|\mathbf{\theta}_i]$, calculating a discrepancy test statistic, $T(\mathbf{D}, \mathbf{\theta})$, for $\mathbf{D}$ and $\mathbf{D}^\text{rep}$, and comparing the distributions of test statistics of the observed data, $T(\mathbf{D}_i, \mathbf{\theta}_i)$, and replicated data, $T(\mathbf{D}_i^\text{rep}, \mathbf{\theta}_i)$. Bayesian p-values can be calculated based on these two distributions of test-statistics. 
+Posterior predictive checks (PPCs) were used to determine if the model is an adequate representation of the observed data. The PPCs are based on the intuition that data simulated under a fitted model should be similar to the observed data the model was fitted to [@conn2018guide]. Calculating PPCs involves 1) cyclically drawing parameter values from the posterior distribution ($\boldsymbol{\theta}_i \sim [\boldsymbol{\theta}|\mathbf{D}]$), 2) generating a replicate data set for each $i$, $\mathbf{D}_i^\text{rep} \sim [\mathbf{D}|\boldsymbol{\theta}_i]$, 3) calculating a discrepancy test statistic, $T(\mathbf{D}, \boldsymbol{\theta})$, for $\mathbf{D}$ and $\mathbf{D}^\text{rep}$, and 4) comparing the distributions of test statistics of the observed data, $T(\mathbf{D}_i, \boldsymbol{\theta}_i)$, and replicated data, $T(\mathbf{D}_i^\text{rep}, \boldsymbol{\theta}_i)$. Bayesian p-values can be calculated based on these two distributions of test-statistics. 
 
-We used two discrepancy functions, $T(\mathbf{D}, \mathbf{\theta})$, to test goodness of fit. Note that $\mathbf{\theta})$ includes both top-level parameters in the model (i.e., $x_{\infty}$, $\alpha$, etc.), as well as latent states/random effects in the model (i.e., $\sigma_y$, $\lambda^R_y$, etc.).
+We used two discrepancy functions, $T(\mathbf{D}, \boldsymbol{\theta})$, to test goodness of fit. Note that $\boldsymbol{\theta}$ includes both top-level parameters in the model (i.e., $x_{\infty}$, $\alpha$, etc.), as well as latent states/random effects in the model (i.e., $\sigma_y$, $\lambda^R_y$, etc.).
 
-The first discrepancy function is an omnibus discrepancy function, deviance, which tests global lack of fit and was used by King et al. 2009 [@king2009bayesian]. Here, $D$ refers to the the count of removed crabs, $C_{t,j,y}(x_i)$ in the multi-year time-series data set (D1), the total number of removed crabs, $C^T_{t,i}(x_i)$ in the multi-year time-series data set (D1), the number of recaptured marked crabs, $r_t^{\text{mc}}(x_i)$ in the mark-recapture data set (D3), and the size of crabs in the size-at-age dataset (D2):
-
-$$
-T(D, \theta) = -2\text{log}(D|\theta)
-$$
-
-The second discrepancy function is a targeted discrepancy function that calculates the proportion of zeros and checks zero inflation in the count data [@conn2018guide]. We include this targeted measure since the count data in the multi-year time series data set (D1) is overdispersed due to spatial aggregation behavior of the crabs. Additionally, while posterior predictive $P$ values are known to be conservative [@conn2018guide], previous work suggests that discrepancy functions that are solely a function of simulated and observed data may be less conservative than those that depend on model parameters, $\theta$, like most omnibus discrepancy functions [@lunn2013bugs].
-
-Here, $D$ refers to the the count of removed crabs, $C(x)_{t,j,y}$:
+The first discrepancy function is an omnibus discrepancy function, deviance, which tests global lack of fit and was used by King et al. 2009 [@king2009bayesian]. Here, $\mathbf{D}$ refers to the the count of removed crabs, $C_{t,j,y}(x_i)$ in the multi-year time-series data set (D1), the total number of removed crabs, $C^T_{t,i}(x_i)$ in the multi-year time-series data set (D1), the number of recaptured marked crabs, $r_t^{\text{mc}}(x_i)$ in the mark-recapture data set (D3), and the size of crabs in the size-at-age dataset (D2):
 
 $$
-T(D) = \sum_iI(D_i = 0)
+T(\mathbf{D}, \boldsymbol{\theta}) = -2\text{log}(\mathbf{D}|\boldsymbol{\theta})
+$$
+
+The second discrepancy function is a targeted discrepancy function that calculates the proportion of zeros and checks zero inflation in the count data [@conn2018guide]. We include this targeted measure since the count data in the multi-year time series data set (D1) is overdispersed due to spatial aggregation behavior of the crabs. Additionally, while posterior predictive $P$ values are known to be conservative [@conn2018guide], previous work suggests that discrepancy functions that are solely a function of simulated and observed data may be less conservative than those that depend on model parameters, $\boldsymbol{\theta}$, like most omnibus discrepancy functions [@lunn2013bugs].
+
+Here, $\mathbf{D}$ refers to the the count of removed crabs, $C(x)_{t,j,y}$:
+
+$$
+T(\mathbf{D}) = \sum_iI(D_i = 0)
 $$
 
 **Generating posterior predictive samples and calculating deviance**
@@ -209,7 +211,6 @@ CdevianceCalculator <- compileNimble(
 data_deviance_via_nf <- CdevianceCalculator$run(samples)
 ```
 
-\newpage
 
 **Model checking with deviance**
 
@@ -217,22 +218,22 @@ The Bayesian p-value calculated using deviance as the proportion of $T(D_i) > T(
 
 **Figure A6.1:** Histogram of deviance generated for each posterior sample for $D$ (red) and $D^{\text{rep}}$ (blue).
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, out.width="80%"}
 knitr::include_graphics(
   paste0("C:/Users/abiga/Documents/Berkeley/Structured_Decision_Making/",
          "pop_dynamics_model/IPMsquared/figures/ppp_deviance_plot.png")
 )
 ```
 
-\newpage
-
 **Model checked with zero inflation**
 
 The Bayesian p-value using the targeted zero-inflation check was calculated as the proportion of $T(D_i) > T(D^{\text{rep}}_i)$, where $D$ refers to the count data, $C(x)_{t,j,y}$. The zero-inflation check p-value is 0.95. 
 
+\newpage
+
 **Figure A6.2:** Histogram of proportion of zeros in each set, $i$, of posterior predictive samples, $D^{rep}$. Red line indicates the proportion of zeros in the count data, $D$.
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, out.width="80%"}
 knitr::include_graphics(
   paste0("C:/Users/abiga/Documents/Berkeley/Structured_Decision_Making/",
          "pop_dynamics_model/IPMsquared/figures/ppp_zeros.png")
@@ -358,13 +359,15 @@ knitr::kable(
                        extra_latex_after = "\\renewcommand{\\arraystretch}{2}")
 ```
 
-We then generated posterior predictive samples using the Seadrift Lagoon posterior and calculated Bayesian $P$ values based on deviance and proportion of zeros as described above.
+We then generated posterior predictive samples using the Seadrift Lagoon posterior and calculated Bayesian p-values based on deviance and proportion of zeros as described above.
 
 The Bayesian p-value calculated using deviance as the proportion of $T(D_i) > T(D^{\text{rep}}_i)$. The deviance p-value is 0.71. 
 
+\newpage
+
 **Figure A6.3:** Histogram of deviance generated for each posterior sample for $D$ (red) and $D^{\text{rep}}$ (blue) with the Seadrift Lagoon data.
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, out.width="80%"}
 knitr::include_graphics(
   paste0("C:/Users/abiga/Documents/Berkeley/Structured_Decision_Making/",
          "pop_dynamics_model/IPMsquared/figures/ppp_deviance_plot_SL.png")
@@ -379,7 +382,7 @@ The Bayesian p-value using the targeted zero-inflation check was calculated as t
 
 **Figure A6.4:** Histogram of proportion of zeros in each set, $i$, of posterior predictive samples, $D^{rep}$, calculated with the Seadrift Lagoon data. Red line indicates the proportion of zeros in the count data, $D$.
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, out.width="80%"}
 knitr::include_graphics(
   paste0("C:/Users/abiga/Documents/Berkeley/Structured_Decision_Making/",
          "pop_dynamics_model/IPMsquared/figures/ppp_zeros_SL.png")
@@ -388,9 +391,9 @@ knitr::include_graphics(
 
 A Bayesian p-value of 0.5 would suggest an unbiased model. The p-values calculated with both discrepancy criteria with the Seadrift Lagoon data is farther from 0.5 than the p-values calculated with the Roche Cove data. We therefore conclude that the data-generating process at Drayton Harbor (D1) is more similar to the data-generating process at Roche Cove than Seadrift Lagoon, suggesting that the inference based on inclusion of the Roche Cove mark-recapture data is relatively less biased.
 
-## Appendix 6.3.1: Seadrift Lagoon mark-recapture data
+### Appendix 6.3.1: Seadrift Lagoon mark-recapture data
 
-The authors in Grosholze et al., 2021 deployed 15 Fukui traps in June within the lagoon. Over the succeeding three days, they marked all crabs caught by clipping two spines on the carapace, recording their size, and releasing them back to their original location. Within successive weeks as part of an eradication program, crabs were removed, and the number and carapace width of retrieved (marked and unmarked) crabs were recorded. 
+The authors in Grosholz et al., 2021 deployed 15 Fukui traps in June within the lagoon. Over the succeeding three days, they marked all crabs caught by clipping two spines on the carapace, recording their size, and releasing them back to their original location. Within successive weeks as part of an eradication program, crabs were removed, and the number and carapace width of retrieved (marked and unmarked) crabs were recorded. 
 
 Data was retrieved from NSF’s Biological and Chemical Oceanography Data Management Office at https://www.bco-dmo.org/person/699768. While the mark-recapture experiment took place from 2011-2018, we only used data from one year, 2011, since the marking data was unambiguous.
 

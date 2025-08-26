@@ -48,8 +48,11 @@ x <- readRDS("data/model_data/x.rds")
 
 # read in growth data
 growth_data <- readRDS("data/model_data/growth_data.rds")
+```
 
+Then the model code will be specified:
 
+```{r, eval = FALSE}
 # Write model code
 model_code <- nimbleCode({
   

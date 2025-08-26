@@ -325,69 +325,6 @@ model_code <- NimbleCode({
 
 ## Process model functions
 
-### Initial population density of adults
-
-This function corresponds to equation 1 in main text.
-
-```{r, eval = FALSE}
-# initial size distribution of adults - year 1
-get_init_adult <- nimbleFunction (
-  
-  run = function(mu_A = double(0), sigma_A = double(0),
-                 lower = double(1), upper = double(1),
-                 lambda_A = double(0))
-  {
-    returnType(double(1))
-    
-    # moment match from normal to gamma
-    var <- sigma_A ^ 2
-    shape <- mu_A ^ 2 / var
-    rate <- mu_A / var
-    prop_adult <- pgamma(q = upper, shape = shape, rate = rate) -
-      pgamma(q = lower, shape = shape, rate = rate)
-    
-    # get initial size-structured abundance of adults
-    out <- prop_adult * lambda_A
-
-    return(out)
-  }
-)
-```
-
-### Size-structured recruitment
-
-This function corresponds to equation 14 in main text.
-
-```{r, eval = FALSE}
-# annual size distributions of recruit
-get_init_recruits <- nimbleFunction (
-    
-  run = function(mu_R = double(0), sigma_R = double(0),
-                 lower = double(1), upper = double(1),
-                 lambda_R = double(1), n_year = double(0),
-                 n_size = double(0))
-  {
-    returnType(double(2))
-    
-    # create empty array
-    out <- matrix(NA, ncol = n_size, nrow = n_year)
-
-    var <- sigma_R ^ 2
-    shape <- mu_R ^ 2 / var
-    rate <- mu_R / var
-    prop_recruit <- pgamma(q = upper, shape = shape, rate = rate) -
-      pgamma(q = lower, shape = shape, rate = rate)
-      
-    # get initial size-structured abundance of recruits
-    for (i in 1:n_year) {
-      out[i, ] <- prop_recruit[1:n_size] * lambda_R[i]
-    }
-
-    return(out)
-  }
-)
-```
-
 ### Seasonal growth
 
 This function corresponds to equations 5-6 in main text.
@@ -464,6 +401,69 @@ overwinter_survival <- nimbleFunction (
     
     # get probability of survival
     out <- exp(-(alpha_o * sum(N) / x ^ 2 + eps_y))
+
+    return(out)
+  }
+)
+```
+
+### Initial population density and annual recruitment
+
+This function corresponds to equation 12 in main text.
+
+```{r, eval = FALSE}
+# initial size distribution of adults - year 1
+get_init_adult <- nimbleFunction (
+  
+  run = function(mu_A = double(0), sigma_A = double(0),
+                 lower = double(1), upper = double(1),
+                 lambda_A = double(0))
+  {
+    returnType(double(1))
+    
+    # moment match from normal to gamma
+    var <- sigma_A ^ 2
+    shape <- mu_A ^ 2 / var
+    rate <- mu_A / var
+    prop_adult <- pgamma(q = upper, shape = shape, rate = rate) -
+      pgamma(q = lower, shape = shape, rate = rate)
+    
+    # get initial size-structured abundance of adults
+    out <- prop_adult * lambda_A
+
+    return(out)
+  }
+)
+```
+
+### Size-structured recruitment
+
+This function corresponds to equation 14 in main text.
+
+```{r, eval = FALSE}
+# annual size distributions of recruit
+get_init_recruits <- nimbleFunction (
+    
+  run = function(mu_R = double(0), sigma_R = double(0),
+                 lower = double(1), upper = double(1),
+                 lambda_R = double(1), n_year = double(0),
+                 n_size = double(0))
+  {
+    returnType(double(2))
+    
+    # create empty array
+    out <- matrix(NA, ncol = n_size, nrow = n_year)
+
+    var <- sigma_R ^ 2
+    shape <- mu_R ^ 2 / var
+    rate <- mu_R / var
+    prop_recruit <- pgamma(q = upper, shape = shape, rate = rate) -
+      pgamma(q = lower, shape = shape, rate = rate)
+      
+    # get initial size-structured abundance of recruits
+    for (i in 1:n_year) {
+      out[i, ] <- prop_recruit[1:n_size] * lambda_R[i]
+    }
 
     return(out)
   }
