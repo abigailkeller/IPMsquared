@@ -758,23 +758,20 @@ CmyModel <- compileNimble(myModel)
 ppSamplerNF <- nimbleFunction(
   setup = function(model, samples) {
     
-    topNodes <- colnames(samples)
-    topNodes <- model$topologicallySortNodes(topNodes)
-    
-    # theta
-    #topNodes <- model$getNodeNames(stochOnly = TRUE, topOnly = TRUE)
+    theta <- colnames(samples)
+    theta <- model$topologicallySortNodes(theta)
     
     # nodes to simulate
-    simNodes <- model$getNodeNames()[!(model$getNodeNames() %in% topNodes)]
+    simNodes <- model$getNodeNames()[!(model$getNodeNames() %in% theta)]
     
     # data nodes
     dataNodes <- model$getNodeNames(dataOnly = TRUE)
     
     n <- length(model$expandNodeNames(dataNodes, returnScalarComponents = TRUE))
-    vars <- colnames(samples[, topNodes])
+    vars <- colnames(samples[, theta])
     
     # subset posterior samples to just theta (top nodes in graph)
-    samples_sub <- samples[, topNodes]
+    samples_sub <- samples[, theta]
     
   },
   run = function(samples = double(2)) {
@@ -858,10 +855,7 @@ calc_deviance_D <- nimbleFunction(
   setup = function(model, samples) {
     
     # theta = top nodes and latent states
-    # theta <- colnames(samples)
-    
     theta <- colnames(samples)
-    # theta <- model$topologicallySortNodes(theta)
     
     # calculate model graph dependencies of theta to update
     deps <- model$getDependencies(theta, self = TRUE)

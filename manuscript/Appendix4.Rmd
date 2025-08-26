@@ -22,37 +22,31 @@ model_code <- NimbleCode({
   #############################
   
   # intra-annual change
-  for (y in 1:n_year) {
-    for (t in 1:(Tmax-1)) {
+  for (t in 1:(Tmax-1)) {
+    for (y in 1:n_year) {
       
       # Equation 1
       ## project
       N[t + 1, y, 1:n_size] <- kernel[1:n_size, 1:n_size, t] %*%
         (N[t, y, 1:n_size] - C_T[t, y, 1:n_size]) +
         recruit_intro[t, y] * R[y, 1:n_size] # introduce recruits, t = 6
-
-      # Equation 2
-      ## kernel
-      kernel[1:n_size, 1:n_size, t] <- seasonal_growth(
-        xinf, gk, sigma_G, A, ds, D[t, 1:2], n_size, pi, x[1:n_size], 
-        lower[1:n_size], upper[1:n_size]) * S[t, y, 1:n_size]
-      # Equation 7
-      ## natural survival
-      S[t, y, 1:n_size] <- survival(alpha, beta[y], D[t, 1:2], x[1:n_size])
     }
-  }
-  
-  # Equation 8
-  ## year-specific natural mortality (process error, includes mark-recapture)
-  for (y in 1:(n_year + 1)) {
-    beta[y] ~ dgamma(beta_alpha, beta_theta)
+    # Equation 2
+    ## kernel
+    kernel[1:n_size, 1:n_size, t] <- seasonal_growth(
+      xinf, gk, sigma_G, A, ds, D[t, 1:2], n_size, pi, x[1:n_size], 
+      lower[1:n_size], upper[1:n_size]) * S[t, 1:n_size]
+      
+    # Equation 7
+    ## natural survival
+    S[t, 1:n_size] <- survival(alpha, beta, D[t, 1:2], x[1:n_size])
   }
   
   ## inter-annual change
   for (y in 1:(n_year - 1)) {
     for (k in 1:n_size) {
       
-      # Equation 9, 12
+      # Equation 8, 11
       ## overwinter survival and seasonal growth
       ## (use stochastic N node)
       N_stoch[y, k] ~ dbinom(size = seasonal_growth(xinf, gk, sigma_G, A, ds, 
@@ -66,33 +60,33 @@ model_code <- NimbleCode({
     # fill deterministic N node with stochastic N node
     N[1, y + 1, 1:n_size] <- N_stoch[y, 1:n_size]
     
-    # Equation 10
+    # Equation 9
     ## size- and density-dependent overwinter survival
     S_o[y, 1:n_size] <- overwinter_survival(alpha_o[y], 
                                             sum(N[Tmax, y, 1:n_size]), 
-                                            x[1:n_size])
+                                            x[1:n_size], eps_y[y])
     
-    # Equation 11
-    ## year-specific intensity of overwinter mortality
-    alpha_o[y] ~ dgamma(alpha_o_alpha, alpha_o_theta)
+    # Equation 10
+    ## year-specific overwinter mortality random effect
+    eps_y[y] ~ dnorm(0, sd = sigma_o)
   }
   
   #####################################################
   # Initial population density and annual recruitment #
   #####################################################
   
-  # Equation 13
+  # Equation 12
   ## get initial size-structured abundance of adults - year 1
   N[1, 1, 1:n_size] <- get_init_adult(mu_A, sigma_A, lower[1:n_size], 
                                       upper[1:n_size], lambda_A)
   
-  # Equation 14
+  # Equation 13
   ## annual abundance of recruits
   for (m in 1:n_year) {
-   lambda_R[m] ~ T(dnorm(mu_lambda, sd = sigma_lambda), 0, Inf)
+    lambda_R[m] ~ dlnorm(mu_lambda, sdlog = sigma_lambda)
   }
   
-  # Equation 15
+  # Equation 14
   ## annual size distribution of recruits
   R[1:n_year, 1:n_size] <- get_init_recruits(mu_R, sigma_R, lower[1:n_size], 
                                              upper[1:n_size], 
@@ -109,18 +103,18 @@ model_code <- NimbleCode({
     for (t in 1:Tmax) {
       for (k in 1:n_size) {
         
-        # Equation 16
+        # Equation 15
         ## binomial distribution with total crabs removed, n_R
         C_T[t, y, k] ~ dbinom(size = round(N[t, y, k]), prob = p[t, y, k])
 
-        # Equation 17
+        # Equation 16
         ## dirichlet-multinomial mixture, conditional probability of capture
         alpha_D[t, 1:totalo, y, k] <- p_C[t, 1:totalo, y, k] * n_p_dir
         C[t, 1:totalo, y, k] ~ ddirchmulti(alpha = alpha_D[t, 1:totalo, y, k],
                                              size = C_T[t, y, k])
       }
       
-      # Equations 18 - 20
+      # Equations 17 - 19
       ## calculate hazard rate
       hazard[t, 1:totalo, y, 1:n_size] <- calc_hazard(
         totalo, n_size, h_F_max, h_F_k, h_F_0, h_S_max, h_S_k, h_S_0, h_M_max,
@@ -128,7 +122,7 @@ model_code <- NimbleCode({
         m_index[t, 1:totalo, y], soak_days[t, 1:totalo, y], x[1:n_size]
         )
 
-      # Equation 21
+      # Equation 20
       ## total capture probability
       p[t, y, 1:n_size] <- calc_prob(totalo, n_size,
                                      hazard[t, 1:totalo, y, 1:n_size])
@@ -148,131 +142,180 @@ model_code <- NimbleCode({
   ###############################
   ###############################
   
-  #######################
-  # Mark-recapture data #
-  #######################
-  
-  # Equation 24
-  ## draw recaptured samples, m2, from projected marked samples, n1_project
-  for (k in 1:n_size) {
-    m2[k] ~ dbinom(size = round(n1_project[k]), prob = p_mc[k])
-  }
-  
-  # Equation 25
-  ## total capture probability with mark-recapture data
-  p_mc[1:n_size] <- calc_prob(totalo_mc, n_size,
-                              hazard_mc[1:totalo_mc, 1:n_size])
-  
-  # size-dependent hazard rates with mark-recapture data
-  hazard_mc[1:totalo_mc, 1:n_size] <- calc_hazard(
-    totalo_mc, n_size, h_F_max, h_F_k, h_F_0, h_S_max, h_S_k, h_S_0, h_M_max,
-        h_M_A, h_M_sigma, f_index_mc[1:totalo_mc], s_index_mc[1:totalo_mc,],
-        m_index_mc[1:totalo_mc], soak_days[1:totalo_mc], x[1:n_size]
-  )
-  
-  # Equation 26
-  ## apply kernel from time of marking to time of recapture
-  n1_project[1:n_size] <- kernel_mc[1:n_size, 1:n_size] %*% n1[1:n_size]
-  
-  kernel_mc[1:n_size, 1:n_size] <- seasonal_growth(xinf, gk, sigma_G, A, ds, 
-                                                   D_mc[1:2], n_size,  pi, 
-                                                   x[1:n_size], lower[1:n_size], 
-                                                   upper[1:n_size]) * 
-    survival(alpha, beta[5], D_mc[1:2], x[1:n_size])
-  
   ################
   # Growth model #
   ################
   
-  # incorporated hierarchically as informative priors in the unified model
-  # asymptotic size
-  xinf ~ dnorm(inf_prior[1, 1], sd = inf_prior[1, 2])
+  for(i in 1:n_growth_obs){
+    
+    # Equation 21: expected size at age a
+    W_hat[i] <- xinf * (1 - exp(-gk * (age[i] - t0) - S_t[i] + S_t0)) + 
+      growth_ranef[growth_year[i]]
+    
+    S_t[i] <- (A * gk / (2 * pi)) * sin(2 * pi * (age[i] - ds))
+    
+    # Equation 22: variation in growth rate
+    W[i] ~ dnorm(W_hat[i], sd = sigma_w)
+  }
+  
+  # Equation 21: expected size at age a
+  S_t0 <- (A * gk / (2 * pi)) * sin(2 * pi * (t0 - ds))
+  
+  for(y in 1:n_growth_years){
+    
+    growth_ranef[y] ~ dnorm(0, sd = sigma_y)
+    
+  }
+
+  #######################
+  # Mark-recapture data #
+  #######################
+  
+  # Equation 23: get number marked at first recapture event
+  S_mc_rc[1, 1:n_size] <- survival(alpha, beta, x[1:n_size], 
+                                   D_mc_rc[1], D_mc_rc[2])
+  total_marked_rc[1, 1:n_size] <- get_kernel(xinf, gk, sigma_G, A, ds, 
+                                             D_mc_rc[1], D_mc_rc[2],
+                                             n_size, pi, x[1:n_size], 
+                                             lower[1:n_size], 
+                                             upper[1:n_size],
+                                             S_mc_rc[1, 1:n_size]) %*%
+    marked_rc[1, 1:n_size]
+  
+  # Equation 24: project marked crab population with growth and mortality
+  for (t in 2:n_time_recap) { # time corresponds to marking events
+    
+    ## apply kernel from time of marking to time of recapture
+    total_marked_rc[t, 1:n_size] <- get_kernel(xinf, gk, sigma_G, A, ds, 
+                                               D_mc_rc[t], D_mc_rc[t + 1],
+                                               n_size, pi, x[1:n_size], 
+                                               lower[1:n_size], 
+                                               upper[1:n_size], 
+                                               S_mc_rc[t, 1:n_size]) %*%
+      (total_marked_rc[t - 1, 1:n_size] + marked_rc[t, 1:n_size])
+    
+    S_mc_rc[t, 1:n_size] <- survival(alpha, beta, x[1:n_size], 
+                                     D_mc_rc[t], D_mc_rc[t + 1])
+    
+  }
+  
+  # Equation 25
+  ## draw recaptured samples, catch_rc, from total marked samples, total_marked_rc
+  for (t in 1:n_time_recap) { # time corresponds to recapture events
+    
+    for (k in 1:n_size) {
+      
+      catch_rc[t, k] ~ dbinom(size = round(total_marked_rc[t, k]), 
+                              prob = p_mc_rc[t, k])
+      
+    }
+    
+    # Equation 26
+    ## total capture probability with mark-recapture data
+    p_mc_rc[t, 1:n_size] <- calc_prob(totalo_mc_rc[t + 1], n_size,
+                                      hazard_mc_rc[t, 1:totalo_mc_rc[t + 1], 
+                                                   1:n_size])
+    
+    # size-dependent hazard rates with mark-recapture data
+    hazard_mc_rc[t, 1:totalo_mc_rc[t + 1], 1:n_size] <- calc_hazard(
+      totalo_mc_rc[t + 1], n_size, h_F_max, h_F_k, h_F_0, h_S_max, h_S_k, 
+      h_S_0, h_M_max, h_M_A, h_M_sigma, 
+      f_index_mc_rc[t + 1, 1:totalo_mc_rc[t + 1]], 
+      s_index_mc_rc[t + 1, 1:totalo_mc_rc[t + 1]],
+      m_index_mc_rc[t + 1, 1:totalo_mc_rc[t + 1]], 
+      soak_days_mc_rc[t + 1, 1:totalo_mc_rc[t + 1]], 
+      x[1:n_size]
+    )
+  }
+  
+  
+  #######################
+  # Prior distributions #
+  #######################
+  
+  ##
+  # growth model
+  ##
+  
   # growth rate
-  gk ~ dnorm(inf_prior[2, 1], sd = inf_prior[2, 2])
+  gk ~ dunif(0, 2)
   # amplitude of growth oscillations
-  A ~ dnorm(inf_prior[3, 1], sd = inf_prior[3, 2])
+  A ~ dunif(0, 4)
   # inflection point of growth oscillations
-  ds ~ dnorm(inf_prior[4, 1], sd = inf_prior[4, 2])
-  
-  
-  
-  
-  ################
-  ################
-  # Vague priors #
-  ################
-  ################
+  ds ~ dunif(-1, 0)
+  # age organism has 0 size
+  t0 ~ dunif(-10, 10)
+  # process error sd
+  sigma_w ~ dunif(0, 100)
+  # year random effect sd
+  sigma_y ~ dunif(0, 100)
+  # asymptotic size
+  xinf ~ dunif(70, 140)
+  # growth error
+  sigma_G ~ dunif(0.01, 4)
   
   ##
   # size selectivity parameters
   ##
-
+  
   # minnow max. hazard rate
-  h_M_max ~ dunif(priors[1, 1], priors[1, 2])
+  h_M_max ~ dunif(0, 0.1)
   # minnow max. size of capture
-  h_M_A ~ dunif(priors[2, 1], priors[2, 2])
+  h_M_A ~ dunif(35, 60)
   # minnow sigma of gaussian size selectivity curve
-  h_M_sigma ~ dunif(priors[3, 1], priors[3, 2])
+  h_M_sigma ~ dunif(3, 10)
   # fukui max. hazard rate
-  h_F_max ~ dunif(priors[4, 1], priors[4, 2])
+  h_F_max ~ dunif(0, 0.1)
   # fukui k of logistic size selectivity curve
-  h_F_k ~ dunif(priors[5, 1], priors[5, 2])
+  h_F_k ~ dunif(0.1, 1.5)
   # fukui midpoint of logistic size selectivity curve
-  h_F_0 ~ dunif(priors[6, 1], priors[6, 2])
+  h_F_0 ~ dunif(30, 100)
   # shrimp max. hazard rate
-  h_S_max ~ dunif(priors[7, 1], priors[7, 2])
+  h_S_max ~ dunif(0, 0.1)
   # shrimp k of logistic size selectivity curve
-  h_S_k ~ dunif(priors[8, 1], priors[8, 2])
+  h_S_k ~ dunif(0.1, 1.5)
   # shrimp midpoint of logistic size selectivity curve
-  h_S_0 ~ dunif(priors[9, 1], priors[9, 2])
-
+  h_S_0 ~ dunif(30, 100)
+  
   ##
   # IPM - natural mortality
   ##
-
-  # gamma distributions shape for instantaneous intensity of mortality
-  beta_alpha ~ dunif(priors[10, 1], priors[10, 2])
-  # gamma distributions rate for instantaneous intensity of mortality
-  beta_theta ~ dunif(priors[11, 1], priors[11, 2])
-  # size-dependent natural mortality, shared across all sites
-  alpha ~ dunif(priors[12, 1], priors[12, 2])
-  # gamma distribution shape - instantaneous intensity of overwinter mortality
-  alpha_o_alpha ~ dunif(priors[13, 1], priors[13, 2])
-  # gamma distribution rate - instantaneous intensity of overwinter mortality
-  alpha_o_theta ~ dunif(priors[14, 1], priors[14, 2])
-
-  ##
-  # IPM - growth
-  ##
   
-  # growth error
-  sigma_G ~ dunif(priors[15, 1], priors[15, 2])
-
+  # size-independent natural mortality, shared across all years
+  beta ~ dunif(0, 10000)
+  # size-dependent natural mortality, shared across all years
+  alpha ~ dunif(0, 10000)
+  # size-dependent instantaneous prob of overwinter mortality, shared all years
+  alpha_o ~ dunif(0, 50)
+  # sd of instantaneous prob of overwinter mortality year-specific random effect
+  sigma_o ~ dunif(0, 1000)
+  
   ##
   # observation process
   ##
+  
   # dirichlet multinomial (overdispersion in count data)
-  ro_dir ~ dbeta(priors[16, 1], priors[16, 2])
+  ro_dir ~ dbeta(1, 1)
   n_p_dir <- (1 - ro_dir) / ro_dir
-
+  
   ##
   # initial population density and annual recruitment
   ##
-
+  
   # initial adult size (mean and sd)
-  mu_A ~ dunif(priors[17, 1], priors[17, 2])
-  sigma_A ~ dunif(priors[18, 1], priors[18, 2])
-
+  log_mu_A ~ dunif(3.25, 4.5)
+  sigma_A ~ dunif(0.1, 1)
+  
   # initial recruit size (mean and sd)
-  mu_R ~ dunif(priors[19, 1], priors[19, 2])
-  sigma_R ~ dunif(priors[20, 1], priors[20, 2])
-
-  # abundance of recruits (mean and sd)
-  mu_lambda ~ dunif(priors[21, 1], priors[21, 2])
-  sigma_lambda ~ dunif(priors[22, 1], priors[22, 2])
-
+  mu_R ~ dunif(1, 25)
+  sigma_R ~ dunif(0.01, 20)
+  
+  # abundance of recruits (lognormal mean and sd)
+  mu_lambda ~ dunif(-50, 50)
+  sigma_lambda ~ dunif(0, 10000)
+  
   # abundance of adults in year 1
-  lambda_A ~ dunif(priors[23, 1], priors[23, 2])
+  lambda_A ~ dunif(1, 1000000)
   
   
 })
@@ -313,7 +356,7 @@ get_init_adult <- nimbleFunction (
 
 ### Size-structured recruitment
 
-This function corresponds to equation 15 in main text.
+This function corresponds to equation 14 in main text.
 
 ```{r, eval = FALSE}
 # annual size distributions of recruit
@@ -347,7 +390,7 @@ get_init_recruits <- nimbleFunction (
 
 ### Seasonal growth
 
-This function corresponds to equations 4-5 in main text.
+This function corresponds to equations 5-6 in main text.
 
 ```{r, eval = FALSE}
 # function for seasonal growth kernel
@@ -408,19 +451,19 @@ survival <- nimbleFunction (
 
 ### Density-dependent overwinter survival
 
-This function corresponds to equation 10-11 in main text.
+This function corresponds to equation 9 in main text.
 
 ```{r, eval = FALSE}
 # density- and size-dependent overwinter survival
 overwinter_survival <- nimbleFunction (
   
   run = function(alpha_o = double(0), N = double(1),
-                 x = double(1))
+                 x = double(1), eps_y = double(0))
   {
     returnType(double(1))
     
     # get probability of survival
-    out <- exp(-(alpha_o * sum(N) / x ^ 2))
+    out <- exp(-(alpha_o * sum(N) / x ^ 2 + eps_y))
 
     return(out)
   }
@@ -431,7 +474,7 @@ overwinter_survival <- nimbleFunction (
 
 ### Conditional multinomial observation model
 
-This function corresponds to equations 18-20 in main text.
+This function corresponds to equations 17-19 in main text.
 
 ```{r, eval = FALSE}
 # calculate trap hazard rate of obs j, based on trap type and soak days
@@ -466,7 +509,7 @@ calc_hazard <- nimbleFunction (
 
 ```
 
-These functions correspond to equation 21 in main text
+These functions correspond to equation 20 in main text
 
 ```{r, eval = FALSE}
 # calculate conditional probability of capture
@@ -508,7 +551,7 @@ calc_prob <- nimbleFunction (
 
 ### Size-selective hazard rates
 
-These functions correspond to equations 18-20 in main text.
+These functions correspond to equations 17-19 in main text.
 
 ```{r, eval = FALSE}
 # bell-shaped size selective hazard rate
@@ -540,7 +583,7 @@ size_sel_log <- nimbleFunction (
 
 ### Dirichlet-multinomial mixture
 
-These functions correspond to equation 17 in main text.
+These functions correspond to equation 16 in main text.
 
 ```{r, eval = FALSE}
 # define dirichlet multinomial mixture
