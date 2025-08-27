@@ -149,7 +149,7 @@ model_code <- NimbleCode({
   for(i in 1:n_growth_obs){
     
     # Equation 21: expected size at age a
-    W_hat[i] <- xinf * (1 - exp(-gk * (age[i] - t0) - S_t[i] + S_t0)) + 
+    W_hat[i] <- xinf * (1 - exp(-gk * (age[i] - d0) - S_t[i] + S_t0)) + 
       growth_ranef[growth_year[i]]
     
     S_t[i] <- (A * gk / (2 * pi)) * sin(2 * pi * (age[i] - ds))
@@ -159,7 +159,7 @@ model_code <- NimbleCode({
   }
   
   # Equation 21: expected size at age a
-  S_t0 <- (A * gk / (2 * pi)) * sin(2 * pi * (t0 - ds))
+  S_t0 <- (A * gk / (2 * pi)) * sin(2 * pi * (d0 - ds))
   
   for(y in 1:n_growth_years){
     
@@ -244,7 +244,7 @@ model_code <- NimbleCode({
   # inflection point of growth oscillations
   ds ~ dunif(-1, 0)
   # age organism has 0 size
-  t0 ~ dunif(-10, 10)
+  d0 ~ dunif(-10, 10)
   # process error sd
   sigma_w ~ dunif(0, 100)
   # year random effect sd

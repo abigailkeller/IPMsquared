@@ -303,13 +303,18 @@ model_code <- nimbleCode({
     
     W[i] ~ dnorm(W_hat[i], sd = sigma_w)
     
-    W_hat[i] <- xinf * (1 - exp(-gk * (age[i] - t0) - S_t[i] + S_t0)) + 
+    W_hat[i] <- xinf * (1 - exp(-gk * (age[i] - d0) - S_t[i] + S_t0)) + 
       growth_ranef[growth_year[i]]
     
-    S_t[i] <- (A * gk / (2 * pi)) * sin(2 * pi * (age[i] - ds))
+    # Note: we use ds - 1 to make the equation align with the incremental version
+    # in get_kernel()
+    S_t[i] <- (A * gk / (2 * pi)) * sin(2 * pi * (age[i] - (ds - 1)))
   }
   
-  S_t0 <- (A * gk / (2 * pi)) * sin(2 * pi * (t0 - ds))
+  # Equation 21: expected size at age a
+  # Note: we use ds - 1 to make the equation align with the incremental version
+  # in get_kernel()
+  S_t0 <- (A * gk / (2 * pi)) * sin(2 * pi * (d0 - (ds - 1)))
   
   for(y in 1:n_growth_years){
     
@@ -330,9 +335,9 @@ model_code <- nimbleCode({
   # amplitude of growth oscillations
   A ~ dunif(0, 4)
   # inflection point of growth oscillations
-  ds ~ dunif(-1, 0)
+  ds ~ dunif(0, 1)
   # age organism has 0 size
-  t0 ~ dunif(-10, 10)
+  d0 ~ dunif(-10, 10)
   # process error sd
   sigma_w ~ dunif(0, 100)
   # year random effect sd
@@ -516,7 +521,7 @@ inits <- function() {
     lambda_A = 1800, lambda_R = c(1000, 100, 1000, 100), mu_lambda = log(500),
     sigma_lambda = 0.3, beta = 0.001,
     alpha_o = 0.0308, N_overwinter = N_overwinter,
-    t0 = runif(1, -0.5, 0), sigma_w = runif(1, 0.01, 1), 
+    d0 = runif(1, -0.5, 0), sigma_w = runif(1, 0.01, 1), 
     sigma_y = runif(1, 0.01, 1),
     growth_ranef = runif(length(unique(growth_data$year_index)), 0, 1)
   )
@@ -688,8 +693,8 @@ out <- clusterEvalQ(cl, {
         array <- diag(n_size)
       } else {
         # season adjusted params
-        S_t <- (A * k / (2 * pi)) * sin(2 * pi * (t2 - (1 + ds)))
-        S_t0 <- (A * k / (2 * pi)) * sin(2 * pi * (t1 - (1 + ds)))
+        S_t <- (A * k / (2 * pi)) * sin(2 * pi * (t2 - ds))
+        S_t0 <- (A * k / (2 * pi)) * sin(2 * pi * (t1 - ds))
         
         # p(y"|y)
         for (i in 1:n_size) {
@@ -815,7 +820,7 @@ out <- clusterEvalQ(cl, {
                  "lambda_R", "lambda_A", "beta", "alpha_o",
                  "alpha", "eps_y", "sigma_o", "N_overwinter",
                  "wgrowth_N_sum", "ro_dir", "C_T", 
-                 "t0", "sigma_w", "sigma_y", "growth_ranef"),
+                 "d0", "sigma_w", "sigma_y", "growth_ranef"),
     useConjugacy = FALSE, enableWAIC = TRUE)
 
   # build MCMC

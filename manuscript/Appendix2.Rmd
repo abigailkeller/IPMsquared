@@ -79,11 +79,11 @@ A \sim \text{Uniform}(0, 4)
 $$
 
 $$
-d_s \sim \text{Uniform}(-1, 0)
+d_s \sim \text{Uniform}(0, 1)
 $$
 
 $$
-t_0 \sim \text{Uniform}(-10, 10)
+d_0 \sim \text{Uniform}(-10, 10)
 $$
 
 $$

@@ -18,13 +18,13 @@ We fit four separate models that are identical, apart from the functional form o
 **Model 1:** interactive density- and size-dependence, steeper mortality decrease with size
 
 $$
-S_o(x,N^T_{t_\text{max},y}) = \text{exp}(-(\frac{\alpha_y^o \times N^T_{t_\text{max},y}}{x^2}) + \epsilon_y)
+S_o(x,N^T_{t_\text{max},y}) = \text{exp}(-(\frac{\alpha^o \times N^T_{t_\text{max},y}}{x^2}) + \epsilon_y)
 $$
 
 **Model 2:** interactive density- and size-dependence, less steep mortality decrease with size
 
 $$
-S_o(x,N^T_{t_\text{max},y}) = \text{exp}(-(\frac{\alpha_y^o \times N^T_{t_\text{max},y}}{x}) + \epsilon_y)
+S_o(x,N^T_{t_\text{max},y}) = \text{exp}(-(\frac{\alpha^o \times N^T_{t_\text{max},y}}{x}) + \epsilon_y)
 $$
 
 **Model 3:** additive density- and size-dependence, steeper mortality decrease with size
