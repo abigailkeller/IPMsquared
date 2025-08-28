@@ -307,14 +307,10 @@ model_code <- nimbleCode({
     W_hat[i] <- xinf * (1 - exp(-gk * (age[i] - d0) - S_t[i] + S_t0)) + 
       growth_ranef[growth_year[i]]
     
-    # Note: we use ds - 1 to make the equation align with the incremental version
-    # in get_kernel()
-    S_t[i] <- (A * gk / (2 * pi)) * sin(2 * pi * (age[i] - (ds - 1)))
+    S_t[i] <- (A * gk / (2 * pi)) * sin(2 * pi * (age[i] - ds))
   }
   
-  # Note: we use ds - 1 to make the equation align with the incremental version
-  # in get_kernel()
-  S_t0 <- (A * gk / (2 * pi)) * sin(2 * pi * (d0 - (ds - 1)))
+  S_t0 <- (A * gk / (2 * pi)) * sin(2 * pi * (d0 - ds))
   
   for(y in 1:n_growth_years){
     

@@ -3,7 +3,7 @@ output: pdf_document
 ---
 # Supplemental Information
 
-**Figure S1:** Growth kernel, $G_t(x', x)$ (Equation 6), that describes the probability of transitioning from size $x$ to size $x'$ at time $t$. Results show the probability of growing from $x$ to $x'$ over a two week period (i.e., $t$ to $t + 1$) when $t$ corresponds to April 1st, July 1st, October 1st, and January 1st. Red dashed line shows the line where $x' = x$.
+**Figure S1:** Growth kernel, $G_t(x', x)$ (Equation 6), that describes the probability of transitioning from size $x$ to size $x'$ at time $t$. Results show the probability of growing from $x$ to $x'$ over a two week period (i.e., $t$ to $t + 1$) when $t$ corresponds to April 1st, July 1st, October 1st, and January 1st. Red dashed line shows the line where $x' = x$. The growth kernel is calculated with the mean posterior estimates of growth parameters.
 ```{r, echo=FALSE, out.width = "100%"}
 knitr::include_graphics(
   paste0("C:/Users/abiga/Documents/Berkeley/Structured_Decision_Making/",

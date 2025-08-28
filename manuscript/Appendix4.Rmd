@@ -242,7 +242,7 @@ model_code <- NimbleCode({
   # amplitude of growth oscillations
   A ~ dunif(0, 4)
   # inflection point of growth oscillations
-  ds ~ dunif(-1, 0)
+  ds ~ dunif(0, 1)
   # age organism has 0 size
   d0 ~ dunif(-10, 10)
   # process error sd
@@ -344,8 +344,8 @@ seasonal_growth <- nimbleFunction (
     array <- matrix(NA, ncol = n_size, nrow = n_size)
 
     # season adjusted params
-    S_t <- (A * k / (2 * pi)) * sin(2 * pi * (D[2] - (1 + ds)))
-    S_t0 <- (A * k / (2 * pi)) * sin(2 * pi * (D[1] - (1 + ds)))
+    S_t <- (A * k / (2 * pi)) * sin(2 * pi * (D[2] - ds))
+    S_t0 <- (A * k / (2 * pi)) * sin(2 * pi * (D[1] - ds))
 
     # p(y"|y)
     for (i in 1:n_size) {

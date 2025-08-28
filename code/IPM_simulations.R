@@ -155,9 +155,9 @@ get_kernel <- function(params, t1, t2,
 
   # season adjusted params
   S_t <- (params$A * params$gk / (2 * pi)) *
-    sin(2 * pi * (t2 - (1 + params$ds)))
+    sin(2 * pi * (t2 - params$ds))
   S_t0 <- (params$A * params$gk / (2 * pi)) *
-    sin(2 * pi * (t1 - (1 + params$ds)))
+    sin(2 * pi * (t1 - params$ds))
 
   #p(y"|y)
   for (i in 1:n_size) {

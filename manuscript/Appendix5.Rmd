@@ -45,7 +45,7 @@ out <- readRDS("../data/posterior_samples/savedsamples_IPM.rds")
 ```{r, echo = FALSE, results = "hide"}
 # create df with param names
 short_names <- c("log_mu_A", "sigma_A", "mu_R", "sigma_R", "xinf", "gk", 
-                 "A", "ds", "sigma_G", "t0", "sigma_w", "sigma_y",
+                 "A", "ds", "sigma_G", "d0", "sigma_w", "sigma_y",
                  "beta", "alpha", "alpha_o", 
                  "eps_y[1]", "eps_y[2]", "eps_y[3]", 
                  "sigma_o", "h_F_max", "h_M_max", "h_S_max", "h_F_k", 
