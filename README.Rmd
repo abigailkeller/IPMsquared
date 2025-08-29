@@ -26,7 +26,7 @@ IPMsquared
 └───code
 │   │
 │   │ IPM_code.R # main code file for running the IPM^2
-│   │ IPM_code_seadrift # supplemental code file for running the IPM^2 with the alternative mark-recapture dataset (D2)    
+│   │ IPM_code_seadrift # supplemental code file for running the IPM^2 with the alternative mark-recapture dataset (D3)    
 │   │ IPM_simulations.R # code for running stochastic simulations with posterior samples to approximate the stable size structure in response to varying removal efforts
 │   │ posterior_predictive_check.R # code for generating posterior predictive samples and calculating Bayesian p-values with the posterior generated in the primary analysis
 │   │ posterior_predictive_check_seadrift.R # code for generating posterior predictive samples and calculating Bayesian p-values with the posterior generated in the supplemental analysis with the alternative mark-recapture dataset (D2)
