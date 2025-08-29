@@ -94,7 +94,7 @@ For example, El Niño events, with their characteristic warm water temperatures 
 Yamada et al. 2021 report an estimated year class for captured crabs, which corresponds to the first year of growth after settlement from its planktonic larval stage. We use this estimated year class and the reported crab capture date from this dataset to estimate the age of captured individuals. We assume planktonic settlement in March. For example, for a crab captured in September 2000 with estimated year class of 1998 would be assigned an age of 2.5.
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
-growth_data <- read.csv("../data/growthdata.csv")
+growth_data <- read.csv("../data/D2_growth_data/growthdata.csv")
 growth_data <- growth_data[!growth_data$Waterbody == "Drayton Harbor", ]
 growth_summary <- growth_data %>%
   group_by(Year, Waterbody) %>%

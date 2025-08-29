@@ -17,16 +17,16 @@ recruit_intro <- readRDS("data/model_data/recruit_intro.rds")
 additionalt <- readRDS("data/model_data/additionalt.rds")
 
 # read in mark-recapture data
-n1_mc <- readRDS("data/model_data/n1_mc.rds")
-m2_mc <- readRDS("data/model_data/m2_mc.rds")
+n1_mc <- readRDS("data/model_data/n1_mc_sl.rds")
+m2_mc <- readRDS("data/model_data/m2_mc_sl.rds")
 
 # read in mark-recapture constants
-D_mc <- readRDS("data/model_data/mc_index.rds")
-totalo_mc <- readRDS("data/model_data/totalo_mc.rds")
-soak_days_mc <- readRDS("data/model_data/soak_days_mc.rds")
-f_index_mc <- readRDS("data/model_data/f_index_mc.rds")
-s_index_mc <- readRDS("data/model_data/s_index_mc.rds")
-m_index_mc <- readRDS("data/model_data/m_index_mc.rds")
+D_mc <- readRDS("data/model_data/mc_index_sl.rds")
+totalo_mc <- readRDS("data/model_data/totalo_mc_sl.rds")
+soak_days_mc <- readRDS("data/model_data/soak_days_mc_sl.rds")
+f_index_mc <- readRDS("data/model_data/f_index_mc_sl.rds")
+s_index_mc <- readRDS("data/model_data/s_index_mc_sl.rds")
+m_index_mc <- readRDS("data/model_data/m_index_mc_sl.rds")
 
 
 # read in IPM constants
