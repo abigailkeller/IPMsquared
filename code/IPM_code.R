@@ -390,7 +390,7 @@ model_code <- nimbleCode({
   # initial population density and annual recruitment
   ##
   
-  # initial adult size (mean and sd)
+  # initial adult size (lognormal mean and sd)
   log_mu_A ~ dunif(3.25, 4.5)
   sigma_A ~ dunif(0.1, 1)
   

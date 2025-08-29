@@ -53,7 +53,7 @@ short_names <- c("log_mu_A", "sigma_A", "mu_R", "sigma_R", "xinf", "gk",
                  "lambda_A", "lambda_R[1]", "lambda_R[2]", "lambda_R[3]",
                  "lambda_R[4]", "mu_lambda", "sigma_lambda")
 
-real_names <- c("log(mu^A)", "sigma^A", "mu^R", "sigma[R]",
+real_names <- c("mu^A", "sigma^A", "mu^R", "sigma[R]",
                 "x[infinity]", "k", "A", "d[s]", "sigma[G]", 
                 "d[0]", "sigma[w]", "sigma[y]",
                 "beta", "alpha", "alpha[o]", "epsilon[1]", "epsilon[2]",
@@ -63,7 +63,7 @@ real_names <- c("log(mu^A)", "sigma^A", "mu^R", "sigma[R]",
                 "lambda^A", "lambda[1]^R", "lambda[2]^R", "lambda[3]^R",
                 "lambda[4]^R", "mu^lambda", "sigma^lambda")
 
-latex_names <- c("log(\\mu^A)", "\\sigma^A", "\\mu^R", "\\sigma_R",
+latex_names <- c("\\mu^A", "\\sigma^A", "\\mu^R", "\\sigma_R",
                  "x_{\\infty}", "k", "A", "d_s", "\\sigma_G",
                  "d_0", "\\sigma_w", "\\sigma_y",
                  "\\beta", "\\alpha", "\\alpha_o", "\\epsilon_1",

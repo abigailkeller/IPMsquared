@@ -114,7 +114,7 @@ Initial population density and annual recruitment:
 
 
 $$
-\text{log}(\mu^A) \sim \text{Uniform}(3.25, 4.5)
+\mu^A \sim \text{Uniform}(3.25, 4.5)
 $$
 
 $$

@@ -81,9 +81,13 @@ distributions (i.e., the Dirichlet-Multinomial).
 ## Citation
 
 Releases of this repository are archived and issued DOIs via Zenodo:
-[https://zenodo.org/records/10462269](https://zenodo.org/records/10572340)
+<https://zenodo.org/records/16995755>
 
 The citation of the latest version is:
+
+Keller, A. (2025). An integrated integral projection model (IPM^2) to
+disentangle size-structured harvest and natural mortality (0.1) \[Data
+set\]. Zenodo. <https://doi.org/10.5281/zenodo.16995755>
 
 ## Contact
 
