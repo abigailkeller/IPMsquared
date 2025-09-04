@@ -49,9 +49,9 @@ This poses a particular challenge in the context of monitoring invasive species 
 
 Despite the unique statistical inference challenges associated with invasive species removal data, the costs of under- or over-estimating removal harvest rates can be high. Ineffective invasive population suppression plans waste human and economic resources and can degrade the confidence of people and stakeholders involved in removal \parencite{tiberti2021alien}. As invasive species management becomes more ambitious in scope and scale, population control can be controversial, stimulating conflicts among people and debates about achievability and efficiency \parencite{crowley2017conflict}. These undesirable social outcomes underscore the need for rigorous assessments of the effectiveness of control programs.
 
-Combining existing classes of models can be useful for distinguishing process from observation dynamics, facilitating parameter identifiability, and enabling inference about complex, size-structured demographic rates from imperfect observations. Two attractive frameworks are integral projection models and integrated population models. On the one hand, an integral projection model can be used to make population projections based on vital rates that vary continuously as a function of body size \parencite{merow2014advancing, rees2014building}. In contrast to matrix population models that can produce artifacts from coarse, arbitrary size class divisions, the integral projection model enables modeling of biological realism by using smooth relationships between individual size and demographic performance \parencite{ellner2006integral}. Formulated in a state-space framework, the integral projection model can be used to model natural variation in ecological processes separately from observation error \parencite{auger2021guide, white2016fitting}. 
+Combining existing classes of models can be useful for distinguishing process from observation dynamics, facilitating parameter identifiability, and enabling inference about complex, size-structured demographic rates from imperfect observations. Two attractive frameworks are integral projection models and integrated population models. An integral projection model can be used to make population projections based on vital rates that vary continuously as a function of body size \parencite{merow2014advancing, rees2014building}. In contrast to matrix population models that can produce artifacts from coarse, arbitrary size class divisions, the integral projection model enables modeling of more biologically-realistic, smooth relationships between individual size and demographic performance \parencite{ellner2006integral}. Formulated in a state-space framework, the integral projection model can be used to model natural variation in ecological processes separately from observation error \parencite{auger2021guide, white2016fitting}. 
 
-On the other hand, integrated population models can resolve parameter identifiability issues in scenarios when information requirements of these complex models exceed information available in a single, limited dataset \parencite{besbeas2002integrating}. By jointly analyzing multiple survey and demographic datasets in an integrated framework, integrated population models increase the precision of parameter estimates and facilitate estimation of ``additional" parameters that would otherwise not be identifiable \parencite{riecke2019integrated, abadi2010assessment}. Coupling an integrated population model and an integral projection model into an integrated integral projection model (IPM\textsuperscript{2}) offers a fruitful synergy for understanding complex biological dynamics. While the integral projection model provides a biologically-realistic mathematical representation of size-structured dynamics, the integrated population model can make inference possible via the combined information from multiple datasets. Importantly, the IPM\textsuperscript{2} can be used to understand how the relationship between individual size and demographic performance can play a role in population-level processes \parencite{plard2019ipm}.
+When information requirements of these complex models exceed information available in a single, limited dataset, integrated population models can help resolve issues of parameter identifiability \parencite{besbeas2002integrating}. By incorporating information from multiple survey and demographic datasets in an integrated framework, integrated population models increase the precision of parameter estimates and facilitate estimation of additional parameters that would otherwise not be identifiable \parencite{riecke2019integrated, abadi2010assessment}. Coupling an integrated population model and an integral projection model into an integrated integral projection model (IPM\textsuperscript{2}) offers a fruitful synergy for understanding complex biological dynamics. While the integral projection model provides a biologically-realistic mathematical representation of size-structured dynamics, the integrated population model can make inference possible via the combined information from multiple datasets. Importantly, the IPM\textsuperscript{2} can be used to understand how the relationship between individual size and demographic performance can play a role in population-level processes \parencite{plard2019ipm}.
 
 An IPM\textsuperscript{2} will be useful for understanding population dynamics and removal effectiveness of invasive European green crab (\textit{Carcinus maenas}). Listed as one of the world’s 100 worst invaders \parencite{lowe2000100}, the green crab has multiple documented modes of impact. The green crab is an ecosystem engineer; through its foraging activity, the green crab physically alters eelgrass habitat and reduces the density of this important coastal habitat-forming plant species \parencite{garbary2014drastic, howard2019habitat}. The green crab also predates upon and outcompetes other shellfish, including commercially-valuable bivalves like soft-shell clams and manila clams \parencite{grosholz2000impacts, fisher2024invasive}. This damage is costly, as potential future shellfish harvest losses due to green crab predation on the U.S. West Coast are forecasted to exceed \$45 million per year \parencite{grosholz2011modeling}. 
 
@@ -167,10 +167,10 @@ Since density-dependence during overwinter mortality plays an important role in 
 
 To initiate the process model time series, we estimate the size distribution and density of adults at the beginning of the first year. We also estimate the size-structured abundance of recruits that enter the process model each year. 
 
-The first size distribution, $N_{1, 1}(x)$, is defined in terms of the abundance of adults in the first time period during the first year, $\lambda^{A}$, the log-mean initial adult size in millimeters, $\mu^A$, and the log-standard deviation of initial adult size in millimeters, $\sigma^A$. Since the first year of multi-year time series data (D1) in 2020, $y = 1$, was at the start of green crab establishment in Drayton Harbor, we expected the size distribution to be dominated by age-one crabs with a few age-two crabs representing the first cohort of colonizing crabs. We therefore assumed a log-normal initial density to allow for a unimodal size distribution with a longer right tail. Here, $\phi_L$ represents the log-normal probability density function.
+The first size distribution, $N_{1, 1}(x)$, is defined in terms of the abundance of adults in the first time period during the first year, $\lambda^{A}$, the log-mean initial adult size in millimeters, $\mu^A$, and the log-standard deviation of initial adult size in millimeters, $\sigma^A$. Since the first year of multi-year time series data (D1) in 2020, $y = 1$, was at the start of green crab establishment in Drayton Harbor, we expected the size distribution to be dominated by age-one crabs with a few age-two crabs representing the first cohort of colonizing crabs. We therefore assumed a log-normal initial density to allow for a unimodal size distribution with a longer right tail. Here, $f$ represents the log-normal probability density function.
 
 \begin{equation}
-N_{1, 1}(x) = \phi_L(x; \mu^A, \sigma^A) \times \lambda^A
+N_{1, 1}(x) = f(x; \mu^A, \sigma^A) \times \lambda^A
 \end{equation}
 
 Ovigerous females spawn in August-December \parencite{klassen2007biological}, and these planktonic larvae exit estuarine habitat to develop in high salinity coastal waters alongside larvae produced by neighboring habitats. Advection then brings larvae back into the estuary during recruitment \parencite{young2019life}. Recruitment is therefore modeled as an annual event with open demography, where the annual abundance of recruits, $\lambda^R_y$, is independent of adult abundance and follows a log-normal distribution  
@@ -369,9 +369,9 @@ Embedding this size-structured model within a decision-making framework, however
 
 \renewcommand{\arraystretch}{1.25}
 
-\begin{longtable}{||c p{9cm} c||} 
-\captionsetup{width=1\linewidth}
+\begin{table}[ht]
 \caption{Notation and biological meaning of data, latent states, and parameters. Category refers to the parameter categories designated in Figure 2: 1) Init is the size structure of initial population density and annual recruits, 2) Growth is seasonal growth, 2) N. mort is size-dependent and size-independent natural mortality in non-winter months, 3) O. mort is size- and density-dependent overwinter mortality, 4) F obs, M obs, and S obs correspond to the size-selective observation process for Fukui, Minnow, and Shrimp traps, respectively, and 5) Pop. size corresponds to the true population size in the state-space model (Figure 1).}
+\begin{tabular}{||c p{9cm} c||} 
  \hline
  \multicolumn{1}{||c|}{Symbol}  & \multicolumn{1}{c|}{Description} & \multicolumn{1}{c||}{Category} \\ [0.5ex] 
  \hline\hline
@@ -407,12 +407,11 @@ Embedding this size-structured model within a decision-making framework, however
  \hline
  $\alpha^o$ & Intensity of overwinter density- and size-dependent natural mortality. & O. mort \\ 
  \hline
- \hline
  $\sigma_o$ & Standard deviation of year-specific overwinter mortality random effect. & O. mort \\ 
  \hline\hline
  \multicolumn{3}{||c||}{\textbf{Observation parameters}} \\ 
  \hline
- $h^{\text{max}}$ & Maximum harvest mortality hazard rate. Maximum rate is trap type-specific, such that $h_F^{max}$, $h_M^{max}$, and $h_S^{max}$ correspond to Fukui, Minnow, and Shrimp traps, respectively. & F Obs, M Obs, S Obs \\ 
+ $h^{\text{max}}$ & Maximum harvest mortality hazard rate. Maximum rate is trap type-specific, such that $h_F^{\text{max}}$, $h_M^{\text{max}}$, and $h_S^{\text{max}}$ correspond to Fukui, Minnow, and Shrimp traps, respectively. & F Obs, M Obs, S Obs \\ 
  \hline
  $h^{k}$ & Steepness of change from the minimum to the maximum hazard rate for trap types with a logistic size-selective function, such that $h_F^{k}$ and $h_S^{k}$ correspond to Fukui and Shrimp traps, respectively. & F obs, S obs \\ 
  \hline
@@ -427,7 +426,7 @@ Embedding this size-structured model within a decision-making framework, however
  \multicolumn{3}{||c||}{\textbf{Population-level quantities}} \\ 
  \hline
  $N_{t,y}(x)$ & Population density function of individuals of size $x$, during year $y$, at time $t$. & Pop. size \\ 
- \hline
+ \hline 
  $\tilde{N}_{t,y}(x_i)$ & Discretized population density of individuals of size $x_i$, during year $y$, at time $t$. & Pop. size \\ 
  \hline
  $N_{t,y}$ & Total population abundance across all sizes, during year $y$, at time $t$. & Pop. size \\
@@ -456,45 +455,23 @@ Embedding this size-structured model within a decision-making framework, however
  \hline
  $O^{\text{mc}}_t$ & Number of observations (Fukui traps) at time $t$ in the mark-recapture dataset (D3). & - \\
  \hline
-\end{longtable}
+ \end{tabular}
+ \end{table}
 
-\section{Figures}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{Figure1_conceptual_figure-01.png}
-    \caption{\textit{A.} Conceptual diagram of state-space population model, including the dependence structure in the latent process dynamics and observation process. Orange circles designate the population density of individuals of size $x$, during year $y$, at time $t$ and are distinguished by dynamics within a year (intra-annual change, April - October) and dynamics between years (inter-annual change, November - March). Blue circles designate the count of removed crabs during time $t$, in trap $j$, in year $y$, of size $x$ in the multi-year time-series dataset (D1). Grey boxes represent size-structured demographic and observation processes. \textit{B.} Multi-year time series data (D1) collected in Drayton Harbor from 2020-2023, highlighting the relationship between time and crab size (carapace width, mm). Each point corresponds to one captured crab, and color corresponds to the type of trap used in capture.}
-\end{figure}
+\section{Figure Legends}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{Figure2_IPM_conceptual-01.png}
-    \caption{Overview of parameters informed by the three datasets in the integrated population model: multi-year time series data (D1) (Figure 1B), size-at-age data (D2), and mark-recapture data (D3). Parameter categories correspond to categories designated in Table 1.}
-\end{figure}
+\textbf{Figure 1:} \textbf{A.} Conceptual diagram of state-space population model, including the dependence structure in the latent process dynamics and observation process. Orange circles designate the population density of individuals of size $x$, during year $y$, at time $t$ and are distinguished by dynamics within a year (intra-annual change, April - October) and dynamics between years (inter-annual change, November - March). Blue circles designate the count of removed crabs during time $t$, in trap $j$, in year $y$, of size $x$ in the multi-year time-series dataset (D1). Grey boxes represent size-structured demographic and observation processes. \textbf{B.} Multi-year time series data (D1) collected in Drayton Harbor from 2020-2023, highlighting the relationship between time and crab size (carapace width, mm). Each point corresponds to one captured crab, and color corresponds to the type of trap used in capture.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{Figure3_abundance_sizedist.png}
-    \caption{Total abundance and size distribution of \textit{A.} adults and \textit{B.} recruits in the fitted model. The left panels show the total abundance of crabs across all size classes, $N$, at the beginning of each year (i.e. $N_{1, y}$. The right panels show the size distribution, or the number of individuals in each size class, $N(x)$. Size corresponds to crab carapace width. Colors indicate the year, and error bars indicate the 95\% credibility interval. Note that the left panel is the integral of the right panel.}
-\end{figure}
+\textbf{Figure 2:} Overview of parameters informed by the three datasets in the integrated population model: multi-year time series data (D1) (Figure 1B), size-at-age data (D2), and mark-recapture data (D3). Parameter categories correspond to categories designated in Table 1.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{Figure4_sizesel.png}
-    \caption{Size-structured probability of capture, $p(x)$, in one trap over a 24-hour trapping period. Colors indicate the trap type. Note that the y-axis is presented with a square root transformation.}
-\end{figure}
+\textbf{Figure 3:} Total abundance and size distribution of \textbf{A.} adults and \textbf{B.} recruits in the fitted model. The left panels show the total abundance of crabs across all size classes, $N$, at the beginning of each year (i.e. $N_{1, y}$. The right panels show the size distribution, or the number of individuals in each size class, $N(x)$. Size corresponds to crab carapace width. Colors indicate the year, and error bars indicate the 95\% credibility interval. Note that the left panel is the integral of the right panel.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{Figure5_survival.png}
-    \caption{Size-structured natural survival rate integrated over the \textit{A.} non-winter season between from April - October (Eq. 7) and \textit{B.} year-specific winter season from November - March (Eq. 9). Colors indicate year, and error bars indicate the 95\% credibility interval.}
-\end{figure}
+\textbf{Figure 4:} Size-structured probability of capture, $p(x)$, in one trap over a 24-hour trapping period. Colors indicate the trap type. Note that the y-axis is presented with a square root transformation.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{Figure6_IPM_simulations.png}
-    \caption{Population forecasts in response to varying removal efforts. Size distributions show the equilibrium crab abundance in each size class, $N^E(x)$, after overwinter mortality in April when \textit{A.} No traps, \textit{B.} only Fukui traps, \textit{C.} only Minnow traps, or \textit{D.} only Shrimp traps were applied evenly over a trapping season of 14 biweeks. Solid line indicates the median size-structured abundance across simulation replicates, and the shaded area indicates $\pm1$ standard deviation across simulation replicates. Colors indicate total number of traps set over the trapping season.}
-\end{figure}
+\textbf{Figure 5:} Size-structured natural survival rate integrated over the \textbf{A.} non-winter season between from April - October (Eq. 7) and \textbf{B.} year-specific winter season from November - March (Eq. 9). Colors indicate year, and error bars indicate the 95\% credibility interval.
+
+\textbf{Figure 6:} Population forecasts in response to varying removal efforts. Size distributions show the equilibrium crab abundance in each size class, $N^E(x)$, after overwinter mortality in April when \textbf{A.} No traps, \textbf{B.} only Fukui traps, \textbf{C.} only Minnow traps, or \textbf{D.} only Shrimp traps were applied evenly over a trapping season of 14 biweeks. Solid line indicates the median size-structured abundance across simulation replicates, and the shaded area indicates $\pm1$ standard deviation across simulation replicates. Colors indicate total number of traps set over the trapping season.
 
 
 \printbibliography[]
