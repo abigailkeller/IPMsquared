@@ -108,3 +108,6 @@ sizesel_plot <- ggplot(data = selective_summaries_long) +
 ggsave("figures/Figure4_sizesel.png", sizesel_plot,
        dpi = 400, width = 5, height = 4,
        bg = "white")
+ggsave("figures/Figure4_sizesel.pdf", sizesel_plot,
+       device = cairo_pdf,
+       width = 5, height = 4)

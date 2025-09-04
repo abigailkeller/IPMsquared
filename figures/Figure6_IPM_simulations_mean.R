@@ -136,3 +136,6 @@ final_plot <- plot_0 + plot_fukui + plot_minnow + plot_shrimp +
   plot_layout(nrow = 1)
 ggsave("figures/Figure6_IPM_simulations.png", dpi = 400,
        width = 9, height = 3)
+ggsave("figures/Figure6_IPM_simulations.pdf", final_plot,
+       device = cairo_pdf,
+       width = 9, height = 3)

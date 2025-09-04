@@ -262,5 +262,8 @@ BBDD#
 final_plot <- adult_nplot + recruit_nplot + adult_sizeplot + 
   recruit_sizeplot + legend + plot_layout(design = layout)
 
-ggsave("figures/Figure3_abundance_sizedist.png", 
+ggsave("figures/Figure3_abundance_sizedist.png", final_plot,
        dpi = 400, width = 6, height = 5)
+ggsave("figures/Figure3_abundance_sizedist.pdf", final_plot,
+       device = cairo_pdf,
+       width = 6, height = 5)

@@ -145,3 +145,6 @@ final_plot <- nsurv_plot + wsurv_plot + plot_layout(nrow = 1)
 
 ggsave("figures/Figure5_survival.png", final_plot,
        dpi = 400, width = 8, height = 3)
+ggsave("figures/Figure5_survival.pdf", final_plot,
+       device = cairo_pdf,
+       width = 8, height = 3)
