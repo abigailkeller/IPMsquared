@@ -91,7 +91,7 @@ $$
 $$
 
 $$
-\sigma_y \sim \text{Uniform}(0, 100)
+\sigma_u \sim \text{Uniform}(0, 100)
 $$
 
 $$

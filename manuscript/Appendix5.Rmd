@@ -45,7 +45,7 @@ out <- readRDS("../data/posterior_samples/savedsamples_IPM.rds")
 ```{r, echo = FALSE, results = "hide"}
 # create df with param names
 short_names <- c("log_mu_A", "sigma_A", "mu_R", "sigma_R", "xinf", "gk", 
-                 "A", "ds", "sigma_G", "d0", "sigma_w", "sigma_y",
+                 "A", "ds", "sigma_G", "d0", "sigma_w", "sigma_u",
                  "beta", "alpha", "alpha_o", 
                  "eps_y[1]", "eps_y[2]", "eps_y[3]", 
                  "sigma_o", "h_F_max", "h_M_max", "h_S_max", "h_F_k", 
@@ -55,7 +55,7 @@ short_names <- c("log_mu_A", "sigma_A", "mu_R", "sigma_R", "xinf", "gk",
 
 real_names <- c("mu^A", "sigma^A", "mu^R", "sigma[R]",
                 "x[infinity]", "k", "A", "d[s]", "sigma[G]", 
-                "d[0]", "sigma[w]", "sigma[y]",
+                "d[0]", "sigma[w]", "sigma[u]",
                 "beta", "alpha", "alpha[o]", "epsilon[1]", "epsilon[2]",
                 "epsilon[3]", "sigma[o]",
                 "h[F]^max", "h[M]^max", "h[S]^max", "h[F]^k", "h[S]^k",
@@ -65,7 +65,7 @@ real_names <- c("mu^A", "sigma^A", "mu^R", "sigma[R]",
 
 latex_names <- c("\\mu^A", "\\sigma^A", "\\mu^R", "\\sigma_R",
                  "x_{\\infty}", "k", "A", "d_s", "\\sigma_G",
-                 "d_0", "\\sigma_w", "\\sigma_y",
+                 "d_0", "\\sigma_w", "\\sigma_u",
                  "\\beta", "\\alpha", "\\alpha_o", "\\epsilon_1",
                  "\\epsilon_2", "\\epsilon_3", 
                  "\\sigma_o", "h_F^{max}", "h_M^{max}", "h_S^{max}",

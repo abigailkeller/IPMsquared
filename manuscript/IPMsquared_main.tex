@@ -240,16 +240,16 @@ The conditional probability of capture, $p^C_{t,j,y}(x)$, is then $H_{t,j,y}(x)/
 
 \subsubsection*{Size-at-age observation process (D2)}
 
-The size-at-age data, $W_{z,y}(a)$, indicate the carapace width of crab $z$ at age $a$ in year $y$. Since the age of the crabs in this dataset are recorded, unlike the time series dataset (D1), the unmodified seasonal growth equation is used that relates the theoretical age of the crab when it is of size 0, $d_0$, to the expected size of a crab at age $a$, $\widetilde{W_y(a)}$ (Equation 3). A normally distributed error term, $\epsilon$, is used to account for non-independence among data collected in the same year, since growth rate is likely affected by water temperature, which varies from year-to-year.
+The size-at-age data, $W_{z,u}(a)$, indicate the carapace width of crab $z$ at age $a$ in year $u$. Since the age of the crabs in this dataset are recorded, unlike the time series dataset (D1), the unmodified seasonal growth equation is used that relates the theoretical age of the crab when it is of size 0, $d_0$, to the expected size of a crab at age $a$, $\widetilde{W_u(a)}$ (Equation 3). A normally distributed error term, $\epsilon_u$, is used to account for non-independence among data collected in the same year, since growth rate is likely affected by water temperature, which varies from year-to-year.
 
 \begin{equation}
-\widetilde{W_y(a)} = x_{\infty}(1-\text{exp}(-k(a-d_0) - s(a) + s(d_0))) + \epsilon
+\widetilde{W_u(a)} = x_{\infty}(1-\text{exp}(-k(a-d_0) - s(a) + s(d_0))) + \epsilon_u
 \end{equation}
 
-To account for variation in growth rate, the observed size-at-age data, $W_{z,y}(a)$, follow a normal distribution, with the expected carapace width $\widetilde{W_y(a)}$, and standard deviation, $\sigma_{w}$.
+To account for variation in growth rate, the observed size-at-age data, $W_{z,u}(a)$, follow a normal distribution, with the expected carapace width $\widetilde{W_u(a)}$, and standard deviation, $\sigma_{w}$.
 
 \begin{equation}
-W_{z,y}(a) \sim \text{Normal}(\widetilde{W_y(a)}, \sigma_{w})
+W_{z,u}(a) \sim \text{Normal}(\widetilde{W_u(a)}, \sigma_{w})
 \end{equation}
 
 \subsubsection*{Mark-recapture observation process (D3)}
@@ -399,7 +399,7 @@ Embedding this size-structured model within a decision-making framework, however
  \hline
  $\sigma_w$ & Standard deviation of normally-distributed error term to account for heterogeneity in individual growth rates in the size-at-age data. & Growth \\ 
  \hline
- $\sigma_y$ & Standard deviation of normally-distributed error term to account for non-independence among size-at-age data collected in the same year. & Growth \\ 
+ $\sigma_u$ & Standard deviation of normally-distributed error term to account for non-independence among size-at-age data collected in the same year. & Growth \\ 
  \hline
  $\beta$ & Intensity of size-independent natural mortality (not in winter months). & N. mort \\ 
  \hline
@@ -447,7 +447,7 @@ Embedding this size-structured model within a decision-making framework, however
  \hline
  $O_{t,y}$ & Number of observations (traps) in time $t$, in year $y$ in the multi-year time-series dataset (D1). & - \\
  \hline
- $W_{z, y}(a)$ & Size of crab $z$, of age $a$, during year $y$ in the size-at-age dataset (D2). & - \\
+ $W_{z, u}(a)$ & Size of crab $z$, of age $a$, during year $u$ in the size-at-age dataset (D2). & - \\
  \hline
  $m^{\text{mc}}_t(x_i)$ & Number of marked and released crabs of discrete size $x_i$ at time $t$ in the mark-recapture dataset (D3). & - \\
  \hline

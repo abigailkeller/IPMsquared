@@ -276,7 +276,7 @@ model_code <- nimbleCode({
   
   for(y in 1:n_growth_years){
     
-    growth_ranef[y] ~ dnorm(0, sd = sigma_y)
+    growth_ranef[y] ~ dnorm(0, sd = sigma_u)
     
   }
   
@@ -299,7 +299,7 @@ model_code <- nimbleCode({
   # process error sd
   sigma_w ~ dunif(0, 100)
   # year random effect sd
-  sigma_y ~ dunif(0, 100)
+  sigma_u ~ dunif(0, 100)
   # asymptotic size
   xinf ~ dunif(70, 140)
   # growth error

@@ -251,7 +251,7 @@ model_code <- nimbleCode({
   
   for (y in 1:n_growth_years) {
     
-    growth_ranef[y] ~ dnorm(0, sd = sigma_y)
+    growth_ranef[y] ~ dnorm(0, sd = sigma_u)
     
   }
   
@@ -336,7 +336,7 @@ model_code <- nimbleCode({
   # process error sd
   sigma_w ~ dunif(0, 100)
   # year random effect sd
-  sigma_y ~ dunif(0, 100)
+  sigma_u ~ dunif(0, 100)
   # asymptotic size
   xinf ~ dunif(70, 140)
   # growth error
@@ -517,7 +517,7 @@ inits <- function() {
     sigma_lambda = 0.3, beta = 0.001,
     alpha_o = 0.0308, N_overwinter = N_overwinter,
     d0 = runif(1, -0.5, 0), sigma_w = runif(1, 0.01, 1), 
-    sigma_y = runif(1, 0.01, 1),
+    sigma_u = runif(1, 0.01, 1),
     growth_ranef = runif(length(unique(growth_data$year_index)), 0, 1)
   )
 }
@@ -815,7 +815,7 @@ out <- clusterEvalQ(cl, {
                  "lambda_R", "lambda_A", "beta", "alpha_o",
                  "alpha", "eps_y", "sigma_o", "N_overwinter",
                  "wgrowth_N_sum", "ro_dir", "C_T", 
-                 "d0", "sigma_w", "sigma_y", "growth_ranef"),
+                 "d0", "sigma_w", "sigma_u", "growth_ranef"),
     useConjugacy = FALSE, enableWAIC = TRUE)
 
   # build MCMC
