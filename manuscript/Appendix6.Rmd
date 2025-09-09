@@ -246,7 +246,7 @@ Integrated population models assume that the same population process underlies a
 
 The mark-recapture data set (D3) was critical for inferring the trap hazard rates. The model described in the main text was fit using data from Roche Cove on Vancouver Island in British Columbia, Canada. Roche Cove is similar to Drayton Harbor, where the multi-year time series data (D1) was collected. Both sites have shallow, open tide flats and creeks that drain in the bay with similar estuary mouth habitats.
 
-Another available mark-recapture data set is from Seadrift Lagoon in California, USA, taken from Grosholz et al. 2021, where the co-authors conducted an extensive capture-mark-recapture experiment to estimate green crab population size [@grosholz2021stage]. While the same Fukui traps were employed at Seadrift Lagoon as in Drayton Harbor and Roche Cove, the lagoon is small and man-made. The lagoon is so contained that both intra- and interspecies dynamics are likely different than expected in a more natural embayment. To test model assumptions and the sensitivity of our results to the choice of dataset, we fit the same model described in the main text, while replacing the Roche Cove mark-recapture data (D3) with the Seadrift Lagoon mark-recapture data. More details on the data and updated model can be found below in Appendix 6.3.1.
+Another available mark-recapture data set is from Seadrift Lagoon in California, USA, taken from Grosholz et al. (2021), where the co-authors conducted an extensive capture-mark-recapture experiment to estimate green crab population size [@grosholz2021stage]. While the same Fukui traps were employed at Seadrift Lagoon as in Drayton Harbor and Roche Cove, the lagoon is small and man-made. The lagoon is so contained that both intra- and interspecies dynamics are likely different than expected in a more natural embayment. To test model assumptions and the sensitivity of our results to the choice of dataset, we fit the same model described in the main text, while replacing the Roche Cove mark-recapture data (D3) with the Seadrift Lagoon mark-recapture data. More details on the data and updated model can be found below in Appendix 6.3.1.
 
 ```{r, echo = FALSE, results = "hide"}
 # read in samples
@@ -389,7 +389,7 @@ knitr::include_graphics(
 )
 ```
 
-A Bayesian p-value of 0.5 would suggest an unbiased model. The p-values calculated with both discrepancy criteria with the Seadrift Lagoon data is farther from 0.5 than the p-values calculated with the Roche Cove data. We therefore conclude that the data-generating process at Drayton Harbor (D1) is more similar to the data-generating process at Roche Cove than Seadrift Lagoon, suggesting that the inference based on inclusion of the Roche Cove mark-recapture data is relatively less biased.
+These Bayesian p-values are similar generated with the model fit with Roche Cove dataset (D3) and both suggest reasonable model fits. Although the inclusion of the Seadrift lagoon data did not qualitatively change the results, inference on some parameters, like $h_F^\text{max}$, did change moderately quantitatively. While posterior predictive checks may be useful for broadly understanding if multiple datasets reflect the same data-generating process, selecting datasets for an integrated population model may be limited to judgemetns about habitat similarity. 
 
 ### Appendix 6.3.1: Seadrift Lagoon mark-recapture data
 
