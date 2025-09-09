@@ -414,7 +414,7 @@ $$
 These data also informed components of the growth and natural mortality kernel (Table 1; Figure 2). The number of marked and released crabs, $n^{\text{mc}}(x_i)$, at $t_1^{\text{mc}}$ underwent seasonal growth and natural mortality to the next time period, $t_2^{\text{mc}}$.
 
 $$
-n^{\text{mc}}_{t_2}(x') = \int_{x \in \Omega} K^{mc}(x',x) n^{\text{mc}}_{t_1}(x)dx
+n^{\text{mc}}_{t_2}(x') = \int_{x \in \Omega} K^{\text{mc}}(x',x) n^{\text{mc}}_{t_1}(x)dx
 $$
 
 
